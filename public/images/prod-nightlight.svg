@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <defs>
+    <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFDE7"/>
+      <stop offset="70%" stop-color="#FFF9C4"/>
+      <stop offset="100%" stop-color="#FFE082"/>
+    </radialGradient>
+  </defs>
+  <rect width="300" height="300" rx="16" fill="#FDFBF7"/>
+  <!-- Luna Glow Nightlight -->
+  <g transform="translate(75, 45)">
+    <!-- Wooden geometric base -->
+    <polygon points="75,200 40,165 55,160 75,175 95,160 110,165" fill="#BCAAA4"/>
+    <polygon points="75,200 55,160 75,175" fill="#A1887F"/>
+    <polygon points="75,200 95,160 75,175" fill="#8D6E63"/>
+    <!-- Glowing 3D Moon Sphere -->
+    <circle cx="75" cy="110" r="55" fill="url(#glowGrad)" stroke="#FFE082" stroke-width="2"/>
+    <!-- Moon Craters -->
+    <circle cx="55" cy="95" r="8" fill="#FFF176" opacity="0.6"/>
+    <circle cx="90" cy="120" r="12" fill="#FFF176" opacity="0.6"/>
+    <circle cx="65" cy="135" r="6" fill="#FFF176" opacity="0.6"/>
+  </g>
+</svg>

@@ -1,0 +1,195 @@
+import type { Product, CategoryCircleItem, TrustItem } from "@/types";
+
+export const CATEGORY_CIRCLES: CategoryCircleItem[] = [
+  {
+    id: "cat-1",
+    name: "Educational Toys",
+    slug: "educational-toys",
+    imageUrl: "/images/cat-educational.svg",
+  },
+  {
+    id: "cat-2",
+    name: "Smart Gadgets",
+    slug: "smart-gadgets",
+    imageUrl: "/images/cat-smart-gadgets.svg",
+  },
+  {
+    id: "cat-3",
+    name: "Baby & Kids",
+    slug: "baby-kids",
+    imageUrl: "/images/cat-baby-kids.svg",
+  },
+  {
+    id: "cat-4",
+    name: "Home Decor",
+    slug: "home-decor",
+    imageUrl: "/images/cat-home-decor.svg",
+  },
+  {
+    id: "cat-5",
+    name: "Outdoor & Play",
+    slug: "outdoor-play",
+    imageUrl: "/images/cat-outdoor-play.svg",
+  },
+  {
+    id: "cat-6",
+    name: "Arts & Crafts",
+    slug: "arts-crafts",
+    imageUrl: "/images/cat-arts-crafts.svg",
+  },
+  {
+    id: "cat-7",
+    name: "Puzzles & Games",
+    slug: "puzzles-games",
+    imageUrl: "/images/cat-puzzles-games.svg",
+  },
+  {
+    id: "cat-8",
+    name: "All Categories",
+    slug: "all",
+    imageUrl: "/images/cat-all-categories.svg",
+  },
+];
+
+export const TRUST_ITEMS: TrustItem[] = [
+  {
+    icon: "gem",
+    title: "Curated with Care",
+    description: "Handpicked quality products for your loved ones",
+  },
+  {
+    icon: "shield",
+    title: "Safe & Certified",
+    description: "All products are child-safe and quality tested",
+  },
+  {
+    icon: "truck",
+    title: "Fast Delivery",
+    description: "Quick delivery to your doorstep",
+  },
+  {
+    icon: "rotate",
+    title: "Hassle Free Returns",
+    description: "30 days easy return policy",
+  },
+];
+
+export const FEATURED_PRODUCTS: Product[] = [
+  {
+    id: "fp-1",
+    title: "Interactive Smart Globe",
+    slug: "interactive-smart-globe",
+    category: "Educational",
+    price: 1450,
+    rating: 4.8,
+    reviewCount: 128,
+    imageUrl: "/images/prod-smart-globe.svg",
+    badge: "Bestseller",
+  },
+  {
+    id: "fp-2",
+    title: "Montessori Pastel Blocks",
+    slug: "montessori-pastel-blocks",
+    category: "Toys & Learning",
+    price: 950,
+    rating: 4.9,
+    reviewCount: 95,
+    imageUrl: "/images/prod-montessori-blocks.svg",
+    badge: "New",
+  },
+  {
+    id: "fp-3",
+    title: "RoboCode Companion",
+    slug: "robocode-companion",
+    category: "Smart Gadgets",
+    price: 2350,
+    rating: 4.9,
+    reviewCount: 210,
+    imageUrl: "/images/prod-robocode.svg",
+    badge: "Bestseller",
+  },
+  {
+    id: "fp-4",
+    title: "Mirai Smartwatch Kids",
+    slug: "mirai-smartwatch-kids",
+    category: "Wearables",
+    price: 2050,
+    rating: 4.8,
+    reviewCount: 112,
+    imageUrl: "/images/prod-smartwatch.svg",
+    badge: "New",
+  },
+  {
+    id: "fp-5",
+    title: "Interactive Learner Pad",
+    slug: "interactive-learner-pad",
+    category: "Kids Learning",
+    price: 1400,
+    compareAtPrice: 1650,
+    rating: 4.5,
+    reviewCount: 89,
+    imageUrl: "/images/prod-learner-pad.svg",
+    badge: "-15%",
+  },
+];
+
+export const TOP_PICKS_PRODUCTS: Product[] = [
+  {
+    id: "tp-1",
+    title: "Cloud Floating Shelf",
+    slug: "cloud-floating-shelf",
+    category: "Home Decor",
+    price: 1250,
+    rating: 4.6,
+    reviewCount: 38,
+    imageUrl: "/images/prod-cloud-shelf.svg",
+  },
+  {
+    id: "tp-2",
+    title: "Luna Glow Nightlight",
+    slug: "luna-glow-nightlight",
+    category: "Home & Living",
+    price: 1150,
+    rating: 4.7,
+    reviewCount: 42,
+    imageUrl: "/images/prod-nightlight.svg",
+  },
+  {
+    id: "tp-3",
+    title: "Geometric Wall Art Set",
+    slug: "geometric-wall-art-set",
+    category: "Home Decor",
+    price: 1890,
+    rating: 4.9,
+    reviewCount: 56,
+    imageUrl: "/images/prod-wall-art.svg",
+  },
+  {
+    id: "tp-4",
+    title: "Nova Desk Lamp",
+    slug: "nova-desk-lamp",
+    category: "Smart Lighting",
+    price: 1750,
+    rating: 4.8,
+    reviewCount: 24,
+    imageUrl: "/images/prod-desk-lamp.svg",
+  },
+  {
+    id: "tp-5",
+    title: "Art & Craft Mega Kit",
+    slug: "art-craft-mega-kit",
+    category: "Arts & Crafts",
+    price: 1650,
+    rating: 4.8,
+    reviewCount: 67,
+    imageUrl: "/images/prod-craft-kit.svg",
+  },
+];
+
+export const BRAND_LOGOS = [
+  { name: "Fisher-Price", text: "Fisher-Price" },
+  { name: "vtech", text: "vtech" },
+  { name: "Melissa & Doug", text: "Melissa & Doug" },
+  { name: "mideer", text: "mideer" },
+  { name: "winfun", text: "winfun" },
+];

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <radialGradient id="bgLight" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFF3E0"/>
+      <stop offset="100%" stop-color="#FFE0B2"/>
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="50" r="46" fill="url(#bgLight)"/>
+  <!-- Baby Bottle -->
+  <path d="M42 22 Q50 14 58 22 L55 30 L45 30 Z" fill="#FFA726"/>
+  <rect x="40" y="30" width="20" height="8" rx="3" fill="#FCE35F"/>
+  <rect x="36" y="38" width="28" height="42" rx="10" fill="#FFFFFF" stroke="#FFCC80" stroke-width="2"/>
+  <line x1="42" y1="50" x2="48" y2="50" stroke="#FFA726" stroke-width="2"/>
+  <line x1="42" y1="58" x2="52" y2="58" stroke="#FFA726" stroke-width="2"/>
+  <line x1="42" y1="66" x2="48" y2="66" stroke="#FFA726" stroke-width="2"/>
+</svg>

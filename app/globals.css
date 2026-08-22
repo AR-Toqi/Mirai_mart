@@ -1,26 +1,84 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* Typography */
+  --font-heading: "Baloo 2", cursive, sans-serif;
+  --font-sans: "DM Sans", sans-serif;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Brand Primary */
+  --color-primary: #0a98c3;
+  --color-primary-light: #71d7f6;
+  --color-primary-surface: #bee9ff;
+  --color-primary-foreground: #ffffff;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Brand Secondary */
+  --color-secondary: #fce35f;
+  --color-secondary-light: #ffe680;
+  --color-secondary-surface: #fff3b3;
+  --color-secondary-foreground: #191c1e;
+
+  /* Brand Tertiary */
+  --color-tertiary: #007ea3;
+  --color-tertiary-light: #4cb3c9;
+  --color-tertiary-surface: #b3ebff;
+  --color-tertiary-foreground: #ffffff;
+
+  /* Neutrals */
+  --color-neutral-dark: #191c1e;
+  --color-neutral-muted: #6e797f;
+  --color-neutral-border: #e7e8eb;
+  --color-neutral-bg: #f8f9fc;
+  --color-surface: #ffffff;
+
+  /* Semantic Feedback */
+  --color-success: #22c55e;
+  --color-success-light: #dcfce7;
+  --color-success-surface: #f0fdf4;
+  --color-success-foreground: #15803d;
+
+  --color-error: #ef4444;
+  --color-error-light: #fee2e2;
+  --color-error-surface: #fef2f2;
+  --color-error-foreground: #b91c1c;
+
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-warning-surface: #fffbeb;
+  --color-warning-foreground: #b45309;
+
+  /* Admin Theme Tokens */
+  --color-admin-sidebar: #191c1e;
+  --color-admin-sidebar-hover: #262a2d;
+  --color-admin-sidebar-active: #0a98c3;
+  --color-admin-card: #ffffff;
+
+  /* Border Radii */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0px 8px 24px rgba(0, 0, 0, 0.10);
+  --shadow-xl: 0px 20px 40px rgba(0, 0, 0, 0.12);
+
+  /* Spacing Grid (8px Base) */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-neutral-bg);
+  color: var(--color-neutral-dark);
+  font-family: var(--font-sans);
 }

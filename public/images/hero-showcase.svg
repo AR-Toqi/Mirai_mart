@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 460" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E1F5FE"/>
+      <stop offset="60%" stop-color="#F1F8FE"/>
+      <stop offset="100%" stop-color="#FFEBB2"/>
+    </linearGradient>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="15" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <rect width="700" height="460" rx="30" fill="url(#bgGrad)"/>
+  
+  <!-- Sunbeams / Background Sparkles -->
+  <circle cx="560" cy="80" r="70" fill="#FFF9C4" opacity="0.6"/>
+  <circle cx="620" cy="180" r="14" fill="#FCE35F" opacity="0.7"/>
+  <circle cx="120" cy="90" r="8" fill="#71D7F6" opacity="0.6"/>
+
+  <!-- Wooden Blocks Floor Display -->
+  <g transform="translate(280, 240)">
+    <!-- Train Base & Blocks -->
+    <rect x="20" y="90" width="85" height="45" rx="10" fill="#0A98C3"/>
+    <circle cx="45" cy="140" r="14" fill="#191C1E"/>
+    <circle cx="85" cy="140" r="14" fill="#191C1E"/>
+    <circle cx="45" cy="140" r="6" fill="#FCE35F"/>
+    <circle cx="85" cy="140" r="6" fill="#FCE35F"/>
+
+    <rect x="115" y="100" width="70" height="35" rx="8" fill="#FCE35F"/>
+    <circle cx="135" cy="140" r="14" fill="#191C1E"/>
+    <circle cx="170" cy="140" r="14" fill="#191C1E"/>
+
+    <rect x="195" y="105" width="70" height="30" rx="8" fill="#22C55E"/>
+    <circle cx="215" cy="140" r="14" fill="#191C1E"/>
+    <circle cx="250" cy="140" r="14" fill="#191C1E"/>
+
+    <!-- Colorful Castle Blocks -->
+    <rect x="40" y="45" width="45" height="45" rx="6" fill="#FF8A80"/>
+    <polygon points="62,10 35,45 90,45" fill="#FFD54F"/>
+    <rect x="130" y="65" width="40" height="35" rx="6" fill="#80D8FF"/>
+    <polygon points="150,35 125,65 175,65" fill="#B388FF"/>
+  </g>
+
+  <!-- Happy Child Silhouette/Illustration playing -->
+  <g transform="translate(190, 80)">
+    <!-- Soft shadow -->
+    <ellipse cx="140" cy="280" rx="90" ry="20" fill="#000" opacity="0.08"/>
+    <!-- Body & Shirt -->
+    <path d="M90 190 Q140 160 190 190 L175 270 L105 270 Z" fill="#FFE082"/>
+    <!-- Head -->
+    <circle cx="140" cy="130" r="48" fill="#FFCCBC"/>
+    <!-- Hair -->
+    <path d="M96 125 Q100 80 140 75 Q180 80 184 125 Q165 95 140 95 Q115 95 96 125 Z" fill="#4E342E"/>
+    <!-- Face details -->
+    <circle cx="126" cy="132" r="4" fill="#3E2723"/>
+    <circle cx="154" cy="132" r="4" fill="#3E2723"/>
+    <path d="M133 148 Q140 156 147 148" stroke="#D84315" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="118" cy="142" r="7" fill="#FF8A80" opacity="0.4"/>
+    <circle cx="162" cy="142" r="7" fill="#FF8A80" opacity="0.4"/>
+    <!-- Arms -->
+    <path d="M100 190 Q60 220 100 245" stroke="#FFCCBC" stroke-width="16" stroke-linecap="round" fill="none"/>
+    <path d="M180 190 Q220 220 180 245" stroke="#FFCCBC" stroke-width="16" stroke-linecap="round" fill="none"/>
+  </g>
+
+  <!-- Cute White Smart Companion Robot -->
+  <g transform="translate(480, 200)">
+    <ellipse cx="60" cy="170" rx="50" ry="14" fill="#000" opacity="0.1"/>
+    <!-- Body -->
+    <rect x="20" y="80" width="80" height="75" rx="30" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>
+    <circle cx="60" cy="115" r="16" fill="#0A98C3"/>
+    <circle cx="60" cy="115" r="8" fill="#BEE9FF"/>
+    <!-- Head -->
+    <rect x="15" y="15" width="90" height="60" rx="22" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>
+    <!-- Screen Face -->
+    <rect x="25" y="24" width="70" height="42" rx="14" fill="#191C1E"/>
+    <!-- Glowing Cyan Eyes -->
+    <ellipse cx="44" cy="45" rx="8" ry="6" fill="#71D7F6" filter="url(#softGlow)"/>
+    <ellipse cx="76" cy="45" rx="8" ry="6" fill="#71D7F6" filter="url(#softGlow)"/>
+    <!-- Antenna -->
+    <circle cx="60" cy="8" r="5" fill="#FCE35F"/>
+    <line x1="60" y1="13" x2="60" y2="17" stroke="#90A4AE" stroke-width="3"/>
+  </g>
+</svg>

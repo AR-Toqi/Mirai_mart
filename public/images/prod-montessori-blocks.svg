@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <rect width="300" height="300" rx="16" fill="#FBF9F6"/>
+  <!-- Montessori Pastel Wooden Building Blocks Stack -->
+  <g transform="translate(45, 60)">
+    <!-- Base Cylinders & Rectangles -->
+    <rect x="20" y="140" width="60" height="35" rx="6" fill="#B2DFDB"/>
+    <rect x="85" y="140" width="45" height="35" rx="6" fill="#FFCCBC"/>
+    <rect x="135" y="140" width="60" height="35" rx="6" fill="#FFE082"/>
+
+    <!-- Mid Layer -->
+    <rect x="40" y="95" width="45" height="40" rx="6" fill="#CE93D8"/>
+    <path d="M90 135 A25 25 0 0 1 140 135 Z" fill="#90CAF9"/>
+
+    <!-- Top Triangle / Arch -->
+    <polygon points="62,55 35,90 90,90" fill="#FFAB91"/>
+    <rect x="110" y="65" width="30" height="30" rx="6" fill="#A5D6A7"/>
+    <circle cx="125" cy="50" r="14" fill="#FFF59D"/>
+  </g>
+</svg>

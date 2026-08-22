@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bandGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#80D8FF"/>
+      <stop offset="100%" stop-color="#00B0FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="300" rx="16" fill="#F3F9FC"/>
+  <!-- Multi-colored kids smartwatches lined up -->
+  <g transform="translate(100, 35)">
+    <!-- Main Watch Strap -->
+    <rect x="30" y="20" width="40" height="190" rx="14" fill="url(#bandGrad)"/>
+    <!-- Watch Case -->
+    <rect x="15" y="65" width="70" height="80" rx="20" fill="#191C1E" stroke="#71D7F6" stroke-width="3"/>
+    <!-- Bright Display -->
+    <rect x="23" y="73" width="54" height="64" rx="12" fill="#0A98C3"/>
+    <!-- UI Time & Heart Icon -->
+    <text x="50" y="105" fill="#FFFFFF" font-size="16" font-family="sans-serif" font-weight="bold" text-anchor="middle">10:24</text>
+    <circle cx="50" cy="122" r="5" fill="#FF5252"/>
+    <!-- Side Camera / Button -->
+    <rect x="85" y="92" width="6" height="20" rx="3" fill="#FCE35F"/>
+  </g>
+</svg>

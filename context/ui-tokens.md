@@ -1,30 +1,36 @@
 # UI Tokens
 
-Design tokens for Mirai Mart. All colors, typography, spacing, and component values extracted from the approved e-commerce design system. Use these exact token values throughout the codebase — never hardcode raw hex values or use unconfigured Tailwind color scales in components.
+Design tokens for Mirai Mart. All colors, typography, spacing, shadows, border radii, and component values extracted directly from the approved design system image (`context/design/Mirai-mart_design-system.png`). Use these exact token values throughout the codebase — never hardcode raw hex values or use unconfigured Tailwind color scales.
 
 ---
 
 ## How to Use
 
-This project uses **Tailwind CSS v4**. All design tokens are defined using the `@theme` directive in `app/globals.css`. No `tailwind.config.ts` needed for colors or tokens.
+This project uses **Tailwind CSS v4**. All design tokens are defined using the `@theme` directive in `app/globals.css`.
 
 Tailwind v4 automatically generates utility classes from `@theme` variables:
 
 - `--color-primary` → `bg-primary`, `text-primary`, `border-primary`
-- `--color-accent` → `bg-accent`, `text-accent`, `border-accent`
-- `--color-surface` → `bg-surface`, `text-surface`, `border-surface`
+- `--color-primary-light` → `bg-primary-light`, `text-primary-light`
+- `--color-primary-surface` → `bg-primary-surface`, `text-primary-surface`
+- `--color-secondary` → `bg-secondary`, `text-secondary`, `border-secondary`
+- `--color-tertiary` → `bg-tertiary`, `text-tertiary`, `border-tertiary`
+- `--color-neutral-dark` → `text-neutral-dark`, `bg-neutral-dark`
+- `--color-neutral-muted` → `text-neutral-muted`
+- `--color-neutral-border` → `border-neutral-border`
+- `--color-neutral-bg` → `bg-neutral-bg`
 
 ```tsx
 // Correct — uses generated utility classes from @theme
-className="bg-surface text-text-primary border-border rounded-2xl shadow-sm"
+className="bg-surface text-neutral-dark border-neutral-border rounded-xl shadow-sm"
 
 // Also correct — references CSS variable directly
 style={{ color: 'var(--color-primary)' }}
 
 // Never — hardcoded arbitrary hex values
-className="bg-[#FCE35F] text-[#0284C7]"
+className="bg-[#0A98C3] text-[#191C1E]"
 
-// Never — generic Tailwind default colors
+// Never — generic unconfigured Tailwind default colors
 className="bg-purple-500 text-gray-600"
 ```
 
@@ -40,66 +46,51 @@ className="bg-purple-500 text-gray-600"
   --font-heading: "Baloo 2", cursive, sans-serif;
   --font-sans: "DM Sans", sans-serif;
 
-  /* Surfaces & Canvas */
-  --color-background: #f8fafc;
-  --color-surface: #ffffff;
-  --color-surface-secondary: #f1f5f9;
-  --color-surface-tertiary: #e2e8f0;
-  --color-surface-muted: #f8fafc;
-  --color-surface-dark: #191c1e;
-
-  /* Borders & Dividers */
-  --color-border: #e2e8f0;
-  --color-border-light: #f1f5f9;
-  --color-border-muted: #cbd5e1;
-  --color-border-dark: #334155;
-
-  /* Text & Content */
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #475569;
-  --color-text-muted: #64748b;
-  --color-text-light: #94a3b8;
-  --color-text-white: #ffffff;
-
-  /* Brand Primary — Sky Blue */
-  --color-primary: #0284c7;
-  --color-primary-dark: #0369a1;
-  --color-primary-light: #e0f2fe;
-  --color-primary-muted: #f0f9ff;
+  /* Brand Primary */
+  --color-primary: #0a98c3;
+  --color-primary-light: #71d7f6;
+  --color-primary-surface: #bee9ff;
   --color-primary-foreground: #ffffff;
 
-  /* Brand Accent — Sunny Yellow */
-  --color-accent: #fce35f;
-  --color-accent-dark: #facc15;
-  --color-accent-light: #fef9c3;
-  --color-accent-muted: #fffbeb;
-  --color-accent-foreground: #0f172a;
+  /* Brand Secondary */
+  --color-secondary: #fce35f;
+  --color-secondary-light: #ffe680;
+  --color-secondary-surface: #fff3b3;
+  --color-secondary-foreground: #191c1e;
 
-  /* Semantic Feedback — Success & In-Stock */
-  --color-success: #10b981;
-  --color-success-dark: #059669;
-  --color-success-light: #d1fae5;
-  --color-success-muted: #ecfdf5;
-  --color-success-foreground: #065f46;
+  /* Brand Tertiary */
+  --color-tertiary: #007ea3;
+  --color-tertiary-light: #4cb3c9;
+  --color-tertiary-surface: #b3ebff;
+  --color-tertiary-foreground: #ffffff;
 
-  /* Semantic Feedback — Warning & Low Stock */
+  /* Neutrals */
+  --color-neutral-dark: #191c1e;
+  --color-neutral-muted: #6e797f;
+  --color-neutral-border: #e7e8eb;
+  --color-neutral-bg: #f8f9fc;
+  --color-surface: #ffffff;
+
+  /* Semantic Feedback */
+  --color-success: #22c55e;
+  --color-success-light: #dcfce7;
+  --color-success-surface: #f0fdf4;
+  --color-success-foreground: #15803d;
+
+  --color-error: #ef4444;
+  --color-error-light: #fee2e2;
+  --color-error-surface: #fef2f2;
+  --color-error-foreground: #b91c1c;
+
   --color-warning: #f59e0b;
-  --color-warning-dark: #d97706;
   --color-warning-light: #fef3c7;
-  --color-warning-muted: #fffbeb;
-  --color-warning-foreground: #92400e;
-
-  /* Semantic Feedback — Destructive & Out-of-Stock */
-  --color-destructive: #ef4444;
-  --color-destructive-dark: #dc2626;
-  --color-destructive-light: #fee2e2;
-  --color-destructive-muted: #fef2f2;
-  --color-destructive-foreground: #991b1b;
+  --color-warning-surface: #fffbeb;
+  --color-warning-foreground: #b45309;
 
   /* Admin Theme Tokens */
   --color-admin-sidebar: #191c1e;
-  --color-admin-sidebar-hover: #26292c;
-  --color-admin-sidebar-active: #0284c7;
+  --color-admin-sidebar-hover: #262a2d;
+  --color-admin-sidebar-active: #0a98c3;
   --color-admin-card: #ffffff;
 
   /* Border Radii */
@@ -107,174 +98,175 @@ className="bg-purple-500 text-gray-600"
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
-  --radius-2xl: 20px;
+  --radius-2xl: 24px;
   --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0px 8px 24px rgba(0, 0, 0, 0.10);
+  --shadow-xl: 0px 20px 40px rgba(0, 0, 0, 0.12);
+
+  /* Spacing Grid (8px Base) */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
 }
 ```
 
 ---
 
-## Color Usage Guide
+## Color Tokens Breakdown
 
-### Page Layout
+### Brand Primary (`#0A98C3`)
+| Token Class | Variable | Hex Value | Usage |
+| --- | --- | --- | --- |
+| `bg-primary` / `text-primary` | `--color-primary` | `#0A98C3` | Primary buttons, active highlights, icons |
+| `bg-primary-light` | `--color-primary-light` | `#71D7F6` | Secondary accents, interactive hover highlights |
+| `bg-primary-surface` | `--color-primary-surface` | `#BEE9FF` | Secondary button background, cart icon button bg, Best Seller badge bg |
 
-| Element | Token Class | Hex Value |
-| --- | --- | --- |
-| Page Canvas | `bg-background` | `#F8FAFC` |
-| Main Cards / Drawers | `bg-surface` | `#FFFFFF` |
-| Secondary Panels / Dropdowns | `bg-surface-secondary` | `#F1F5F9` |
-| Default Border | `border-border` | `#E2E8F0` |
-| Announcement Bar | `bg-accent` | `#FCE35F` |
-| Admin Navigation Shell | `bg-admin-sidebar` | `#191C1E` |
+### Brand Secondary (`#FCE35F`)
+| Token Class | Variable | Hex Value | Usage |
+| --- | --- | --- | --- |
+| `bg-secondary` / `text-secondary` | `--color-secondary` | `#FCE35F` | Accent buttons, announcement bar, brand logo dot, -20% badges |
+| `bg-secondary-light` | `--color-secondary-light` | `#FFE680` | Subtle promo banner backgrounds |
+| `bg-secondary-surface` | `--color-secondary-surface` | `#FFF3B3` | Light warm alert containers, soft promo chips |
 
-### Typography
+### Brand Tertiary (`#007EA3`)
+| Token Class | Variable | Hex Value | Usage |
+| --- | --- | --- | --- |
+| `bg-tertiary` / `text-tertiary` | `--color-tertiary` | `#007EA3` | Secondary button text, Exclusive badge text, deep accents |
+| `bg-tertiary-light` | `--color-tertiary-light` | `#4CB3C9` | Tech spec accents, secondary graph indicators |
+| `bg-tertiary-surface` | `--color-tertiary-surface` | `#B3EBFF` | Exclusive badge background, info pill tints |
 
-| Element | Token Class | Hex Value |
-| --- | --- | --- |
-| Headings, Baloo 2 titles | `text-text-primary` | `#0F172A` |
-| Body copy, descriptions | `text-text-secondary` | `#475569` |
-| Curator notes, timestamps, labels | `text-text-muted` | `#64748B` |
-| Placeholders, disabled text | `text-text-light` | `#94A3B8` |
-| Inverted text on Sky Blue buttons | `text-primary-foreground` | `#FFFFFF` |
-| Text on Sunny Yellow banners | `text-accent-foreground` | `#0F172A` |
+### Neutrals
+| Token Class | Variable | Hex Value | Usage |
+| --- | --- | --- | --- |
+| `text-neutral-dark` / `bg-neutral-dark` | `--color-neutral-dark` | `#191C1E` | Primary headlines, main body text, accent button text, admin sidebar |
+| `text-neutral-muted` | `--color-neutral-muted` | `#6E797F` | Subtitles, categories, placeholders, metadata |
+| `border-neutral-border` | `--color-neutral-border` | `#E7E8EB` | Input borders, card borders, dividers |
+| `bg-neutral-bg` | `--color-neutral-bg` | `#F8F9FC` | Storefront main canvas background |
+| `bg-surface` | `--color-surface` | `#FFFFFF` | Cards, panels, modals, dropdowns |
 
-### Brand Sky Blue (`--primary`)
-
-Used for: Primary CTAs, active age filter chips, category highlights, links, search focus rings.
-
-| Element | Token Class |
-| --- | --- |
-| Primary Button background | `bg-primary` (hover: `bg-primary-dark`) |
-| Primary Button text | `text-primary-foreground` |
-| Light badge background | `bg-primary-light` |
-| Subtle hover background | `bg-primary-muted` |
-| Active Pill border | `border-primary` |
-
-### Brand Sunny Yellow (`--accent`)
-
-Used for: Top announcement promo bar, brand logo dot, bestseller pill badges, discount percentage tags.
-
-| Element | Token Class |
-| --- | --- |
-| Announcement bar background | `bg-accent` |
-| Announcement bar text | `text-accent-foreground` |
-| Bestseller badge background | `bg-accent` |
-| Promo discount banner | `bg-accent-light text-accent-foreground` |
+### Semantic Feedback
+| Token Class | Variable | Hex Value | Usage |
+| --- | --- | --- | --- |
+| `bg-success` / `text-success` | `--color-success` | `#22C55E` | In-stock indicator, success alerts, New badge |
+| `bg-error` / `text-error` | `--color-error` | `#EF4444` | Out of stock, error alerts, Sale badge |
+| `bg-warning` / `text-warning` | `--color-warning` | `#F59E0B` | Low stock warning, limited edition alert |
 
 ---
 
-## Product Badges & Chips
+## Typography Scale
 
-### Product Pill Badges
+Strict dual font pairing: **Baloo 2** for Headings and **DM Sans** for Body & UI.
 
-| Badge Type | Background Class | Text Class |
-| --- | --- | --- |
-| **Bestseller** | `bg-accent` | `text-accent-foreground font-bold` |
-| **New** | `bg-primary-light` | `text-primary font-bold` |
-| **Sale / Discount** | `bg-destructive-light` | `text-destructive font-bold` |
-| **Curator's Pick** | `bg-success-light` | `text-success-foreground font-bold` |
-
-### Age Range Chips
-
-| State | Container Style |
-| --- | --- |
-| **Inactive / Default** | `bg-surface border border-border text-text-secondary hover:border-primary` |
-| **Active / Selected** | `bg-primary text-primary-foreground border-primary shadow-sm` |
-
-### Order & Payment Status Badges
-
-| Status | Background Token | Text Token |
-| --- | --- | --- |
-| **Pending / Processing** | `bg-warning-light` | `text-warning-foreground` |
-| **Packed / In Transit** | `bg-primary-light` | `text-primary` |
-| **Delivered / Paid** | `bg-success-light` | `text-success-foreground` |
-| **Refunded / Cancelled** | `bg-destructive-light` | `text-destructive-foreground` |
-
----
-
-## Typography Hierarchy
-
-| Element | Font Family | Size | Weight | Line Height | Color Token |
+| Style | Font | Size | Weight | Line Height | Example / Purpose |
 | --- | --- | --- | --- | --- | --- |
-| **Hero Headline** | `Baloo 2` | `44px` / `3.5rem` | 800 ExtraBold | `1.1` | `text-text-primary` |
-| **Section Title** | `Baloo 2` | `28px` / `1.75rem` | 700 Bold | `1.2` | `text-text-primary` |
-| **Product Card Title** | `Baloo 2` | `18px` / `1.125rem` | 600 SemiBold | `1.3` | `text-text-primary` |
-| **Price (Large PDP)** | `DM Sans` | `24px` / `1.5rem` | 700 Bold | `1.2` | `text-primary` |
-| **Price (Card)** | `DM Sans` | `16px` / `1rem` | 700 Bold | `1.2` | `text-text-primary` |
-| **Body Copy** | `DM Sans` | `14px` / `0.875rem` | 400 Regular | `1.5` | `text-text-secondary` |
-| **Button Label** | `DM Sans` | `14px` / `0.875rem` | 600 SemiBold | `1.2` | `text-primary-foreground` |
-| **Badge / Pill Tag** | `DM Sans` | `12px` / `0.75rem` | 700 Bold | `1.0` | Variant specific |
-| **Muted Specs / Meta** | `DM Sans` | `12px` / `0.75rem` | 400 Regular | `1.4` | `text-text-muted` |
+| **Display LG** | `Baloo 2` | `48px` | `700` (Bold) | `56px` | Hero headlines ("Play, Live & Discover") |
+| **Headline LG** | `Baloo 2` | `32px` | `600` (SemiBold) | `40px` | Main section titles ("Future of Play") |
+| **Headline MD** | `Baloo 2` | `24px` | `600` (SemiBold) | `32px` | Category titles, modal headers ("Smart & Fun Toys") |
+| **Headline SM** | `Baloo 2` | `20px` | `500` (Medium) | `28px` | Card headers, subsections ("Educational & Creative") |
+| **Body LG** | `DM Sans` | `18px` | `400` (Regular) | `28px` | Featured paragraph copy, lead intro text |
+| **Body MD** | `DM Sans` | `16px` | `400` (Regular) | `24px` | Standard body descriptions, product descriptions |
+| **Body SM** | `DM Sans` | `14px` | `400` (Regular) | `20px` | Secondary text, specifications, reviews |
+| **Label MD** | `DM Sans` | `14px` | `700` (Bold) | `16px` | Navigation links, category labels ("ALL CATEGORIES") |
+| **Label SM** | `DM Sans` | `12px` | `500` (Medium) | `16px` | Minor tags, metadata, timestamps ("New Arrival") |
+
+---
+
+## Spacing & Grid System (8px Grid)
+
+| Token | Pixels | Tailwind Equivalent |
+| --- | --- | --- |
+| `1` | `4px` | `p-1`, `gap-1`, `m-1` |
+| `2` | `8px` | `p-2`, `gap-2`, `m-2` |
+| `3` | `12px` | `p-3`, `gap-3`, `m-3` |
+| `4` | `16px` | `p-4`, `gap-4`, `m-4` |
+| `6` | `24px` | `p-6`, `gap-6`, `m-6` |
+| `8` | `32px` | `p-8`, `gap-8`, `m-8` |
+| `12` | `48px` | `p-12`, `gap-12`, `m-12` |
+| `16` | `64px` | `p-16`, `gap-16`, `m-16` |
+
+---
+
+## Border Radii
+
+| Token | Value | Tailwind Class | Usage |
+| --- | --- | --- | --- |
+| `sm` | `4px` | `rounded-sm` | Small badges, sub-tags |
+| `md` | `8px` | `rounded-md` | Buttons, text inputs, dropdowns |
+| `lg` | `12px` | `rounded-lg` | Inner media cards, alert banners |
+| `xl` | `16px` | `rounded-xl` | Product cards, filter sidebar panels |
+| `2xl` | `24px` | `rounded-2xl` | Hero containers, prominent feature cards |
+| `full` | `9999px` | `rounded-full` | Badges, chips, floating icons |
+
+---
+
+## Shadows
+
+| Name | CSS Value | Class | Usage |
+| --- | --- | --- | --- |
+| **Shadow Sm** | `0px 1px 2px rgba(0, 0, 0, 0.05)` | `shadow-sm` | Subtle elevation on cards and inputs |
+| **Shadow Md** | `0px 4px 12px rgba(0, 0, 0, 0.08)` | `shadow-md` | Card hover state, dropdown menus |
+| **Shadow Lg** | `0px 8px 24px rgba(0, 0, 0, 0.10)` | `shadow-lg` | Modals, flyout panels, cart drawer |
+| **Shadow Xl** | `0px 20px 40px rgba(0, 0, 0, 0.12)` | `shadow-xl` | Floating dialogue boxes, hero visual popups |
 
 ---
 
 ## Component Tokens
 
-### Cards
-
-```
-background: bg-surface
-border: 1px solid var(--border)
-border-radius: 16px (rounded-2xl)
-padding: 16px to 24px (p-4 to p-6)
-box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px -1px rgba(0,0,0,0.05)
-```
-
 ### Buttons
 
-**Primary Button (Sky Blue):**
-```
-background: bg-primary (hover: bg-primary-dark)
-text: text-primary-foreground
-border-radius: rounded-full (or rounded-xl)
-padding: px-5 py-2.5
-font-weight: font-semibold
+```tsx
+// 1. Primary Button
+className="bg-primary text-white hover:opacity-90 font-sans font-medium px-5 py-2.5 rounded-md transition-colors"
+
+// 2. Secondary Button
+className="bg-primary-surface text-tertiary hover:opacity-90 font-sans font-medium px-5 py-2.5 rounded-md transition-colors"
+
+// 3. Accent Button
+className="bg-secondary text-neutral-dark hover:opacity-90 font-sans font-bold px-5 py-2.5 rounded-md transition-colors"
+
+// 4. Outline Button
+className="bg-transparent border border-primary text-primary hover:bg-primary/5 font-sans font-medium px-5 py-2.5 rounded-md transition-colors"
 ```
 
-**Secondary Button (Outlined):**
-```
-background: bg-surface (hover: bg-surface-secondary)
-border: border border-border
-text: text-text-primary
-border-radius: rounded-full
-padding: px-5 py-2.5
-```
+### Badges
 
-**Accent Action (Sunny Yellow):**
-```
-background: bg-accent (hover: bg-accent-dark)
-text: text-accent-foreground
-border-radius: rounded-full
-padding: px-5 py-2.5
-font-weight: font-bold
-```
+| Badge Variant | Background Class | Text Class |
+| --- | --- | --- |
+| **New** | `bg-success-light` (`#DCFCE7`) | `text-success font-bold` (`#22C55E`) |
+| **Sale** | `bg-error-light` (`#FEE2E2`) | `text-error font-bold` (`#EF4444`) |
+| **-20%** | `bg-warning-light` (`#FEF3C7`) | `text-warning font-bold` (`#F59E0B`) |
+| **Best Seller** | `bg-primary-surface` (`#BEE9FF`) | `text-primary font-bold` (`#0A98C3`) |
+| **Exclusive** | `bg-tertiary-surface` (`#B3EBFF`) | `text-tertiary font-bold` (`#007EA3`) |
 
 ### Form Inputs
 
 ```
-background: bg-surface
-border: border border-border
-border-radius: rounded-xl
-padding: px-3.5 py-2.5
-text: text-text-primary
-placeholder: text-text-light
-focus: outline-none ring-2 ring-primary/20 border-primary
+Background: #FFFFFF or #F8F9FC
+Border: 1px solid #E7E8EB (border-neutral-border)
+Border Radius: 8px (rounded-md)
+Padding: 10px 14px (px-3.5 py-2.5)
+Text: #191C1E (text-neutral-dark)
+Placeholder: #6E797F (text-neutral-muted)
+Focus: outline-none ring-2 ring-primary/20 border-primary
 ```
 
-### Free-Shipping Progress Bar
+### Alerts & Feedback Banners
 
-```
-Track: bg-border (height: 6px, rounded-full)
-Progress fill: bg-primary (transition-all duration-300)
-Unlocked fill ($50+): bg-success
-```
+- **Success**: `bg-success-surface border border-success/30 text-neutral-dark` with `#22C55E` icon.
+- **Error**: `bg-error-surface border border-error/30 text-neutral-dark` with `#EF4444` icon.
+- **Warning**: `bg-warning-surface border border-warning/30 text-neutral-dark` with `#F59E0B` icon.
+- **Info / Shipping**: `bg-primary-surface/30 border border-primary/30 text-neutral-dark` with `#0A98C3` icon ("Free shipping on orders over ৳ 999.").
 
----
-
-## Invariants
-
-- **Zero Arbitrary Colors**: Never use unlisted hex values directly in JSX components — always use configured `@theme` tokens.
-- **Dual Font Pairing**: Headings must strictly use `var(--font-heading)` (`Baloo 2`); body and data tables must strictly use `var(--font-sans)` (`DM Sans`).
-- **Surface Elevation**: Storefront cards must stay clean white (`bg-surface`) to keep focus on product imagery.
-- **Accessible Contrast**: Sunny Yellow backgrounds (`bg-accent`) must always pair with dark text (`text-accent-foreground` / `#0F172A`).
-- **Standard Border**: Default border is strictly `border-border` (`#E2E8F0`) across all cards, modals, and input fields.
+### Currency & Local Pricing
+- Currency Symbol: **`৳`** (Bangladeshi Taka)
+- Default format: `৳ 1,450`
+- Free Shipping Threshold: **`৳ 999`**

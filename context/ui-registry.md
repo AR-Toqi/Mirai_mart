@@ -1,6 +1,6 @@
 # UI Registry
 
-A centralized inventory of all reusable components, layouts, design tokens, and UI patterns for Mirai Mart. Every component must strictly adhere to the designated design tokens and architecture rules to prevent visual and structural drift across development sessions.
+A centralized inventory of all reusable components, layouts, design tokens, and UI patterns for Mirai Mart. Every component must strictly adhere to the designated design tokens from `context/design/Mirai-mart_design-system.png` and architecture rules to prevent visual and structural drift across development sessions.
 
 ---
 
@@ -8,30 +8,43 @@ A centralized inventory of all reusable components, layouts, design tokens, and 
 
 ### 1. Typography
 
-- **Headings & Display**: `Baloo 2` (`font-heading`, weights: 600 SemiBold, 700 Bold, 800 ExtraBold) — friendly, playful, modern geometry.
+- **Headings & Display**: `Baloo 2` (`font-heading`, weights: 500 Medium, 600 SemiBold, 700 Bold) — friendly, playful, modern geometry.
+  - Display LG: 48px / line-height: 56px / 700
+  - Headline LG: 32px / line-height: 40px / 600
+  - Headline MD: 24px / line-height: 32px / 600
+  - Headline SM: 20px / line-height: 28px / 500
 - **Body, Inputs & Specs**: `DM Sans` (`font-sans`, weights: 400 Regular, 500 Medium, 700 Bold) — clean, highly legible neutral sans-serif.
+  - Body LG: 18px / line-height: 28px / 400
+  - Body MD: 16px / line-height: 24px / 400
+  - Body SM: 14px / line-height: 20px / 400
+  - Label MD: 14px / line-height: 16px / 700
+  - Label SM: 12px / line-height: 16px / 500
 
 ### 2. Core Color Palette
 
 | Token | CSS Variable / Hex | Usage |
 | --- | --- | --- |
-| **Sky Blue (Primary)** | `var(--primary)` / `#0284c7` | Primary buttons, active pill chips, brand marks, links |
-| **Sunny Yellow (Accent)** | `var(--accent)` / `#fce35f` | Announcement bar background, brand dot, promo badges, discount chips |
-| **Dark Slate (Admin Shell)** | `var(--admin-sidebar)` / `#191c1e` | Admin sidebar navigation, dark surface panels |
-| **Background (Light)** | `var(--background)` / `#f8fafc` | Storefront main canvas background |
-| **Card Surface** | `var(--card)` / `#ffffff` | Elevated cards, PDP panels, modals, drawers |
-| **Border & Dividers** | `var(--border)` / `#e2e8f0` | Subtle 1px dividers, card outlines, form inputs |
-| **Text Primary** | `var(--foreground)` / `#0f172a` | Main headings, product titles, dark body copy |
-| **Text Muted** | `var(--muted-foreground)` / `#64748b` | Breadcrumbs, curator notes, secondary metadata |
-| **Success (Stock / Active)** | `var(--success)` / `#10b981` | In-stock badges, free-shipping unlocked, order success |
-| **Warning (Low Stock / Pending)**| `var(--warning)` / `#f59e0b` | Low stock alert (< 5 items), pending fulfillment |
-| **Danger (Error / Refunded)** | `var(--destructive)` / `#ef4444` | Form errors, out-of-stock badges, order cancellations |
+| **Primary (Main)** | `var(--color-primary)` / `#0A98C3` | Primary buttons, active pill chips, brand marks, links |
+| **Primary Light** | `var(--color-primary-light)` / `#71D7F6` | Secondary accents, interactive hover highlights |
+| **Primary Surface** | `var(--color-primary-surface)` / `#BEE9FF` | Secondary button bg, cart button bg, Best Seller badge bg |
+| **Secondary (Accent)** | `var(--color-secondary)` / `#FCE35F` | Accent button, announcement bar, brand logo dot, -20% badge |
+| **Secondary Light** | `var(--color-secondary-light)` / `#FFE680` | Soft promotional banners |
+| **Tertiary (Main)** | `var(--color-tertiary)` / `#007EA3` | Secondary button text, Exclusive badge text |
+| **Tertiary Surface** | `var(--color-tertiary-surface)` / `#B3EBFF` | Exclusive badge background |
+| **Neutral Dark** | `var(--color-neutral-dark)` / `#191C1E` | Main headings, dark text, admin sidebar shell |
+| **Neutral Muted** | `var(--color-neutral-muted)` / `#6E797F` | Secondary text, category tags, placeholders, specs |
+| **Neutral Border** | `var(--color-neutral-border)` / `#E7E8EB` | Card borders, dividers, form input outlines |
+| **Neutral Canvas** | `var(--color-neutral-bg)` / `#F8F9FC` | Storefront main canvas background |
+| **Card Surface** | `var(--color-surface)` / `#FFFFFF` | Elevated cards, PDP panels, modals, drawers |
+| **Success** | `var(--color-success)` / `#22C55E` | In-stock badges, New badge, free-shipping unlocked |
+| **Error / Danger** | `var(--color-error)` / `#EF4444` | Sale badge, error alerts, out of stock |
+| **Warning** | `var(--color-warning)` / `#F59E0B` | -20% badge, low stock alert (< 5 items) |
 
 ### 3. Surface & Geometry Rules
 
-- **Cards & Modals**: `16px` border-radius (`rounded-2xl`), subtle drop shadow (`shadow-sm` hover: `shadow-md`), `border border-border/60`.
-- **Buttons & Pills**: Fully rounded pill shapes (`rounded-full`) or smooth `10px` radius (`rounded-xl`).
-- **Inputs & Dropdowns**: `8px` to `10px` radius (`rounded-lg` / `rounded-xl`), `border-border focus:ring-2 focus:ring-primary/20`.
+- **Cards & Modals**: `16px` border-radius (`rounded-xl`), subtle drop shadow (`shadow-sm` hover: `shadow-md`), `border border-neutral-border`.
+- **Buttons & Inputs**: `8px` border-radius (`rounded-md`).
+- **Pill Badges & Chips**: Fully rounded pill shapes (`rounded-full px-3 py-1`).
 
 ---
 
@@ -41,22 +54,21 @@ A centralized inventory of all reusable components, layouts, design tokens, and 
 
 #### 1. `AnnouncementBar.tsx`
 - **Path**: `components/layout/AnnouncementBar.tsx`
-- **Purpose**: Top promotional banner displaying free shipping thresholds, promo coupon codes, and store notices.
-- **Visuals**: Sunny Yellow (`#fce35f`) background, dark slate text, optional dismiss button or marquee scroll.
+- **Purpose**: Top promotional banner displaying free shipping thresholds (`৳ 999`), promo coupon codes, and store notices.
+- **Visuals**: Light warm Secondary Surface (`#FFF3B3` / `bg-secondary-surface`) background, neutral dark (`#191C1E`) bold text, navigation arrows, and delivery truck icon.
 - **Props**:
   ```typescript
   type Props = {
     message?: string;
     promoCode?: string;
     isActive?: boolean;
-    backgroundColor?: string;
   };
   ```
 
 #### 2. `Header.tsx`
 - **Path**: `components/layout/Header.tsx`
 - **Purpose**: Main storefront sticky navigation bar with search, category dropdown, cart trigger, and account avatar.
-- **Visuals**: Glassmorphic frosted backdrop (`backdrop-blur-md bg-white/80 border-b border-border/40`).
+- **Visuals**: Glassmorphic frosted backdrop (`backdrop-blur-md bg-white/90 border-b border-neutral-border`).
 - **Props**:
   ```typescript
   type Props = {
@@ -68,7 +80,7 @@ A centralized inventory of all reusable components, layouts, design tokens, and 
 #### 3. `AdminSidebar.tsx`
 - **Path**: `components/layout/AdminSidebar.tsx`
 - **Purpose**: Left navigation sidebar for admin management panel.
-- **Visuals**: Dark Slate (`#191c1e`) solid surface, active route indicator in Sky Blue with subtle glow.
+- **Visuals**: Dark Slate (`#191C1E`) solid surface, active route indicator in Primary Blue (`#0A98C3`).
 - **Props**:
   ```typescript
   type Props = {
@@ -81,7 +93,7 @@ A centralized inventory of all reusable components, layouts, design tokens, and 
 #### 4. `Footer.tsx`
 - **Path**: `components/layout/Footer.tsx`
 - **Purpose**: Multi-column sitemap, newsletter signup with 8px radius input, trust icons, and payment badges.
-- **Visuals**: Neutral slate surface (`bg-slate-900 text-white`), clean typography.
+- **Visuals**: Neutral dark surface (`bg-neutral-dark text-white`), clean typography.
 
 ---
 
@@ -89,276 +101,85 @@ A centralized inventory of all reusable components, layouts, design tokens, and 
 
 #### 5. `HeroCarousel.tsx`
 - **Path**: `components/storefront/HeroCarousel.tsx`
-- **Purpose**: Dynamic homepage hero slider with autoplay, manual indicator dots, Baloo 2 headlines, and dual CTA buttons.
-- **Visuals**: 16px radius card (`rounded-2xl`), rich gradient overlay, smooth slide transitions.
-- **Props**:
-  ```typescript
-  type Slide = {
-    id: string;
-    title: string;
-    subtitle: string;
-    ctaPrimaryText: string;
-    ctaPrimaryLink: string;
-    ctaSecondaryText?: string;
-    ctaSecondaryLink?: string;
-    imageUrl: string;
-    badgeText?: string;
-  };
-  type Props = {
-    slides: Slide[];
-    autoPlayInterval?: number;
-  };
-  ```
+- **Purpose**: Dynamic homepage hero slider with autoplay, manual indicator dots, Baloo 2 Display headlines, and dual CTA buttons.
+- **Visuals**: 24px radius container (`rounded-2xl`), rich gradient overlay, smooth slide transitions.
 
-#### 6. `CategoryTiles.tsx`
-- **Path**: `components/storefront/CategoryTiles.tsx`
-- **Purpose**: 6-card visual grid showcasing primary categories (Educational Toys, Cars & Vehicles, Unique Toys, Home Decor, Digital Gadgets, Gift Combos).
-- **Visuals**: 16px radius cards with hover zoom image effect and pill tag overlays.
-- **Props**:
-  ```typescript
-  type CategoryTile = {
-    id: string;
-    title: string;
-    slug: string;
-    itemCount: number;
-    imageUrl: string;
-    featuredTag?: string;
-  };
-  type Props = {
-    categories: CategoryTile[];
-  };
-  ```
-
-#### 7. `AgeFilterBar.tsx`
-- **Path**: `components/storefront/AgeFilterBar.tsx`
-- **Purpose**: Horizontal pill strip for quick age filtering (`0–1 yr`, `1–3 yrs`, `3–5 yrs`, `5–8 yrs`, `8+ yrs`).
-- **Visuals**: Pill chips (`rounded-full px-4 py-2`), active state in Sky Blue fill (`bg-primary text-white`).
-- **Props**:
-  ```typescript
-  type Props = {
-    selectedAge?: string | null;
-    onSelectAge: (age: string | null) => void;
-  };
-  ```
-
-#### 8. `ProductCard.tsx`
+#### 6. `ProductCard.tsx`
 - **Path**: `components/storefront/ProductCard.tsx`
-- **Purpose**: Standard e-commerce product card used across homepage rails, category grids, and recommendation carousels.
-- **Visuals**: 16px radius card, hover zoom image, Baloo 2 title, discount badge, star rating, price, and Sky Blue "Add to Cart" button.
+- **Purpose**: Standard e-commerce product card matching the design system image.
+- **Visuals**: 16px radius card (`rounded-xl`), border `#E7E8EB`, image with `12px` radius (`rounded-lg`), Baloo 2 title, category subtitle ("Creative • Educational"), Bangladeshi Taka price (`৳ 1,450`), and vibrant secondary yellow `bg-secondary` shopping cart icon button with neutral dark icon.
 - **Props**:
   ```typescript
   type Props = {
     id: string;
     title: string;
     slug: string;
-    price: number;
+    price: number; // in BDT
     compareAtPrice?: number;
     rating: number;
     reviewCount: number;
     imageUrl: string;
-    secondaryImageUrl?: string;
-    badge?: "Bestseller" | "New" | "Sale" | "Curator's Pick";
-    ageRange?: string;
+    badge?: "New" | "Sale" | "-20%" | "Best Seller" | "Exclusive";
+    categoryName?: string;
     isOutOfStock?: boolean;
     onAddToCart?: () => void;
   };
   ```
 
-#### 9. `FilterSidebar.tsx`
-- **Path**: `components/storefront/FilterSidebar.tsx`
-- **Purpose**: Faceted PLP filter sidebar (280px width) with multi-select age checkboxes, dual-handle price slider ($10–$200), style tags, and In-Stock toggle.
-- **Visuals**: 16px radius card container, collapsible accordion sections.
+#### 7. `ProductBadge.tsx`
+- **Path**: `components/storefront/ProductBadge.tsx`
+- **Purpose**: Reusable pill badges matching the design system:
+  - `New`: `bg-success-light text-success` (`#DCFCE7` / `#22C55E`)
+  - `Sale`: `bg-error-light text-error` (`#FEE2E2` / `#EF4444`)
+  - `-20%`: `bg-warning-light text-warning` (`#FEF3C7` / `#F59E0B`)
+  - `Best Seller`: `bg-primary-surface text-primary` (`#BEE9FF` / `#0A98C3`)
+  - `Exclusive`: `bg-tertiary-surface text-tertiary` (`#B3EBFF` / `#007EA3`)
 - **Props**:
   ```typescript
-  type FilterValues = {
-    categories: string[];
-    ageRanges: string[];
-    priceRange: [number, number];
-    inStockOnly: boolean;
-    tags: string[];
-  };
+  type BadgeVariant = "new" | "sale" | "discount" | "bestseller" | "exclusive";
   type Props = {
-    filters: FilterValues;
-    onChange: (updated: Partial<FilterValues>) => void;
-    onReset: () => void;
-  };
-  ```
-
-#### 10. `ImageGallery.tsx`
-- **Path**: `components/storefront/ImageGallery.tsx`
-- **Purpose**: Product Detail Page (PDP) multi-image showcase with thumbnail carousel, hover zoom lens, and 360° asset indicator badge.
-- **Props**:
-  ```typescript
-  type Props = {
-    images: { url: string; alt: string }[];
-    has360View?: boolean;
-  };
-  ```
-
-#### 11. `VariantSelector.tsx`
-- **Path**: `components/storefront/VariantSelector.tsx`
-- **Purpose**: Interactive color swatches, size buttons, and combo bundle options on PDP.
-- **Props**:
-  ```typescript
-  type VariantOption = {
-    id: string;
-    name: string; // e.g. "Color", "Size"
-    values: { label: string; value: string; inStock: boolean; hexColor?: string }[];
-  };
-  type Props = {
-    options: VariantOption[];
-    selectedVariants: Record<string, string>;
-    onSelect: (optionName: string, value: string) => void;
-  };
-  ```
-
-#### 12. `SpecsTable.tsx`
-- **Path**: `components/storefront/SpecsTable.tsx`
-- **Purpose**: Collapsible accordion table rendering dynamic JSONB product specs (dimensions, battery life, materials, safety certifications).
-- **Props**:
-  ```typescript
-  type Props = {
-    specs: Record<string, string | number>;
-    dimensions?: string;
-    materials?: string[];
-    safetyCertifications?: string[];
-  };
-  ```
-
-#### 13. `CartDrawer.tsx`
-- **Path**: `components/storefront/CartDrawer.tsx`
-- **Purpose**: Slide-over cart drawer with free-shipping dynamic progress bar ($50 threshold), line item quantity steppers, gift wrap toggle (`+$3.99`), and checkout CTA.
-- **Visuals**: Framer Motion smooth slide-in from right, backdrop blur overlay.
-- **Props**:
-  ```typescript
-  type CartItem = {
-    id: string;
-    variantId: string;
-    title: string;
-    variantTitle?: string;
-    price: number;
-    quantity: number;
-    imageUrl: string;
-  };
-  type Props = {
-    isOpen: boolean;
-    onClose: () => void;
-    items: CartItem[];
-    subtotal: number;
-    isGiftWrapped: boolean;
-    onToggleGiftWrap: (wrapped: boolean) => void;
-  };
-  ```
-
-#### 14. `CheckoutStepper.tsx`
-- **Path**: `components/storefront/CheckoutStepper.tsx`
-- **Purpose**: Multi-step checkout navigation container (Step 1: Contact & Address, Step 2: Shipping Method, Step 3: Payment).
-- **Props**:
-  ```typescript
-  type Props = {
-    currentStep: 1 | 2 | 3;
-    stepsCompleted: number[];
-  };
-  ```
-
----
-
-### Admin Panel Components (`components/admin/`)
-
-#### 15. `MetricCard.tsx`
-- **Path**: `components/admin/MetricCard.tsx`
-- **Purpose**: Admin dashboard KPI card showing key metrics (Revenue, Orders Today, Low Stock, Active Promotions) with trend percentage badge.
-- **Props**:
-  ```typescript
-  type Props = {
-    title: string;
-    value: string | number;
-    changePercentage?: number;
-    trend?: "up" | "down" | "neutral";
-    icon: React.ComponentType<{ className?: string }>;
-    alert?: boolean;
-  };
-  ```
-
-#### 16. `OrderStatusPill.tsx`
-- **Path**: `components/admin/OrderStatusPill.tsx`
-- **Purpose**: Visual badge for order status and payment status across admin lists and customer order history.
-- **Props**:
-  ```typescript
-  type OrderStatus = "pending" | "packed" | "shipped" | "delivered" | "refunded";
-  type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
-  type Props = {
-    status: OrderStatus | PaymentStatus;
-    type?: "order" | "payment";
-  };
-  ```
-
-#### 17. `DynamicAttributeForm.tsx`
-- **Path**: `components/admin/DynamicAttributeForm.tsx`
-- **Purpose**: Dynamic category-dependent attribute switcher on product CMS (e.g. selecting "Gift Combos" reveals occasion and recipient inputs; selecting "Gadgets" reveals tech specs).
-- **Props**:
-  ```typescript
-  type Props = {
-    categorySlug: string;
-    values: Record<string, unknown>;
-    onChange: (values: Record<string, unknown>) => void;
-  };
-  ```
-
-#### 18. `HeroSliderManager.tsx`
-- **Path**: `components/admin/HeroSliderManager.tsx`
-- **Purpose**: Drag-and-drop reorderable list of homepage hero slides with inline headline, subtext, and image uploaders.
-- **Props**:
-  ```typescript
-  type Props = {
-    initialSlides: Slide[];
-    onSave: (slides: Slide[]) => Promise<void>;
-  };
-  ```
-
----
-
-### Shared UI Primitives (`components/shared/` & `components/ui/`)
-
-#### 19. `MiraiMartLogo.tsx`
-- **Path**: `components/shared/MiraiMartLogo.tsx`
-- **Purpose**: Scalable SVG/React brand logo featuring isometric Sky Blue "M" monogram with sunny yellow accent dot.
-- **Props**:
-  ```typescript
-  type Props = {
-    size?: "sm" | "md" | "lg";
-    showText?: boolean;
+    variant: BadgeVariant;
+    label?: string;
     className?: string;
   };
   ```
 
-#### 20. `QuantityStepper.tsx`
-- **Path**: `components/shared/QuantityStepper.tsx`
-- **Purpose**: Compact plus/minus stepper for PDP and cart line items with min/max stock limits.
+#### 8. `Button.tsx`
+- **Path**: `components/ui/Button.tsx`
+- **Purpose**: Core button component supporting all 4 design system variants:
+  - `primary`: `bg-primary text-white`
+  - `secondary`: `bg-primary-surface text-tertiary`
+  - `accent`: `bg-secondary text-neutral-dark`
+  - `outline`: `bg-transparent border border-primary text-primary`
 - **Props**:
   ```typescript
-  type Props = {
-    value: number;
-    min?: number;
-    max?: number;
-    onChange: (newValue: number) => void;
-    disabled?: boolean;
-    size?: "sm" | "md";
+  type ButtonVariant = "primary" | "secondary" | "accent" | "outline";
+  type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    variant?: ButtonVariant;
+    size?: "sm" | "md" | "lg";
   };
   ```
 
-#### 21. `RatingStars.tsx`
-- **Path**: `components/shared/RatingStars.tsx`
-- **Purpose**: Visual star rating (filled, half-filled, outlined) with optional numerical score and review count badge.
+#### 9. `AlertBanner.tsx`
+- **Path**: `components/ui/AlertBanner.tsx`
+- **Purpose**: Feedback and notification banner:
+  - `success`: "Your item has been added to cart!" (`#22C55E`)
+  - `error`: "Something went wrong. Please try again." (`#EF4444`)
+  - `warning`: "Limited stock! Only 5 items left." (`#F59E0B`)
+  - `info`: "Free shipping on orders over ৳ 999." (`#0A98C3`)
 - **Props**:
   ```typescript
+  type AlertType = "success" | "error" | "warning" | "info";
   type Props = {
-    rating: number; // e.g. 4.8
-    reviewCount?: number;
-    size?: "sm" | "md" | "lg";
-    showCount?: boolean;
+    type: AlertType;
+    message: string;
+    onClose?: () => void;
   };
   ```
+
+#### 10. `CartDrawer.tsx`
+- **Path**: `components/storefront/CartDrawer.tsx`
+- **Purpose**: Slide-over cart drawer with free-shipping dynamic progress bar (`৳ 999` threshold), line item quantity steppers, gift wrap toggle, and checkout CTA.
 
 ---
 
@@ -366,6 +187,6 @@ A centralized inventory of all reusable components, layouts, design tokens, and 
 
 1. **Named Exports Only**: Always use named exports (`export function ComponentName()`), never default exports.
 2. **Dedicated Props Type**: Always define `type Props = { ... }` directly above the component declaration.
-3. **No Hardcoded Hex Colors**: Use Tailwind utility classes with Mirai Mart design tokens (e.g. `bg-primary`, `bg-accent`, `text-muted-foreground`) or CSS variables.
-4. **Server vs Client Boundary**: Components requiring hooks (`useState`, `useEffect`) or browser event listeners must declare `"use client"` at the top. Pure presentation components remain Server Components.
-5. **No Layout Shifts**: Always provide `width`, `height`, and `alt` tags when using `next/image` in product cards and galleries.
+3. **No Hardcoded Hex Colors**: Use Tailwind utility classes with Mirai Mart design tokens (e.g. `bg-primary`, `bg-secondary`, `text-neutral-dark`, `border-neutral-border`).
+4. **Currency Format**: Always format currency using Bangladeshi Taka (`৳ [amount]`).
+5. **Server vs Client Boundary**: Components requiring hooks (`useState`, `useEffect`) or browser event listeners must declare `"use client"` at the top. Pure presentation components remain Server Components.

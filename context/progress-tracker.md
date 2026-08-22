@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 1 — Foundation & Authentication  
-**Last completed:** None (Context documentation initialized)  
-**Next:** 01 Storefront Layout & Homepage — Full UI  
+**Last completed:** 01 Storefront Layout & Homepage — Full UI  
+**Next:** 02 Authentication & RBAC  
 
 ---
 
@@ -16,7 +16,8 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 1 — Foundation & Authentication
 
-- [ ] 01 Storefront Layout & Homepage — Full UI
+- [x] Design System & Theme Alignment (`ui-tokens.md`, `ui-rules.md`, `ui-registry.md`, `globals.css`, `layout.tsx`)
+- [x] 01 Storefront Layout & Homepage — Full UI
 - [ ] 02 Authentication & RBAC
 - [ ] 03 PostHog Initialization
 - [ ] 04 Database Schema & Seeds
@@ -48,9 +49,16 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Decisions Made During Build
 
+- Design system specifications extracted directly from `context/design/Mirai-mart_design-system.png`:
+  - Primary: `#0A98C3` (Main), `#71D7F6` (Light), `#BEE9FF` (Surface)
+  - Secondary: `#FCE35F` (Main), `#FFE680` (Light), `#FFF3B3` (Surface)
+  - Tertiary: `#007EA3` (Main), `#4CB3C9` (Light), `#B3EBFF` (Surface)
+  - Neutrals: `#191C1E` (Dark), `#6E797F` (Muted), `#E7E8EB` (Border), `#F8F9FC` (Background)
+  - Semantic: `#22C55E` (Success), `#EF4444` (Error), `#F59E0B` (Warning)
+  - Currency: Bangladeshi Taka (`৳`), Free Shipping Threshold: `৳ 999`
+  - Typography: Baloo 2 (`--font-heading`) for Headings, DM Sans (`--font-sans`) for Body & UI
 - Full page UI is built with mock data first — verified visually and interactively before wiring backend logic.
 - All page entrypoints (`app/**/page.tsx`) and layouts (`layout.tsx`) are strictly Server Components; interactive features are isolated into leaf Client Components in `components/`.
-- Styling is implemented using Tailwind CSS tokens with CSS variables referencing Baloo 2 for headings and DM Sans for body copy.
 - InsForge is used for PostgreSQL database, session authentication, RBAC, and object storage (`products/` bucket).
 - Analytics tracking is powered by PostHog with both browser client (`lib/posthog-client.ts`) and server client (`lib/posthog-server.ts`).
 
@@ -58,5 +66,5 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Notes
 
-- Project context documentation established across `architecture.md`, `build-plan.md`, `code-standards.md`, and `progress-tracker.md`.
+- Design tokens, rules, registry, and Tailwind v4 theme fully aligned with `Mirai-mart_design-system.png`.
 - Next step is Feature 01: Build the complete Storefront Layout and Homepage UI with mock data.
