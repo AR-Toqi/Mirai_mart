@@ -20,8 +20,10 @@ export function CategoryCircles() {
                     src={cat.imageUrl}
                     alt={cat.name}
                     fill
+                    sizes="88px"
                     className="object-contain"
                   />
+
                 </div>
               )}
             </div>

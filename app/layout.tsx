@@ -22,6 +22,8 @@ export const metadata: Metadata = {
     "A modern, optimistic and friendly store for curated educational toys, creative developmental items, home decor, and digital gadgets.",
 };
 
+import { AuthProvider } from "@/components/providers/AuthProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -32,7 +34,10 @@ export default function RootLayout({
       lang="en"
       className={`${baloo.variable} ${dmSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }
+

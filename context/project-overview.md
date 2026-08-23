@@ -23,29 +23,33 @@ Mirai Mart solves this by offering:
 ## Pages & Routes
 
 ```
-Storefront:
-/                              → Homepage (Hero carousel, category tiles, bestsellers, trust strip)
-/category/[slug]               → Category & PLP (Faceted sidebar, age chips, price slider, sorting)
-/product/[slug]                → PDP (Image gallery, swatches, specs accordion, reviews, bundles)
-/cart                          → Full cart view & gift options
-/checkout                      → Multi-step checkout (Address, Shipping, Payment)
-/checkout/success/[orderNumber]→ Order confirmation & receipt
-/account                       → Customer dashboard, order history & fulfillment status
-/track-order                   → Standalone public order lookup by order number & email
-/compare                       → Side-by-side product spec comparison (up to 4 products)
+Common Routes (app/(commonRoutes)/ - Public without login):
+  Storefront (app/(commonRoutes)/(storefront)/):
+    /                              → Homepage (Hero carousel, category tiles, bestsellers, trust strip)
+    /category/[slug]               → Category & PLP (Faceted sidebar, age chips, price slider, sorting)
+    /product/[slug]                → PDP (Image gallery, swatches, specs accordion, reviews, bundles)
+    /cart                          → Full cart view & gift options
+    /checkout                      → Multi-step checkout (Address, Shipping, Payment)
+    /checkout/success/[orderNumber]→ Order confirmation & receipt
+    /track-order                   → Standalone public order lookup by order number & email
+    /compare                       → Side-by-side product spec comparison (up to 4 products)
 
-Auth:
-/login                         → Authentication modal / page (Email/Password + Google OAuth)
-/register                      → Customer registration
-/callback                      → InsForge OAuth callback handler
+  Auth (app/(commonRoutes)/(auth)/):
+    /login                         → Authentication page / modal (Email/Password + Google OAuth)
+    /register                      → Customer registration
+    /callback                      → InsForge OAuth callback handler
 
-Admin Panel:
-/admin/dashboard               → Store overview, revenue/order KPIs & recent order stream
-/admin/products                → Product inventory list & stock status
-/admin/products/[id]           → Dynamic attribute product CMS & variant matrix editor
-/admin/orders                  → Fulfillment queue & multi-status filtering
-/admin/orders/[id]             → Order detail, carrier tracking assignment & RMA/refunds
-/admin/marketing               → Hero slider manager, announcement bar & coupon code CMS
+Protected Routes (app/(protectedRoutes)/ - Session & RBAC guarded):
+  Customer (app/(protectedRoutes)/account/):
+    /account                       → Customer dashboard, order history & fulfillment status
+
+  Admin Panel (app/(protectedRoutes)/admin/):
+    /admin/dashboard               → Store overview, revenue/order KPIs & recent order stream
+    /admin/products                → Product inventory list & stock status
+    /admin/products/[id]           → Dynamic attribute product CMS & variant matrix editor
+    /admin/orders                  → Fulfillment queue & multi-status filtering
+    /admin/orders/[id]             → Order detail, carrier tracking assignment & RMA/refunds
+    /admin/marketing               → Hero slider manager, announcement bar & coupon code CMS
 ```
 
 ---

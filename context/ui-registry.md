@@ -183,6 +183,78 @@ A centralized inventory of all reusable components, layouts, design tokens, and 
 
 ---
 
+### Auth & Customer Account Components
+
+#### 11. `LoginForm`
+File: `components/auth/LoginForm.tsx`  
+Last updated: August 24, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-error-surface` (error banner) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-error/20` |
+| Border radius | `rounded-2xl` (`16px`) for card container, `rounded-md` (`8px`) for inputs and buttons |
+| Text — primary | `font-heading font-bold text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs text-neutral-muted` (`#6E797F`) |
+| Spacing | `p-6 sm:p-8` container padding, `space-y-4` form gap, `px-3.5 py-2.5` input padding |
+| Hover state | `hover:bg-tertiary` for primary button, `hover:bg-neutral-bg` for OAuth button |
+| Shadow | `shadow-sm` |
+| Accent usage | `bg-primary` (`#0A98C3`) submit button, `text-primary` for inline links |
+
+**Pattern notes:**
+- Authentication card containers always use `rounded-2xl` and `border-neutral-border`.
+- All form inputs use `rounded-md` with `focus:ring-2 focus:ring-primary/20 focus:border-primary`.
+
+---
+
+#### 12. `RegisterForm` (Multi-Step & OTP Verification)
+File: `components/auth/RegisterForm.tsx`  
+Last updated: August 24, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-primary-surface` (OTP icon container) |
+| Border | `border border-neutral-border` (`#E7E8EB`) |
+| Border radius | `rounded-2xl` (`16px`), `rounded-md` (`8px`) |
+| Text — primary | `font-heading font-bold text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs text-neutral-muted` (`#6E797F`) |
+| Spacing | `p-6 sm:p-8` container padding, `py-3` OTP input padding |
+| Hover state | `hover:bg-tertiary` for submit, `hover:underline` for resend |
+| Shadow | `shadow-sm`, `shadow-xs` on buttons |
+| Accent usage | `bg-primary` for action buttons, `font-mono tracking-[0.5em]` for 6-digit OTP code |
+
+**Pattern notes:**
+- Seamlessly transitions from Registration to OTP Verification Screen upon InsForge `requireEmailVerification`.
+- OTP code input uses monospace bold centered font with wide tracking (`tracking-[0.5em]`).
+
+---
+
+#### 13. `AccountDashboardClient` (Customer Portal)
+File: `components/account/AccountDashboardClient.tsx`  
+Last updated: August 24, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`) for cards, `bg-[#e8f6fa]` (promo banner), `bg-neutral-bg` (canvas) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-[#cbe8f2]` (banner) |
+| Border radius | `rounded-2xl` (`16px`) for primary cards & banner, `rounded-xl` (`12px`) for nested items |
+| Text — primary | `font-heading font-bold text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs text-neutral-muted` (`#6E797F`) |
+| Spacing | `p-5` card padding, `gap-4 sm:gap-6` grid spacing, `py-3.5` list row padding |
+| Hover state | `hover:bg-neutral-bg/50` for order rows, `hover:underline` for action links |
+| Shadow | `shadow-xs` on cards |
+| Accent usage | `bg-[#1b6b93]` initials avatar, `bg-primary-surface/50 text-primary` for active navigation tab |
+
+**Pattern notes:**
+- Strictly matches `context/design/My-account_page.png`.
+- Grouped sidebar navigation with `ACCOUNT`, `SETTINGS`, and `SUPPORT` sections.
+- Order status badges use color tokens: `Delivered` (`#e6f8ee`/`#15803d`), `Shipped` (`bg-primary-surface text-primary`), `In Transit` (`#fef3c7`/`#b45309`), `Cancelled` (`#fee2e2`/`#b91c1c`).
+- All monetary values formatted in Bangladeshi Taka (`৳`).
+
+---
+
+
+
 ## Component Usage Rules
 
 1. **Named Exports Only**: Always use named exports (`export function ComponentName()`), never default exports.

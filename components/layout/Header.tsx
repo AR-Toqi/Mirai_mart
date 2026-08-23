@@ -11,6 +11,9 @@ import {
   ChevronDownIcon,
 } from "@/components/ui/Icons";
 
+import { useAuth } from "@/components/providers/AuthProvider";
+import { UserRoleBadge } from "@/components/auth/UserRoleBadge";
+
 const CATEGORIES = [
   "All Categories",
   "Educational Toys",
@@ -26,7 +29,10 @@ const CATEGORIES = [
 export function Header() {
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const { user, profile, role, isAuthenticated, signOut } = useAuth();
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -134,16 +140,71 @@ export function Header() {
             <span className="text-[11px] font-medium mt-0.5">Cart</span>
           </Link>
 
-          {/* Account */}
-          <Link
-            href="/login"
-            className="flex flex-col items-center text-neutral-dark hover:text-primary transition-colors group"
-          >
-            <UserIcon size={20} className="text-neutral-dark group-hover:text-primary transition-colors" />
-            <span className="text-[11px] font-medium mt-0.5">Account</span>
-          </Link>
+          {/* Account / User Menu */}
+          {isAuthenticated ? (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
+                className="flex flex-col items-center text-neutral-dark hover:text-primary transition-colors group cursor-pointer"
+              >
+                <div className="w-6 h-6 rounded-full bg-primary-surface text-primary font-heading font-bold text-xs flex items-center justify-center border border-primary/30">
+                  {(profile?.fullName?.[0] || user?.email?.[0] || "U").toUpperCase()}
+                </div>
+                <span className="text-[11px] font-medium mt-0.5 flex items-center gap-0.5 max-w-[70px] truncate">
+                  {profile?.fullName?.split(" ")[0] || "Account"}
+                </span>
+              </button>
+
+              {isAccountMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-neutral-border rounded-xl shadow-lg py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="px-4 py-2 border-b border-neutral-border">
+                    <p className="text-xs font-semibold text-neutral-dark truncate">
+                      {profile?.fullName || "Mirai Member"}
+                    </p>
+                    <p className="text-[11px] text-neutral-muted truncate">
+                      {profile?.email || user?.email}
+                    </p>
+                  </div>
+
+                  <div className="py-1">
+                    <Link
+                      href="/account"
+                      onClick={() => setIsAccountMenuOpen(false)}
+                      className="block px-4 py-1.5 text-xs text-neutral-dark hover:bg-neutral-bg font-medium transition-colors"
+                    >
+                      My Account & Orders
+                    </Link>
+                  </div>
+
+
+                  <div className="pt-1 border-t border-neutral-border">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsAccountMenuOpen(false);
+                        signOut();
+                      }}
+                      className="w-full text-left px-4 py-1.5 text-xs text-error hover:bg-error-surface font-medium transition-colors cursor-pointer"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="flex flex-col items-center text-neutral-dark hover:text-primary transition-colors group"
+            >
+              <UserIcon size={20} className="text-neutral-dark group-hover:text-primary transition-colors" />
+              <span className="text-[11px] font-medium mt-0.5">Account</span>
+            </Link>
+          )}
         </div>
       </div>
     </header>
   );
 }
+

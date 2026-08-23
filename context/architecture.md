@@ -38,46 +38,39 @@
 ├── app/
 │   ├── layout.tsx                                → Root HTML, TanStack Query provider, Cart context
 │   ├── globals.css                               → Tailwind directives, design tokens, typography imports
-│   ├── (storefront)/
-│   │   ├── layout.tsx                            → Storefront shell: Announcement bar, Header, Footer
-│   │   ├── page.tsx                              → Homepage (Screen 1)
-│   │   ├── category/
-│   │   │   └── [slug]/
-│   │   │       └── page.tsx                      → Category & PLP with dynamic filters (Screen 2)
-│   │   ├── product/
-│   │   │   └── [slug]/
-│   │   │       └── page.tsx                      → PDP with gallery, swatches, and specs (Screen 3)
-│   │   ├── cart/
-│   │   │   └── page.tsx                          → Full Cart & gift options (Screen 4)
-│   │   ├── checkout/
-│   │   │   ├── page.tsx                          → Multi-step checkout flow (Screen 5)
-│   │   │   └── success/
-│   │   │       └── [orderNumber]/
-│   │   │           └── page.tsx                  → Order confirmation page
+│   ├── (commonRoutes)/                           → Public route group (accessible without login)
+│   │   ├── (storefront)/
+│   │   │   ├── layout.tsx                        → Storefront shell: Announcement bar, Header, Category bar, Footer
+│   │   │   ├── page.tsx                          → Homepage (Screen 1)
+│   │   │   ├── category/
+│   │   │   │   └── [slug]/
+│   │   │   │       └── page.tsx                  → Category & PLP with dynamic filters (Screen 2)
+│   │   │   ├── product/
+│   │   │   │   └── [slug]/
+│   │   │   │       └── page.tsx                  → PDP with gallery, swatches, and specs (Screen 3)
+│   │   │   ├── cart/
+│   │   │   │   └── page.tsx                      → Full Cart & gift options (Screen 4)
+│   │   │   ├── checkout/
+│   │   │   │   ├── page.tsx                      → Multi-step checkout flow (Screen 5)
+│   │   │   │   └── success/
+│   │   │   │       └── [orderNumber]/
+│   │   │   │           └── page.tsx              → Order confirmation page
+│   │   │   ├── track-order/
+│   │   │   │   └── page.tsx                      → Public standalone order tracking
+│   │   │   └── compare/
+│   │   │       └── page.tsx                      → Product spec comparison page
+│   │   └── (auth)/
+│   │       ├── layout.tsx                        → Clean centered auth layout shell
+│   │       ├── login/
+│   │       │   └── page.tsx                      → Login form (Email/Password + Google OAuth)
+│   │       ├── register/
+│   │       │   └── page.tsx                      → Customer registration
+│   │       └── callback/
+│   │           └── page.tsx                      → InsForge OAuth callback handler
+│   ├── (protectedRoutes)/                        → Protected route group (auth session & RBAC guarded)
+│   │   ├── layout.tsx                            → Auth session guard & redirect handler
 │   │   ├── account/
 │   │   │   └── page.tsx                          → Customer dashboard & order history (Screen 6)
-│   │   ├── track-order/
-│   │   │   └── page.tsx                          → Public standalone order tracking
-│   │   └── compare/
-│   │       └── page.tsx                          → Product spec comparison page
-│   ├── (admin)/
-│   │   ├── layout.tsx                            → Admin shell: Dark slate sidebar & top bar
-│   │   ├── admin/
-│   │   │   ├── dashboard/
-│   │   │   │   └── page.tsx                      → KPI overview & real-time order stream (Screen 7)
-│   │   │   ├── products/
-│   │   │   │   ├── page.tsx                      → Product list & inventory overview
-│   │   │   │   └── [id]/
-│   │   │   │       └── page.tsx                  → Dynamic attribute product CMS (Screen 8)
-│   │   │   ├── orders/
-│   │   │   │   ├── page.tsx                      → Order list & fulfillment queue
-│   │   │   │   └── [id]/
-│   │   │   │       └── page.tsx                  → Order detail, tracking, and RMA (Screen 9)
-│   │   │   └── marketing/
-│   │   │       └── page.tsx                      → Hero slider, banner, and promo CMS (Screen 10)
-│   ├── (auth)/
-│   │   ├── login/
-│   │   │   └── page.tsx                          → Login form (Email/Password + Google OAuth)
 │   │   ├── register/
 │   │   │   └── page.tsx                          → Customer registration
 │   │   └── callback/
@@ -160,7 +153,7 @@ User selects filter / category chip
         ↓
 URL query params update (?category=gift-combos&age=1-3)
         ↓
-Server Component in app/(storefront)/category/[slug]/page.tsx
+Server Component in app/(commonRoutes)/(storefront)/category/[slug]/page.tsx
         ↓
 Server Action in actions/products.ts
         ↓

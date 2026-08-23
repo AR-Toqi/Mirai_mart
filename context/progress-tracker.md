@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 1 — Foundation & Authentication  
-**Last completed:** 01 Storefront Layout & Homepage — Full UI  
-**Next:** 02 Authentication & RBAC  
+**Last completed:** 02 Authentication & RBAC  
+**Next:** 03 PostHog Initialization  
 
 ---
 
@@ -18,9 +18,10 @@ Update this file after every completed feature. Any AI agent reading this should
 
 - [x] Design System & Theme Alignment (`ui-tokens.md`, `ui-rules.md`, `ui-registry.md`, `globals.css`, `layout.tsx`)
 - [x] 01 Storefront Layout & Homepage — Full UI
-- [ ] 02 Authentication & RBAC
+- [x] 02 Authentication & RBAC
 - [ ] 03 PostHog Initialization
 - [ ] 04 Database Schema & Seeds
+
 
 ### Phase 2 — Catalog, Discovery & PDP
 
@@ -59,6 +60,7 @@ Update this file after every completed feature. Any AI agent reading this should
   - Typography: Baloo 2 (`--font-heading`) for Headings, DM Sans (`--font-sans`) for Body & UI
 - Full page UI is built with mock data first — verified visually and interactively before wiring backend logic.
 - All page entrypoints (`app/**/page.tsx`) and layouts (`layout.tsx`) are strictly Server Components; interactive features are isolated into leaf Client Components in `components/`.
+- Next.js 16 App Router routing hierarchy reorganized into `(commonRoutes)` (public pages, storefront, auth) and `(protectedRoutes)` (customer dashboard, admin portal).
 - InsForge is used for PostgreSQL database, session authentication, RBAC, and object storage (`products/` bucket).
 - Analytics tracking is powered by PostHog with both browser client (`lib/posthog-client.ts`) and server client (`lib/posthog-server.ts`).
 
@@ -66,5 +68,8 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Notes
 
-- Design tokens, rules, registry, and Tailwind v4 theme fully aligned with `Mirai-mart_design-system.png`.
-- Next step is Feature 01: Build the complete Storefront Layout and Homepage UI with mock data.
+- Design tokens, rules, registry, and Tailwind v4 theme fully aligned with `Mirai-mart_design-system.png` and `My-account_page.png`.
+- Authentication strictly integrated with InsForge SDK (`@insforge/sdk`) for customer sign-up, sign-in, and session management.
+- My Account page (`/account`) fully aligned with `My-account_page.png` layout and guarded with Next.js 16 `proxy.ts`.
+- Next step is Feature 03: PostHog Initialization.
+

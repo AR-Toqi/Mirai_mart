@@ -43,8 +43,10 @@ export function PromoBanner() {
               src="/images/promo-summer.svg"
               alt="Summer toys collection with scooter and teddy bear"
               fill
+              sizes="(max-width: 640px) 100vw, 50vw"
               className="object-contain"
             />
+
           </div>
         </div>
       </div>

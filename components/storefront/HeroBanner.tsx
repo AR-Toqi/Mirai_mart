@@ -126,9 +126,11 @@ export function HeroBanner() {
               src="/images/hero-showcase.svg"
               alt="Kids playing with educational toys and robot"
               fill
+              sizes="(max-width: 1024px) 100vw, 40vw"
               priority
               className="object-cover"
             />
+
           </div>
         </div>
       </div>

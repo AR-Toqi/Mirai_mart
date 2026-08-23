@@ -27,3 +27,6 @@ export type TrustItem = {
   title: string;
   description: string;
 };
+
+export * from "./auth";
+
