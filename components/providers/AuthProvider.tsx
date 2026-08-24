@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import posthog from "posthog-js";
 import { insforge } from "@/lib/insforge-client";
 import type { UserProfile, UserRole, SessionState } from "@/types";
 
@@ -155,6 +156,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, JSON.stringify(sessionData));
         setSession(sessionData);
         syncSessionCookie(true, userRole);
+
+        // Identify user and capture sign-in event
+        posthog.identify(profile.id, {
+          name: profile.fullName,
+          role: userRole,
+        });
+        posthog.capture("user_signed_in", {
+          method: "email",
+          role: userRole,
+        });
+
         return { success: true };
       }
 
@@ -164,6 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to sign in";
+      posthog.captureException(err instanceof Error ? err : new Error(String(err)));
       return { success: false, error: msg };
     }
   };
@@ -190,6 +203,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Check if OTP verification is required
       if (data?.requireEmailVerification) {
+        posthog.capture("user_registered", {
+          method: "email",
+          requires_verification: true,
+        });
         return {
           success: true,
           requireVerification: true,
@@ -218,10 +235,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, JSON.stringify(sessionData));
         setSession(sessionData);
         syncSessionCookie(true, userRole);
+
+        posthog.identify(profile.id, {
+          name,
+          role: userRole,
+        });
+        posthog.capture("user_registered", {
+          method: "email",
+          requires_verification: false,
+          role: userRole,
+        });
+
         return { success: true, requireVerification: false };
       }
 
       // Default fallback if verification is required
+      posthog.capture("user_registered", {
+        method: "email",
+        requires_verification: true,
+      });
       return {
         success: true,
         requireVerification: true,
@@ -229,6 +261,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to create account";
+      posthog.captureException(err instanceof Error ? err : new Error(String(err)));
       return { success: false, error: msg };
     }
   };
@@ -276,6 +309,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, JSON.stringify(sessionData));
         setSession(sessionData);
         syncSessionCookie(true, userRole);
+
+        posthog.identify(profile.id, {
+          name: profile.fullName,
+          role: userRole,
+        });
+        posthog.capture("email_verified", {
+          role: userRole,
+        });
+
         return { success: true };
       }
 
@@ -285,6 +327,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Verification failed";
+      posthog.captureException(err instanceof Error ? err : new Error(String(err)));
       return { success: false, error: msg };
     }
   };
@@ -314,6 +357,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
     try {
+      posthog.capture("google_sign_in_initiated");
       const redirectTo = `${window.location.origin}/callback`;
       const { data, error } = await insforge.auth.signInWithOAuth("google", {
         redirectTo,
@@ -335,6 +379,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    posthog.capture("user_signed_out");
+    posthog.reset();
     try {
       await insforge.auth.signOut();
     } catch {

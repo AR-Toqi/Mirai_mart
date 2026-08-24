@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import posthog from "posthog-js";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -37,6 +38,10 @@ export function Header() {
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     if (searchQuery.trim()) {
+      posthog.capture("site_search_submitted", {
+        query_length: searchQuery.trim().length,
+        selected_category: selectedCategory,
+      });
       window.location.href = `/category/all?q=${encodeURIComponent(searchQuery.trim())}`;
     }
   }
@@ -87,6 +92,9 @@ export function Header() {
                     key={cat}
                     type="button"
                     onClick={() => {
+                      posthog.capture("category_filter_selected", {
+                        category: cat,
+                      });
                       setSelectedCategory(cat);
                       setIsDropdownOpen(false);
                     }}

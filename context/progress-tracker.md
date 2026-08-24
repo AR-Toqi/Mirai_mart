@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Phase:** Phase 1 — Foundation & Authentication  
-**Last completed:** 02 Authentication & RBAC  
-**Next:** 03 PostHog Initialization  
+**Phase:** Phase 2 — Catalog, Discovery & PDP  
+**Last completed:** 04 Database Schema & Seeds  
+**Next:** 05 Category & Product Listing Page (PLP) — Full UI  
 
 ---
 
@@ -19,8 +19,8 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] Design System & Theme Alignment (`ui-tokens.md`, `ui-rules.md`, `ui-registry.md`, `globals.css`, `layout.tsx`)
 - [x] 01 Storefront Layout & Homepage — Full UI
 - [x] 02 Authentication & RBAC
-- [ ] 03 PostHog Initialization
-- [ ] 04 Database Schema & Seeds
+- [x] 03 PostHog Initialization
+- [x] 04 Database Schema & Seeds
 
 
 ### Phase 2 — Catalog, Discovery & PDP

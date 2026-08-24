@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import posthog from "posthog-js";
 import { MailIcon } from "@/components/ui/Icons";
 
 export function NewsletterBanner() {
@@ -10,6 +11,9 @@ export function NewsletterBanner() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (email.trim()) {
+      posthog.capture("newsletter_subscribed", {
+        source: "homepage_banner",
+      });
       setIsSubscribed(true);
       setEmail("");
     }

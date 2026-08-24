@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import posthog from "posthog-js";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -46,6 +47,11 @@ export function AccountDashboardClient() {
   const router = useRouter();
   const { user, profile, isAuthenticated, isLoading, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<NavTab>("dashboard");
+
+  function handleTabChange(tab: NavTab) {
+    setActiveTab(tab);
+    posthog.capture("account_tab_viewed", { tab });
+  }
 
   // Strict Auth Guard: redirect to /login if unauthenticated
   useEffect(() => {
@@ -153,7 +159,7 @@ export function AccountDashboardClient() {
               </p>
               <button
                 type="button"
-                onClick={() => setActiveTab("profile")}
+                onClick={() => handleTabChange("profile")}
                 className="text-xs text-primary font-medium hover:underline mt-1 inline-block cursor-pointer"
               >
                 Edit Profile
@@ -171,7 +177,7 @@ export function AccountDashboardClient() {
               <div className="space-y-0.5">
                 <button
                   type="button"
-                  onClick={() => setActiveTab("dashboard")}
+                  onClick={() => handleTabChange("dashboard")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === "dashboard"
                       ? "bg-primary-surface/50 text-primary font-semibold"
@@ -184,7 +190,7 @@ export function AccountDashboardClient() {
 
                 <button
                   type="button"
-                  onClick={() => setActiveTab("orders")}
+                  onClick={() => handleTabChange("orders")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === "orders"
                       ? "bg-primary-surface/50 text-primary font-semibold"
@@ -197,7 +203,7 @@ export function AccountDashboardClient() {
 
                 <button
                   type="button"
-                  onClick={() => setActiveTab("wishlist")}
+                  onClick={() => handleTabChange("wishlist")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === "wishlist"
                       ? "bg-primary-surface/50 text-primary font-semibold"
@@ -210,7 +216,7 @@ export function AccountDashboardClient() {
 
                 <button
                   type="button"
-                  onClick={() => setActiveTab("reviews")}
+                  onClick={() => handleTabChange("reviews")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === "reviews"
                       ? "bg-primary-surface/50 text-primary font-semibold"
@@ -223,7 +229,7 @@ export function AccountDashboardClient() {
 
                 <button
                   type="button"
-                  onClick={() => setActiveTab("addresses")}
+                  onClick={() => handleTabChange("addresses")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === "addresses"
                       ? "bg-primary-surface/50 text-primary font-semibold"
@@ -236,7 +242,7 @@ export function AccountDashboardClient() {
 
                 <button
                   type="button"
-                  onClick={() => setActiveTab("payments")}
+                  onClick={() => handleTabChange("payments")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === "payments"
                       ? "bg-primary-surface/50 text-primary font-semibold"
@@ -257,7 +263,7 @@ export function AccountDashboardClient() {
               <div className="space-y-0.5">
                 <button
                   type="button"
-                  onClick={() => setActiveTab("profile")}
+                  onClick={() => handleTabChange("profile")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === "profile"
                       ? "bg-primary-surface/50 text-primary font-semibold"
@@ -270,7 +276,7 @@ export function AccountDashboardClient() {
 
                 <button
                   type="button"
-                  onClick={() => setActiveTab("password")}
+                  onClick={() => handleTabChange("password")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === "password"
                       ? "bg-primary-surface/50 text-primary font-semibold"
@@ -283,7 +289,7 @@ export function AccountDashboardClient() {
 
                 <button
                   type="button"
-                  onClick={() => setActiveTab("notifications")}
+                  onClick={() => handleTabChange("notifications")}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === "notifications"
                       ? "bg-primary-surface/50 text-primary font-semibold"
@@ -364,7 +370,7 @@ export function AccountDashboardClient() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("orders")}
+                  onClick={() => handleTabChange("orders")}
                   className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-0.5 mt-0.5 cursor-pointer"
                 >
                   <span>View all orders</span>
@@ -385,7 +391,7 @@ export function AccountDashboardClient() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("orders")}
+                  onClick={() => handleTabChange("orders")}
                   className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-0.5 mt-0.5 cursor-pointer"
                 >
                   <span>Track orders</span>
@@ -406,7 +412,7 @@ export function AccountDashboardClient() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("wishlist")}
+                  onClick={() => handleTabChange("wishlist")}
                   className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-0.5 mt-0.5 cursor-pointer"
                 >
                   <span>View wishlist</span>
@@ -448,7 +454,7 @@ export function AccountDashboardClient() {
                   </h2>
                   <button
                     type="button"
-                    onClick={() => setActiveTab("orders")}
+                    onClick={() => handleTabChange("orders")}
                     className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <span>View all orders</span>
@@ -554,7 +560,7 @@ export function AccountDashboardClient() {
                   </h2>
                   <button
                     type="button"
-                    onClick={() => setActiveTab("addresses")}
+                    onClick={() => handleTabChange("addresses")}
                     className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <span>Manage Addresses</span>
@@ -630,7 +636,7 @@ export function AccountDashboardClient() {
                   </h2>
                   <button
                     type="button"
-                    onClick={() => setActiveTab("payments")}
+                    onClick={() => handleTabChange("payments")}
                     className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <span>Manage Cards</span>

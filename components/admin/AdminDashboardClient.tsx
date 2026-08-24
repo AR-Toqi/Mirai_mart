@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import posthog from "posthog-js";
 import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { UserRoleBadge } from "@/components/auth/UserRoleBadge";
@@ -199,7 +200,10 @@ export function AdminDashboardClient() {
                     </span>
                   </td>
                   <td className="py-3 px-3">
-                    <button className="px-2.5 py-1 rounded bg-primary text-white text-[11px] font-medium hover:bg-tertiary transition-colors cursor-pointer">
+                    <button
+                      className="px-2.5 py-1 rounded bg-primary text-white text-[11px] font-medium hover:bg-tertiary transition-colors cursor-pointer"
+                      onClick={() => posthog.capture("admin_order_fulfilled", { order_id: "MM-10521", role })}
+                    >
                       Fulfill
                     </button>
                   </td>

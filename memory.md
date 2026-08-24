@@ -1,40 +1,33 @@
-# Memory — Authentication, OTP Verification & Customer Account Portal
+# Memory — Database Schema, Type System & Foundation Alignment
 
-Last updated: 2026-08-24 00:41:00 +06:00
+Last updated: 2026-08-24 21:11:45 +06:00
 
 ## What was built
 
-- Configured `@insforge/sdk` in `lib/insforge-client.ts` connecting to InsForge BaaS (`NEXT_PUBLIC_INSFORGE_URL`).
-- Built `components/providers/AuthProvider.tsx` providing real session authentication (`signInWithPassword`, `signUpWithEmail`, `verifyEmailOtp`, `resendOtp`, `signInWithGoogle`, `signOut`) and cookie synchronization.
-- Created Next.js 16 `proxy.ts` edge perimeter route guard for `/account/*`.
-- Built `components/auth/LoginForm.tsx` with Zod validation, password toggle, and Google OAuth.
-- Built `components/auth/RegisterForm.tsx` with multi-step registration and 6-digit email OTP verification screen.
-- Built `components/account/AccountDashboardClient.tsx` strictly matching `context/design/My-account_page.png` 1:1 (User initials avatar, sidebar navigation, 4 KPI cards, Recent Orders list with status pills in `৳`, Exclusive Member Benefits banner, Saved Addresses, Payment Methods, and Trust Strip).
-- Configured `images.remotePatterns` in `next.config.ts` for `images.unsplash.com` and `**.insforge.app`, and added responsive `sizes` across all `<Image fill />` elements.
-- Synchronized `context/progress-tracker.md` and `context/ui-registry.md`.
+- Resolved TypeScript re-export ambiguity in `types/index.ts` by updating `lib/db/types.ts` to import `UserRole` directly from `@/types/auth` rather than redefining an overlapping export.
+- Completed Phase 1 foundations: Design system tokens (`ui-tokens.md`, `globals.css`), Storefront layout & homepage (`/`), Authentication & RBAC (`/login`, `/register`, `/account`), PostHog server/client integration, and Database Schema & Seeds (`supabase/schema.sql`, `supabase/seed.sql`, `lib/db/types.ts`).
+- Updated `context/progress-tracker.md` to reflect completion of Phase 1 (Features 01 to 04).
 
 ## Decisions made
 
-- Focused strictly on customer authentication and the customer portal for Phase 1. Admin/manager CMS workflows will be implemented in Phase 5.
-- Email/Password sign-ups require 6-digit OTP code verification via `insforge.auth.verifyEmail({ email, otp })` before granting session tokens.
-- Google OAuth creates verified accounts instantly without requiring OTP code verification.
-- Currency is strictly formatted in Bangladeshi Taka (`৳`).
+- `types/auth.ts` is the single source of truth for auth-related types (`UserRole`, `UserProfile`, `AuthUser`, `SessionState`). Database entity definitions in `lib/db/types.ts` import from `@/types/auth` to prevent type collisions in barrel re-exports (`types/index.ts`).
+- All currency formatting throughout storefront, cart, and orders strictly uses Bangladeshi Taka (`৳`).
+- Server Components remain the default for all page entrypoints (`app/**/page.tsx`) and layouts, isolating interactive elements into leaf Client Components in `components/`.
 
 ## Problems solved
 
-- Eliminated mock login fallbacks in `AuthProvider.tsx` so unregistered emails cannot log in.
-- Fixed unauthenticated access to `/account` using both Next.js 16 `proxy.ts` cookie checks and in-component client guards.
-- Added the OTP verification screen to handle InsForge email verification requirements.
-- Whitelisted remote image hostnames and added responsive `sizes` props, fixing runtime image warnings.
+- Fixed TypeScript compiler error `Module "./auth" has already exported a member named 'UserRole'. Consider explicitly re-exporting to resolve the ambiguity.` in `types/index.ts` by removing duplicate `export type UserRole` in `lib/db/types.ts` and importing `UserRole` from `@/types/auth`.
 
 ## Current state
 
-- Phase 1 / Feature 01 (Storefront Layout & Homepage UI) and Feature 02 (Authentication & Customer Account Portal) are 100% complete and verified.
-- `next build` passes with 0 TypeScript and 0 ESLint errors.
+- Phase 1 (Features 01-04) is 100% complete.
+- Local dev server runs cleanly with zero TypeScript / ESLint export conflicts.
+- Next target is Phase 2: Feature 05 (Category & Product Listing Page / PLP).
 
 ## Next session starts with
 
-- Phase 1 / Feature 03: PostHog Initialization (Create `lib/posthog-client.ts`, `lib/posthog-server.ts`, initialize analytics provider in `app/layout.tsx`, and track `posthog.identify` / `posthog.reset` on login/logout).
+- Phase 2 / Feature 05: Category & Product Listing Page (PLP) — Full UI.
+- Build category grid/list view, breadcrumbs, product sorting bar, responsive filter drawer/sidebar, and pagination/infinite load matching Figma design specifications.
 
 ## Open questions
 

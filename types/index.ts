@@ -29,4 +29,5 @@ export type TrustItem = {
 };
 
 export * from "./auth";
+export * from "@/lib/db/types";
 

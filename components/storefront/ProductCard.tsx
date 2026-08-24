@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import posthog from "posthog-js";
 import Image from "next/image";
 import Link from "next/link";
 import { HeartIcon, ShoppingCartIcon } from "@/components/ui/Icons";
@@ -38,7 +39,17 @@ export function ProductCard({ product, className }: Props) {
             aria-label="Add to wishlist"
             onClick={(e) => {
               e.preventDefault();
-              setIsWishlisted(!isWishlisted);
+              const nextWishlisted = !isWishlisted;
+              setIsWishlisted(nextWishlisted);
+              if (nextWishlisted) {
+                posthog.capture("product_wishlisted", {
+                  product_id: product.id,
+                  product_name: product.title,
+                  product_category: product.category,
+                  product_price: product.price,
+                  product_slug: product.slug,
+                });
+              }
             }}
             className="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-neutral-muted hover:text-rose-500 shadow-xs transition-colors cursor-pointer"
           >
@@ -94,6 +105,17 @@ export function ProductCard({ product, className }: Props) {
         <button
           type="button"
           aria-label={`Add ${product.title} to cart`}
+          onClick={() => {
+            posthog.capture("product_added_to_cart", {
+              product_id: product.id,
+              product_name: product.title,
+              product_category: product.category,
+              product_price: product.price,
+              product_slug: product.slug,
+              has_badge: !!product.badge,
+              badge_type: product.badge ?? null,
+            });
+          }}
           className="w-8 h-8 rounded-lg bg-secondary/60 text-neutral-dark hover:bg-secondary-light flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
         >
           <ShoppingCartIcon size={16} className="w-4 h-4" />
