@@ -177,9 +177,114 @@ A centralized inventory of all reusable components, layouts, design tokens, and 
   };
   ```
 
-#### 10. `CartDrawer.tsx`
-- **Path**: `components/storefront/CartDrawer.tsx`
-- **Purpose**: Slide-over cart drawer with free-shipping dynamic progress bar (`৳ 999` threshold), line item quantity steppers, gift wrap toggle, and checkout CTA.
+#### 10. `CategoryHeader`
+File: `components/storefront/CategoryHeader.tsx`  
+Last updated: August 24, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-primary-surface/40` and `bg-secondary-surface/40` (ambient glow) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-neutral-border/60` (divider) |
+| Border radius | `rounded-2xl` (`16px`) container, `rounded-full` for subcategory pill chips |
+| Text — primary | `font-heading font-bold text-2xl sm:text-3xl lg:text-4xl text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs text-neutral-muted` (`#6E797F`), breadcrumb links |
+| Spacing | `p-5 sm:p-7` container padding, `gap-1.5` breadcrumb gap, `gap-2` chip gap |
+| Hover state | `hover:text-primary` for breadcrumbs, `hover:bg-primary-surface/40` for inactive chips |
+| Shadow | `shadow-xs` container & active chip |
+| Accent usage | `bg-primary text-white` for active subcategory chip |
+
+**Pattern notes:**
+- Category header banner uses `rounded-2xl` with decorative ambient glow blurs in background.
+- Subcategory navigation uses horizontal scrolling `rounded-full` pill chips.
+
+---
+
+#### 11. `FilterSidebar`
+File: `components/storefront/FilterSidebar.tsx`  
+Last updated: August 24, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (inputs & quick buttons), `bg-neutral-dark/40` (mobile backdrop) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-primary` (active age chip) |
+| Border radius | `rounded-2xl` (`16px`) desktop container, `rounded-xl` (`12px`) age buttons & mobile CTA, `rounded-lg` inputs |
+| Text — primary | `font-heading font-bold text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs uppercase tracking-wider text-neutral-muted` (section titles), `text-[10px]` subtext |
+| Spacing | `p-5` desktop padding, `p-6` mobile drawer padding, `space-y-6` facet section gap |
+| Hover state | `hover:border-primary/40`, `hover:text-primary` |
+| Shadow | `shadow-xs` desktop card & mobile CTA, `shadow-2xl` mobile drawer |
+| Accent usage | `bg-primary` apply button & quick price chips, `bg-primary-surface/60` active age chip, `accent-primary` for range slider & checkboxes |
+
+**Pattern notes:**
+- Desktop sidebar sticks to top viewport (`sticky top-24`).
+- Age options use a 2-column grid of `rounded-xl` interactive cards.
+- Dual price range inputs accept direct numeric input or quick price presets.
+
+---
+
+#### 12. `ProductToolbar`
+File: `components/storefront/ProductToolbar.tsx`  
+Last updated: August 24, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (selectors & toggle group) |
+| Border | `border border-neutral-border` (`#E7E8EB`) |
+| Border radius | `rounded-2xl` (`16px`) container, `rounded-xl` (`12px`) select inputs, `rounded-full` active filter badges |
+| Text — primary | `font-bold text-neutral-dark` (`#191C1E`) count highlight |
+| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted` (`#6E797F`) |
+| Spacing | `px-4 py-3 sm:px-5` container padding, `gap-3` toolbar items gap |
+| Hover state | `hover:text-neutral-dark`, `hover:text-error` for chip dismiss `✕` |
+| Shadow | `shadow-xs` |
+| Accent usage | `text-primary` for active view switcher icon, `bg-primary-surface text-tertiary` for active filter badges, `bg-secondary-surface text-neutral-dark` for tag badges |
+
+**Pattern notes:**
+- Active filters automatically populate dismissable pill chips below the toolbar.
+- View mode switcher toggles between 3-column Grid and single-column List views.
+
+---
+
+#### 13. `ProductListRow`
+File: `components/storefront/ProductListRow.tsx`  
+Last updated: August 24, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg/60` (thumbnail image area) |
+| Border | `border border-neutral-border` (`#E7E8EB`) |
+| Border radius | `rounded-2xl` (`16px`) card, `rounded-xl` (`12px`) image and add-to-cart button |
+| Text — primary | `font-heading font-bold text-base sm:text-lg text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs text-neutral-muted` (`#6E797F`), `text-success` (delivery eligibility) |
+| Spacing | `p-4` card padding, `gap-4` horizontal item gap |
+| Hover state | `hover:shadow-md`, `hover:text-primary` title link, `hover:bg-tertiary` cart button |
+| Shadow | `shadow-xs` initial, `hover:shadow-md` on hover |
+| Accent usage | `bg-primary text-white` Add to Cart button, `bg-primary-surface/40 text-tertiary` age badge |
+
+**Pattern notes:**
+- Used when user selects List View mode in toolbar.
+- Separates right-side pricing and CTA with vertical divider on desktop.
+
+---
+
+#### 14. `PLPClient`
+File: `components/storefront/PLPClient.tsx`  
+Last updated: August 24, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`) for empty state card |
+| Border | `border border-neutral-border` (`#E7E8EB`) |
+| Border radius | `rounded-2xl` (`16px`) empty state card, `rounded-xl` (`12px`) pagination buttons |
+| Text — primary | `font-heading font-bold text-xl text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted` (`#6E797F`) |
+| Spacing | `space-y-6 sm:space-y-8` layout gap, `p-10 sm:p-14` empty state padding |
+| Hover state | `hover:border-primary`, `hover:bg-neutral-bg` for pagination pills |
+| Shadow | `shadow-xs` |
+| Accent usage | `bg-primary text-white` for active page pill and empty state CTA |
+
+**Pattern notes:**
+- Client orchestrator component combining FilterSidebar, ProductToolbar, ProductCard grid, and ProductListRow list.
+- Renders empty state card with reset action when no products match active filters.
 
 ---
 

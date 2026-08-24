@@ -18,7 +18,7 @@ ON CONFLICT (slug) DO UPDATE
 SET name = EXCLUDED.name, description = EXCLUDED.description, image_url = EXCLUDED.image_url, is_active = EXCLUDED.is_active;
 
 -- Subcategories under Gift Combos
-INSERT INTO public.categories (id, name, slug, description, image_url, icon_name, parent_id, display_order, is_active)
+INSERT INTO public.categories (id, name, slug, description, image_url, icon_name, display_order, parent_id, is_active)
 VALUES
     ('c1111111-1111-1111-1111-111111111112', 'Newborn Babies', 'newborn-babies', 'Gentle organic rattles, silicone teether sets, and sensory nursery keepsakes.', 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?q=80&w=800&auto=format&fit=crop', 'Baby', 1, 'c1111111-1111-1111-1111-111111111111', TRUE),
     ('c1111111-1111-1111-1111-111111111113', 'Birthday Celebrations', 'birthday-babies', 'All-in-one party surprise packs, customized STEM bundles, and celebratory sets.', 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=800&auto=format&fit=crop', 'Cake', 2, 'c1111111-1111-1111-1111-111111111111', TRUE),
@@ -33,7 +33,7 @@ SET name = EXCLUDED.name, description = EXCLUDED.description, parent_id = EXCLUD
 INSERT INTO public.products (id, category_id, title, slug, description, curator_notes, age_range, specs, badge, is_active, is_featured)
 VALUES
     (
-        'p1111111-1111-1111-1111-111111111111',
+        'a1111111-1111-1111-1111-111111111111',
         'c2222222-2222-2222-2222-222222222222',
         'Montessori Wooden Geometry Sorting Board',
         'montessori-wooden-geometry-sorting-board',
@@ -46,7 +46,7 @@ VALUES
         TRUE
     ),
     (
-        'p2222222-2222-2222-2222-222222222222',
+        'a2222222-2222-2222-2222-222222222222',
         'c6666666-6666-6666-6666-666666666666',
         'Astronaut Star Galaxy Planetarium Projector',
         'astronaut-star-galaxy-planetarium-projector',
@@ -59,7 +59,7 @@ VALUES
         TRUE
     ),
     (
-        'p3333333-3333-3333-3333-333333333333',
+        'a3333333-3333-3333-3333-333333333333',
         'c3333333-3333-3333-3333-333333333333',
         'Magnetic Aero Speedster Vehicle Kit',
         'magnetic-aero-speedster-vehicle-kit',
@@ -72,7 +72,7 @@ VALUES
         TRUE
     ),
     (
-        'p4444444-4444-4444-4444-444444444444',
+        'a4444444-4444-4444-4444-444444444444',
         'c4444444-4444-4444-4444-444444444444',
         'Kinetic Orbit Desktop Balance Sculpture',
         'kinetic-orbit-desktop-balance-sculpture',
@@ -85,7 +85,7 @@ VALUES
         TRUE
     ),
     (
-        'p5555555-5555-5555-5555-555555555555',
+        'a5555555-5555-5555-5555-555555555555',
         'c1111111-1111-1111-1111-111111111111',
         'Deluxe Newborn Organic Milestone Gift Hamper',
         'deluxe-newborn-organic-milestone-gift-hamper',
@@ -98,7 +98,7 @@ VALUES
         TRUE
     ),
     (
-        'p6666666-6666-6666-6666-666666666666',
+        'a6666666-6666-6666-6666-666666666666',
         'c5555555-5555-5555-5555-555555555555',
         'Nordic Minimalist Mushroom Bedside Glow Lamp',
         'nordic-minimalist-mushroom-bedside-glow-lamp',
@@ -120,8 +120,8 @@ INSERT INTO public.product_variants (id, product_id, sku, title, price, compare_
 VALUES
     -- Montessori Board Variants
     (
-        'v1111111-1111-1111-1111-111111111111',
-        'p1111111-1111-1111-1111-111111111111',
+        'b1111111-1111-1111-1111-111111111111',
+        'a1111111-1111-1111-1111-111111111111',
         'MONT-SORT-NAT',
         'Natural Wood - 4-Column Classic',
         1450.00,
@@ -133,8 +133,8 @@ VALUES
         TRUE
     ),
     (
-        'v1111111-1111-1111-1111-111111111112',
-        'p1111111-1111-1111-1111-111111111111',
+        'b1111111-1111-1111-1111-111111111112',
+        'a1111111-1111-1111-1111-111111111111',
         'MONT-SORT-PAST',
         'Pastel Meadow - 5-Column Deluxe',
         1750.00,
@@ -147,8 +147,8 @@ VALUES
     ),
     -- Astronaut Projector Variants
     (
-        'v2222222-2222-2222-2222-222222222221',
-        'p2222222-2222-2222-2222-222222222222',
+        'b2222222-2222-2222-2222-222222222221',
+        'a2222222-2222-2222-2222-222222222222',
         'ASTRO-PROJ-WHT',
         'Lunar White - Remote Edition',
         2350.00,
@@ -160,8 +160,8 @@ VALUES
         TRUE
     ),
     (
-        'v2222222-2222-2222-2222-222222222222',
-        'p2222222-2222-2222-2222-222222222222',
+        'b2222222-2222-2222-2222-222222222222',
+        'a2222222-2222-2222-2222-222222222222',
         'ASTRO-PROJ-BLK',
         'Cosmic Obsidian - Remote Edition',
         2450.00,
@@ -174,8 +174,8 @@ VALUES
     ),
     -- Magnetic Speedster
     (
-        'v3333333-3333-3333-3333-333333333331',
-        'p3333333-3333-3333-3333-333333333333',
+        'b3333333-3333-3333-3333-333333333331',
+        'a3333333-3333-3333-3333-333333333333',
         'AERO-SPEED-RED',
         'Crimson Velocity 24pc Set',
         1850.00,
@@ -188,8 +188,8 @@ VALUES
     ),
     -- Kinetic Desktop Sculpture
     (
-        'v4444444-4444-4444-4444-444444444441',
-        'p4444444-4444-4444-4444-444444444444',
+        'b4444444-4444-4444-4444-444444444441',
+        'a4444444-4444-4444-4444-444444444444',
         'KINETIC-ORB-SLV',
         'Matte Titanium Silver',
         2890.00,
@@ -202,8 +202,8 @@ VALUES
     ),
     -- Milestone Gift Hamper
     (
-        'v5555555-5555-5555-5555-555555555551',
-        'p5555555-5555-5555-5555-555555555555',
+        'b5555555-5555-5555-5555-555555555551',
+        'a5555555-5555-5555-5555-555555555555',
         'GIFT-HAMP-OAT',
         'Organic Oat Cream Gift Basket',
         3850.00,
@@ -216,8 +216,8 @@ VALUES
     ),
     -- Mushroom Bedside Lamp
     (
-        'v6666666-6666-6666-6666-666666666661',
-        'p6666666-6666-6666-6666-666666666666',
+        'b6666666-6666-6666-6666-666666666661',
+        'a6666666-6666-6666-6666-666666666666',
         'LAMP-MUSH-AMB',
         'Honey Amber Warm Glow',
         2150.00,
@@ -236,9 +236,9 @@ SET price = EXCLUDED.price, stock_quantity = EXCLUDED.stock_quantity, images = E
 -- ------------------------------------------------------------------------------
 INSERT INTO public.promotions (id, code, description, discount_type, discount_value, min_order_value, max_uses, is_active)
 VALUES
-    ('pr111111-1111-1111-1111-111111111111', 'MIRAI10', 'Enjoy 10% off your entire curated order.', 'percentage', 10.00, 500.00, 1000, TRUE),
-    ('pr222222-2222-2222-2222-222222222222', 'FREESHIP', 'Free standard delivery across Bangladesh for orders over ৳ 999.', 'free_shipping', 0.00, 999.00, NULL, TRUE),
-    ('pr333333-3333-3333-3333-333333333333', 'WELCOME200', 'Flat ৳ 200 discount for first-time account registration.', 'fixed_amount', 200.00, 1500.00, 500, TRUE)
+    ('d0111111-1111-1111-1111-111111111111', 'MIRAI10', 'Enjoy 10% off your entire curated order.', 'percentage', 10.00, 500.00, 1000, TRUE),
+    ('d0222222-2222-2222-2222-222222222222', 'FREESHIP', 'Free standard delivery across Bangladesh for orders over ৳ 999.', 'free_shipping', 0.00, 999.00, NULL, TRUE),
+    ('d0333333-3333-3333-3333-333333333333', 'WELCOME200', 'Flat ৳ 200 discount for first-time account registration.', 'fixed_amount', 200.00, 1500.00, 500, TRUE)
 ON CONFLICT (code) DO UPDATE 
 SET discount_value = EXCLUDED.discount_value, is_active = EXCLUDED.is_active;
 
@@ -248,8 +248,8 @@ SET discount_value = EXCLUDED.discount_value, is_active = EXCLUDED.is_active;
 INSERT INTO public.reviews (id, product_id, reviewer_name, rating, title, comment, is_verified_purchase, is_approved)
 VALUES
     (
-        'r1111111-1111-1111-1111-111111111111',
-        'p1111111-1111-1111-1111-111111111111',
+        'e1111111-1111-1111-1111-111111111111',
+        'a1111111-1111-1111-1111-111111111111',
         'Tanzil A.',
         5,
         'Exceptional quality and solid beechwood!',
@@ -258,8 +258,8 @@ VALUES
         TRUE
     ),
     (
-        'r2222222-2222-2222-2222-222222222222',
-        'p2222222-2222-2222-2222-222222222222',
+        'e2222222-2222-2222-2222-222222222222',
+        'a2222222-2222-2222-2222-222222222222',
         'Farhana K.',
         5,
         'Magical starry projection',
@@ -268,8 +268,8 @@ VALUES
         TRUE
     ),
     (
-        'r3333333-3333-3333-3333-333333333333',
-        'p5555555-5555-5555-5555-555555555555',
+        'e3333333-3333-3333-3333-333333333333',
+        'a5555555-5555-5555-5555-555555555555',
         'Nafis R.',
         5,
         'Best baby shower gift ever',

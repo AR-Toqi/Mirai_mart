@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 2 — Catalog, Discovery & PDP  
-**Last completed:** 04 Database Schema & Seeds  
-**Next:** 05 Category & Product Listing Page (PLP) — Full UI  
+**Last completed:** 05 Category & Product Listing Page (PLP) — Full UI  
+**Next:** 06 Dynamic Filtering & Search Logic  
 
 ---
 
@@ -25,7 +25,7 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 2 — Catalog, Discovery & PDP
 
-- [ ] 05 Category & Product Listing Page (PLP) — Full UI
+- [x] 05 Category & Product Listing Page (PLP) — Full UI
 - [ ] 06 Dynamic Filtering & Search Logic
 - [ ] 07 Product Detail Page (PDP) — Full UI & Logic
 
@@ -71,5 +71,9 @@ Update this file after every completed feature. Any AI agent reading this should
 - Design tokens, rules, registry, and Tailwind v4 theme fully aligned with `Mirai-mart_design-system.png` and `My-account_page.png`.
 - Authentication strictly integrated with InsForge SDK (`@insforge/sdk`) for customer sign-up, sign-in, and session management.
 - My Account page (`/account`) fully aligned with `My-account_page.png` layout and guarded with Next.js 16 `proxy.ts`.
-- Next step is Feature 03: PostHog Initialization.
+- InsForge CLI linked to project `Mirai_mart` (`ctxg94dh.ap-southeast`).
+- Database schema migration executed: all 8 tables (`profiles`, `categories`, `products`, `product_variants`, `orders`, `order_items`, `reviews`, `promotions`) created in live PostgreSQL.
+- Database seed script executed: 10 categories/subcategories, 6 products, 8 variants, 3 promotions, and 3 customer reviews seeded.
+- InsForge Storage public bucket `products` created for media assets.
+- Next step is Phase 2: Feature 05 — Category & Product Listing Page (PLP) Full UI.
 
