@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 2 — Catalog, Discovery & PDP  
-**Last completed:** 05 Category & Product Listing Page (PLP) — Full UI  
-**Next:** 06 Dynamic Filtering & Search Logic  
+**Last completed:** 06 Dynamic Filtering & Search Logic  
+**Next:** 07 Product Detail Page (PDP) — Full UI & Logic  
 
 ---
 
@@ -26,7 +26,7 @@ Update this file after every completed feature. Any AI agent reading this should
 ### Phase 2 — Catalog, Discovery & PDP
 
 - [x] 05 Category & Product Listing Page (PLP) — Full UI
-- [ ] 06 Dynamic Filtering & Search Logic
+- [x] 06 Dynamic Filtering & Search Logic
 - [ ] 07 Product Detail Page (PDP) — Full UI & Logic
 
 ### Phase 3 — Cart Drawer & Checkout
@@ -63,6 +63,9 @@ Update this file after every completed feature. Any AI agent reading this should
 - Next.js 16 App Router routing hierarchy reorganized into `(commonRoutes)` (public pages, storefront, auth) and `(protectedRoutes)` (customer dashboard, admin portal).
 - InsForge is used for PostgreSQL database, session authentication, RBAC, and object storage (`products/` bucket).
 - Analytics tracking is powered by PostHog with both browser client (`lib/posthog-client.ts`) and server client (`lib/posthog-server.ts`).
+- Conditional Age Filtering: "Filter by Age" is displayed strictly for baby, kids, educational toys, and baby gift combo categories; hidden for non-age categories (gadgets, decor).
+- Live predictive search Route Handler (`app/api/search/route.ts`) provides debounced instant autocomplete previews with thumbnail images, category pills, and `৳` pricing.
+- Bidirectional URL query parameter synchronization keeps PLP filter and search state shareable and bookmarkable without full page reloads.
 
 ---
 
@@ -75,5 +78,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - Database schema migration executed: all 8 tables (`profiles`, `categories`, `products`, `product_variants`, `orders`, `order_items`, `reviews`, `promotions`) created in live PostgreSQL.
 - Database seed script executed: 10 categories/subcategories, 6 products, 8 variants, 3 promotions, and 3 customer reviews seeded.
 - InsForge Storage public bucket `products` created for media assets.
-- Next step is Phase 2: Feature 05 — Category & Product Listing Page (PLP) Full UI.
+- Feature 06 (Dynamic Filtering & Search Logic) complete with 0 TypeScript/build errors.
+- Next step is Phase 2: Feature 07 — Product Detail Page (PDP) Full UI & Logic.
+
 

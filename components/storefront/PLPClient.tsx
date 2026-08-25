@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { CategoryHeader } from "@/components/storefront/CategoryHeader";
 import { FilterSidebar, type FilterState } from "@/components/storefront/FilterSidebar";
 import { ProductToolbar, type SortOption, type ViewMode } from "@/components/storefront/ProductToolbar";
@@ -12,43 +13,145 @@ import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 12;
 
-const INITIAL_FILTERS: FilterState = {
-  ageRanges: [],
-  minPrice: 0,
-  maxPrice: 10000,
-  tags: [],
-  inStockOnly: false,
-};
-
 type Props = {
   category: CategoryMeta;
   initialProducts: Product[];
   initialSubCategorySlug?: string;
+  initialQuery?: string;
 };
 
 export function PLPClient({
   category,
   initialProducts,
   initialSubCategorySlug = "",
+  initialQuery = "",
 }: Props) {
-  const [activeSubCategorySlug, setActiveSubCategorySlug] = useState<string>(
-    initialSubCategorySlug
-  );
-  const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
-  const [sort, setSort] = useState<SortOption>("featured");
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Read initial states from URL search params or props
+  const urlSub = searchParams.get("sub") || initialSubCategorySlug;
+  const urlQuery = searchParams.get("q") || initialQuery;
+  const urlSort = (searchParams.get("sort") as SortOption) || "featured";
+  const urlView = (searchParams.get("view") as ViewMode) || "grid";
+  const urlMinPrice = searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : 0;
+  const urlMaxPrice = searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : 10000;
+  const urlAge = searchParams.get("age") ? searchParams.get("age")!.split(",").filter(Boolean) : [];
+  const urlTags = searchParams.get("tags") ? searchParams.get("tags")!.split(",").filter(Boolean) : [];
+  const urlInStock = searchParams.get("inStock") === "true";
+
+  const [activeSubCategorySlug, setActiveSubCategorySlug] = useState<string>(urlSub);
+  const [searchQuery, setSearchQuery] = useState<string>(urlQuery);
+  const [filters, setFilters] = useState<FilterState>({
+    ageRanges: urlAge,
+    minPrice: urlMinPrice,
+    maxPrice: urlMaxPrice,
+    tags: urlTags,
+    inStockOnly: urlInStock,
+  });
+  const [sort, setSort] = useState<SortOption>(urlSort);
+  const [viewMode, setViewMode] = useState<ViewMode>(urlView);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Determine whether this category shows the Age Filter
+  // (Only true for baby/kids/toy categories per user requirement)
+  const showAgeFilter = useMemo(() => {
+    if (typeof category.showAgeFilter === "boolean") {
+      return category.showAgeFilter;
+    }
+    const kidsSlugs = [
+      "educational-toys",
+      "toys-games",
+      "cars-vehicles",
+      "unique-toys",
+      "gift-combos",
+      "newborn-babies",
+      "birthday-babies",
+      "baby-kids",
+    ];
+    return kidsSlugs.includes(category.slug);
+  }, [category.showAgeFilter, category.slug]);
 
   // Active subcategory name for toolbar chip
   const activeSubCategory = category.subcategories?.find(
     (s) => s.slug === activeSubCategorySlug
   );
 
+  // Sync state changes to URL query parameters
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    const handler = setTimeout(() => {
+      const params = new URLSearchParams();
+
+      if (searchQuery.trim()) {
+        params.set("q", searchQuery.trim());
+      }
+      if (activeSubCategorySlug) {
+        params.set("sub", activeSubCategorySlug);
+      }
+      if (showAgeFilter && filters.ageRanges.length > 0) {
+        params.set("age", filters.ageRanges.join(","));
+      }
+      if (filters.minPrice > 0) {
+        params.set("minPrice", String(filters.minPrice));
+      }
+      if (filters.maxPrice < 10000) {
+        params.set("maxPrice", String(filters.maxPrice));
+      }
+      if (filters.tags.length > 0) {
+        params.set("tags", filters.tags.join(","));
+      }
+      if (filters.inStockOnly) {
+        params.set("inStock", "true");
+      }
+      if (sort !== "featured") {
+        params.set("sort", sort);
+      }
+      if (viewMode !== "grid") {
+        params.set("view", viewMode);
+      }
+
+      const queryString = params.toString();
+      const targetUrl = queryString ? `${pathname}?${queryString}` : pathname;
+      router.replace(targetUrl, { scroll: false });
+    }, 200);
+
+    return () => clearTimeout(handler);
+  }, [
+    activeSubCategorySlug,
+    searchQuery,
+    filters,
+    sort,
+    viewMode,
+    showAgeFilter,
+    pathname,
+    router,
+  ]);
+
   // Filter and Sort Pipeline
   const filteredProducts = useMemo(() => {
     return initialProducts.filter((product) => {
-      // 1. Subcategory filter
+      // 1. Search Query filter (matches title, description, category, tags)
+      if (searchQuery.trim()) {
+        const q = searchQuery.trim().toLowerCase();
+        const matchesTitle = product.title.toLowerCase().includes(q);
+        const matchesCategory = product.category.toLowerCase().includes(q);
+        const matchesDesc = product.description?.toLowerCase().includes(q);
+        const matchesTags = product.tags?.some((t) => t.toLowerCase().includes(q));
+
+        if (!matchesTitle && !matchesCategory && !matchesDesc && !matchesTags) {
+          return false;
+        }
+      }
+
+      // 2. Subcategory filter
       if (activeSubCategorySlug) {
         const matchesCategory =
           product.categorySlug === activeSubCategorySlug ||
@@ -56,8 +159,8 @@ export function PLPClient({
         if (!matchesCategory) return false;
       }
 
-      // 2. Age Range filter
-      if (filters.ageRanges.length > 0) {
+      // 3. Age Range filter (Only applied if category supports age filtering)
+      if (showAgeFilter && filters.ageRanges.length > 0) {
         if (!product.ageRange || !filters.ageRanges.includes(product.ageRange)) {
           if (product.ageRange !== "all") {
             return false;
@@ -65,7 +168,7 @@ export function PLPClient({
         }
       }
 
-      // 3. Price Range filter
+      // 4. Price Range filter (BDT ৳)
       if (
         product.price < filters.minPrice ||
         product.price > filters.maxPrice
@@ -73,7 +176,7 @@ export function PLPClient({
         return false;
       }
 
-      // 4. Skills / Theme tags
+      // 5. Skills / Theme tags
       if (filters.tags.length > 0) {
         if (
           !product.tags ||
@@ -83,14 +186,20 @@ export function PLPClient({
         }
       }
 
-      // 5. In-stock only
+      // 6. In-stock only
       if (filters.inStockOnly && product.isOutOfStock) {
         return false;
       }
 
       return true;
     });
-  }, [initialProducts, activeSubCategorySlug, filters]);
+  }, [
+    initialProducts,
+    searchQuery,
+    activeSubCategorySlug,
+    showAgeFilter,
+    filters,
+  ]);
 
   // Sorting
   const sortedProducts = useMemo(() => {
@@ -117,21 +226,33 @@ export function PLPClient({
     return sortedProducts.slice(start, start + PAGE_SIZE);
   }, [sortedProducts, currentPage]);
 
-  function handleFilterChange(newFilters: FilterState) {
+  const handleFilterChange = useCallback((newFilters: FilterState) => {
     setFilters(newFilters);
     setCurrentPage(1);
-  }
+  }, []);
 
-  function handleResetFilters() {
-    setFilters(INITIAL_FILTERS);
+  const handleResetFilters = useCallback(() => {
+    setFilters({
+      ageRanges: [],
+      minPrice: 0,
+      maxPrice: 10000,
+      tags: [],
+      inStockOnly: false,
+    });
     setActiveSubCategorySlug("");
+    setSearchQuery("");
     setCurrentPage(1);
-  }
+  }, []);
 
-  function handleSelectSubCategory(slug: string) {
+  const handleSelectSubCategory = useCallback((slug: string) => {
     setActiveSubCategorySlug(slug);
     setCurrentPage(1);
-  }
+  }, []);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery("");
+    setCurrentPage(1);
+  }, []);
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -142,6 +263,36 @@ export function PLPClient({
         onSelectSubCategory={handleSelectSubCategory}
       />
 
+      {/* Search Query Banner (if search is active) */}
+      {searchQuery.trim() && (
+        <div className="bg-primary-surface/50 border border-primary/20 rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 animate-in fade-in duration-150">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+              🔍
+            </div>
+            <div>
+              <p className="font-heading font-bold text-sm text-neutral-dark">
+                Search results for &ldquo;
+                <span className="text-primary">{searchQuery.trim()}</span>
+                &rdquo;
+              </p>
+              <p className="font-sans text-xs text-neutral-muted">
+                Found {sortedProducts.length} matching item
+                {sortedProducts.length === 1 ? "" : "s"} in this collection
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleClearSearch}
+            className="px-3 py-1.5 rounded-xl border border-neutral-border bg-white text-xs font-semibold text-neutral-dark hover:border-error hover:text-error transition-colors cursor-pointer shadow-xs"
+          >
+            Clear Search ✕
+          </button>
+        </div>
+      )}
+
       {/* 2. Main Layout: Left Sidebar + Product Grid */}
       <div className="flex items-start gap-6 lg:gap-8">
         {/* Left Filter Sidebar */}
@@ -151,6 +302,7 @@ export function PLPClient({
           onResetFilters={handleResetFilters}
           isOpenMobile={isMobileFiltersOpen}
           onCloseMobile={() => setIsMobileFiltersOpen(false)}
+          showAgeFilter={showAgeFilter}
         />
 
         {/* Right Product Listing Area */}
@@ -168,6 +320,9 @@ export function PLPClient({
             onOpenMobileFilters={() => setIsMobileFiltersOpen(true)}
             activeSubCategoryName={activeSubCategory?.name}
             onClearSubCategory={() => setActiveSubCategorySlug("")}
+            activeSearchQuery={searchQuery.trim() || undefined}
+            onClearSearch={handleClearSearch}
+            showAgeFilter={showAgeFilter}
           />
 
           {/* Product Cards Container */}
@@ -207,8 +362,8 @@ export function PLPClient({
                 No matching products found
               </h3>
               <p className="font-sans text-xs sm:text-sm text-neutral-muted max-w-md mx-auto mt-1.5 leading-relaxed">
-                We couldn&apos;t find any items matching your selected filters. Try
-                broadening your price range or clearing age filters.
+                We couldn&apos;t find any items matching your selected criteria. Try
+                broadening your search term or resetting active filters.
               </p>
               <button
                 type="button"

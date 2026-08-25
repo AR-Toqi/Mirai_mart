@@ -24,6 +24,9 @@ type Props = {
   onOpenMobileFilters: () => void;
   activeSubCategoryName?: string;
   onClearSubCategory?: () => void;
+  activeSearchQuery?: string;
+  onClearSearch?: () => void;
+  showAgeFilter?: boolean;
 };
 
 export function ProductToolbar({
@@ -38,13 +41,18 @@ export function ProductToolbar({
   onOpenMobileFilters,
   activeSubCategoryName,
   onClearSubCategory,
+  activeSearchQuery,
+  onClearSearch,
+  showAgeFilter = true,
 }: Props) {
+  const activeAgeCount = showAgeFilter ? filters.ageRanges.length : 0;
   const activeCount =
-    filters.ageRanges.length +
+    activeAgeCount +
     filters.tags.length +
     (filters.inStockOnly ? 1 : 0) +
     (filters.minPrice > 0 || filters.maxPrice < 10000 ? 1 : 0) +
-    (activeSubCategoryName ? 1 : 0);
+    (activeSubCategoryName ? 1 : 0) +
+    (activeSearchQuery ? 1 : 0);
 
   function removeAge(id: string) {
     onFilterChange({
@@ -198,6 +206,19 @@ export function ProductToolbar({
             Active filters:
           </span>
 
+          {activeSearchQuery && onClearSearch && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary text-white font-semibold text-xs shadow-xs">
+              Search: &ldquo;{activeSearchQuery}&rdquo;
+              <button
+                type="button"
+                onClick={onClearSearch}
+                className="hover:text-error transition-colors ml-0.5 cursor-pointer"
+              >
+                ✕
+              </button>
+            </span>
+          )}
+
           {activeSubCategoryName && onClearSubCategory && (
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-surface text-tertiary font-semibold text-xs border border-primary/20">
               Subcategory: {activeSubCategoryName}
@@ -211,21 +232,22 @@ export function ProductToolbar({
             </span>
           )}
 
-          {filters.ageRanges.map((age) => (
-            <span
-              key={age}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-surface text-tertiary font-semibold text-xs border border-primary/20"
-            >
-              Age: {age} yrs
-              <button
-                type="button"
-                onClick={() => removeAge(age)}
-                className="hover:text-error transition-colors ml-0.5 cursor-pointer"
+          {showAgeFilter &&
+            filters.ageRanges.map((age) => (
+              <span
+                key={age}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-surface text-tertiary font-semibold text-xs border border-primary/20"
               >
-                ✕
-              </button>
-            </span>
-          ))}
+                Age: {age} yrs
+                <button
+                  type="button"
+                  onClick={() => removeAge(age)}
+                  className="hover:text-error transition-colors ml-0.5 cursor-pointer"
+                >
+                  ✕
+                </button>
+              </span>
+            ))}
 
           {(filters.minPrice > 0 || filters.maxPrice < 10000) && (
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-surface text-tertiary font-semibold text-xs border border-primary/20">

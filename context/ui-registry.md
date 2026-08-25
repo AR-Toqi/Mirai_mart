@@ -66,16 +66,28 @@ A centralized inventory of all reusable components, layouts, design tokens, and 
   ```
 
 #### 2. `Header.tsx`
-- **Path**: `components/layout/Header.tsx`
-- **Purpose**: Main storefront sticky navigation bar with search, category dropdown, cart trigger, and account avatar.
-- **Visuals**: Glassmorphic frosted backdrop (`backdrop-blur-md bg-white/90 border-b border-neutral-border`).
-- **Props**:
-  ```typescript
-  type Props = {
-    cartItemCount?: number;
-    user?: { id: string; name?: string; avatarUrl?: string } | null;
-  };
-  ```
+
+File: `components/layout/Header.tsx`  
+Last updated: August 25, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-white/95 backdrop-blur-md` (sticky header), `bg-surface` (search input container), `bg-neutral-bg/60` (dropdown strip) |
+| Border | `border-b border-neutral-border` (`#E7E8EB`), `border border-neutral-border/50` (thumbnails) |
+| Border radius | `rounded-full` (search bar container & submit button), `rounded-2xl` (predictive search dropdown), `rounded-lg` (result thumbnail) |
+| Text — primary | `font-heading font-bold text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs text-neutral-muted` (`#6E797F`), `text-[10px]` uppercase tags |
+| Spacing | `h-20` header height, `px-4 sm:px-6 lg:px-8` horizontal layout, `pl-5 pr-1.5 py-1.5` search bar |
+| Hover state | `hover:bg-tertiary` (search button), `hover:bg-neutral-bg/60` (suggested items), `hover:text-primary` (nav icons) |
+| Shadow | `shadow-xs` search input, `shadow-xl` autocomplete dropdown |
+| Accent usage | `bg-primary text-white` search button, `bg-primary-surface text-primary` category tag, `bg-secondary-surface text-secondary-dark` badge |
+
+**Pattern notes:**
+- Streamlined full-width search bar without embedded category dropdown selector.
+- Predictive search flyout features debounced suggestions, product thumbnail preview, category pill, discount badge, and `৳` price formatting.
+- Cart counter uses `rounded-full bg-primary text-white text-[10px] font-bold`.
+
+---
 
 #### 3. `AdminSidebar.tsx`
 - **Path**: `components/layout/AdminSidebar.tsx`
@@ -90,7 +102,56 @@ A centralized inventory of all reusable components, layouts, design tokens, and 
   };
   ```
 
-#### 4. `Footer.tsx`
+---
+
+#### 4. `CategoryNavBar.tsx`
+
+File: `components/layout/CategoryNavBar.tsx`  
+Last updated: August 25, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-white` (sticky bar), `bg-surface` (dropdowns & drawer), `bg-neutral-bg/60` (mega-menu footer) |
+| Border | `border-b border-neutral-border` (`#E7E8EB`), `border border-neutral-border` (cards & drawers) |
+| Border radius | `rounded-2xl` (`16px`) for hover subcategory cards & mega-menu, `rounded-xl` for category links, `rounded-full` for Deals Zone pill |
+| Text — primary | `font-heading font-bold text-xs uppercase tracking-wider text-primary` (dropdown header), `font-bold text-xs text-neutral-dark` (links) |
+| Text — secondary | `font-sans text-[10px] sm:text-xs text-neutral-muted` (`#6E797F`) |
+| Spacing | `py-2` sticky bar padding, `p-4` subcategory flyout padding, `p-6` mega-menu padding |
+| Hover state | `hover:bg-primary-surface/40` (subcategories), `hover:bg-tertiary` (menu trigger), `hover:bg-secondary-light` (deals button) |
+| Shadow | `shadow-2xs` sticky bar, `shadow-xl` hover dropdown, `shadow-2xl` mega-menu panel |
+| Accent usage | `bg-primary text-white` for Categories trigger, `bg-secondary text-neutral-dark` for Deals Zone pill button |
+
+**Pattern notes:**
+- Hover dropdown cards use a 160ms exit timeout to ensure smooth pointer navigation without accidental dismissal.
+- Mega-menu displays a 4-column structured grid of all main departments with a Deals Zone callout strip.
+- Mobile drawer incorporates collapsible accordions with animated chevron indicators.
+
+---
+
+#### 5. `CategoryCircles.tsx`
+
+File: `components/storefront/CategoryCircles.tsx`  
+Last updated: August 25, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-white` (circular icon container) |
+| Border | `border border-neutral-border` (`#E7E8EB`) |
+| Border radius | `rounded-full` (`w-18 h-18 sm:w-22 sm:h-22`) |
+| Text — primary | `font-sans font-semibold text-[13px] text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `group-hover:text-primary` (`#0A98C3`) |
+| Spacing | `py-2` section padding, `p-3.5` inner circle padding, `gap-4 sm:gap-8` grid gap |
+| Hover state | `group-hover:scale-108 group-hover:shadow-md group-hover:border-primary/40` |
+| Shadow | `shadow-xs` initial, `group-hover:shadow-md` |
+| Accent usage | `group-hover:border-primary/40` |
+
+**Pattern notes:**
+- Exclusively displays the 5 main store departments: *Baby & Kids, Gift Combos, Digital Gadgets, Home Decor, Deals Zone*.
+- Grid is centered (`max-w-4xl mx-auto`) with responsive `grid-cols-3 sm:grid-cols-5`.
+
+---
+
+#### 6. `Footer.tsx`
 - **Path**: `components/layout/Footer.tsx`
 - **Purpose**: Multi-column sitemap, newsletter signup with 8px radius input, trust icons, and payment badges.
 - **Visuals**: Neutral dark surface (`bg-neutral-dark text-white`), clean typography.

@@ -17,6 +17,7 @@ type Props = {
   onResetFilters: () => void;
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
+  showAgeFilter?: boolean;
   className?: string;
 };
 
@@ -51,13 +52,14 @@ export function FilterSidebar({
   onResetFilters,
   isOpenMobile = false,
   onCloseMobile,
+  showAgeFilter = true,
   className,
 }: Props) {
   const [localMin, setLocalMin] = useState(filters.minPrice);
   const [localMax, setLocalMax] = useState(filters.maxPrice);
 
   const hasActiveFilters =
-    filters.ageRanges.length > 0 ||
+    (showAgeFilter && filters.ageRanges.length > 0) ||
     filters.tags.length > 0 ||
     filters.inStockOnly ||
     filters.minPrice > 0 ||
@@ -125,40 +127,42 @@ export function FilterSidebar({
         )}
       </div>
 
-      {/* 1. Age Range Filter */}
-      <div>
-        <h3 className="font-heading font-semibold text-xs uppercase tracking-wider text-neutral-muted mb-2.5">
-          Shop by Age Group
-        </h3>
-        <div className="grid grid-cols-2 gap-1.5">
-          {AGE_OPTIONS.map((age) => {
-            const isSelected = filters.ageRanges.includes(age.id);
-            return (
-              <button
-                key={age.id}
-                type="button"
-                onClick={() => toggleAge(age.id)}
-                className={cn(
-                  "flex flex-col items-start px-3 py-2 rounded-xl text-left border transition-all cursor-pointer",
-                  isSelected
-                    ? "bg-primary-surface/60 border-primary text-neutral-dark shadow-xs ring-1 ring-primary/30"
-                    : "bg-surface border-neutral-border text-neutral-dark hover:border-primary/40 hover:bg-neutral-bg/60"
-                )}
-              >
-                <span className="font-heading font-bold text-xs">
-                  {age.label}
-                </span>
-                <span className="text-[10px] text-neutral-muted font-sans line-clamp-1">
-                  {age.description}
-                </span>
-              </button>
-            );
-          })}
+      {/* 1. Age Range Filter - Conditionally Rendered */}
+      {showAgeFilter && (
+        <div>
+          <h3 className="font-heading font-semibold text-xs uppercase tracking-wider text-neutral-muted mb-2.5">
+            Shop by Age Group
+          </h3>
+          <div className="grid grid-cols-2 gap-1.5">
+            {AGE_OPTIONS.map((age) => {
+              const isSelected = filters.ageRanges.includes(age.id);
+              return (
+                <button
+                  key={age.id}
+                  type="button"
+                  onClick={() => toggleAge(age.id)}
+                  className={cn(
+                    "flex flex-col items-start px-3 py-2 rounded-xl text-left border transition-all cursor-pointer",
+                    isSelected
+                      ? "bg-primary-surface/60 border-primary text-neutral-dark shadow-xs ring-1 ring-primary/30"
+                      : "bg-surface border-neutral-border text-neutral-dark hover:border-primary/40 hover:bg-neutral-bg/60"
+                  )}
+                >
+                  <span className="font-heading font-bold text-xs">
+                    {age.label}
+                  </span>
+                  <span className="text-[10px] text-neutral-muted font-sans line-clamp-1">
+                    {age.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 2. Price Range Filter (BDT ৳) */}
-      <div className="pt-2 border-t border-neutral-border/60">
+      <div className={cn(showAgeFilter ? "pt-2 border-t border-neutral-border/60" : "")}>
         <h3 className="font-heading font-semibold text-xs uppercase tracking-wider text-neutral-muted mb-2.5">
           Price Range (৳)
         </h3>

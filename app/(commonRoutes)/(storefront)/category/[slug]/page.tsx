@@ -1,34 +1,51 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PLPClient } from "@/components/storefront/PLPClient";
-import { CATEGORIES_META, ALL_PRODUCTS } from "@/lib/mock-data";
+import { getFilteredProducts } from "@/actions/products";
+import { CATEGORIES_META } from "@/lib/mock-data";
 
 type Props = {
   params: Promise<{
     slug: string;
   }>;
   searchParams?: Promise<{
+    q?: string;
     sub?: string;
     age?: string;
     sort?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    tags?: string;
+    inStock?: string;
   }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const query = resolvedSearchParams.q;
+
   const category = CATEGORIES_META[slug] || CATEGORIES_META["all"];
 
-  if (!category) {
+  if (query) {
+    return {
+      title: `Search: "${query}" | Mirai Mart`,
+      description: `Browse curated products matching "${query}" at Mirai Mart.`,
+    };
+  }
+
+  if (!category && slug !== "all") {
     return {
       title: "Category Not Found | Mirai Mart",
     };
   }
 
+  const categoryName = category?.name || "Curated Collection";
   return {
-    title: `${category.name} | Curated Collection — Mirai Mart`,
+    title: `${categoryName} | Mirai Mart`,
     description:
-      category.description ||
-      "Discover curated educational toys, STEM gadgets, and celebration gift combos at Mirai Mart.",
+      category?.description ||
+      "Discover handcrafted Montessori toys, STEM electronic gadgets, ambient home decor, and ready-to-gift celebration hampers at Mirai Mart.",
   };
 }
 
@@ -36,6 +53,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const initialSub = resolvedSearchParams.sub || "";
+  const initialQuery = resolvedSearchParams.q || "";
 
   // 1. Resolve Category Metadata
   const category =
@@ -50,27 +68,34 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     notFound();
   }
 
-  // 2. Filter initial products for this category
-  const initialProducts = ALL_PRODUCTS.filter((product) => {
-    if (slug === "all") return true;
-    if (slug === "deals") return !!product.badge && product.badge.includes("%");
-    if (slug === "new-arrivals") return product.badge === "New";
-    if (slug === "best-sellers") return product.badge === "Bestseller";
-
-    return (
-      product.categorySlug === slug ||
-      product.subCategorySlug === slug ||
-      (category.subcategories &&
-        category.subcategories.some((sub) => sub.slug === product.categorySlug))
-    );
+  // 2. Fetch products via Server Action
+  const filterResult = await getFilteredProducts({
+    category: slug,
+    subCategory: initialSub || undefined,
+    query: initialQuery || undefined,
+    ageRanges: resolvedSearchParams.age
+      ? resolvedSearchParams.age.split(",").filter(Boolean)
+      : undefined,
+    minPrice: resolvedSearchParams.minPrice
+      ? Number(resolvedSearchParams.minPrice)
+      : undefined,
+    maxPrice: resolvedSearchParams.maxPrice
+      ? Number(resolvedSearchParams.maxPrice)
+      : undefined,
+    tags: resolvedSearchParams.tags
+      ? resolvedSearchParams.tags.split(",").filter(Boolean)
+      : undefined,
+    inStockOnly: resolvedSearchParams.inStock === "true",
+    sort: (resolvedSearchParams.sort as any) || "featured",
   });
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <PLPClient
         category={category}
-        initialProducts={initialProducts.length > 0 ? initialProducts : ALL_PRODUCTS}
+        initialProducts={filterResult.products}
         initialSubCategorySlug={initialSub}
+        initialQuery={initialQuery}
       />
     </main>
   );

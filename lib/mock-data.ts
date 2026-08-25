@@ -14,8 +14,183 @@ export type CategoryMeta = {
   headline: string;
   description: string;
   bannerImage?: string;
+  showAgeFilter?: boolean;
   subcategories: SubCategory[];
 };
+
+export type NavDepartment = {
+  name: string;
+  slug: string;
+  href: string;
+  icon: string;
+  badge?: string;
+  description: string;
+  subcategories: {
+    name: string;
+    slug: string;
+    href: string;
+    description: string;
+    icon: string;
+  }[];
+};
+
+export const NAV_DEPARTMENTS: NavDepartment[] = [
+  {
+    name: "Baby & Kids",
+    slug: "baby-kids",
+    href: "/category/baby-kids",
+    icon: "Baby",
+    description: "Developmental toys, vehicles, puzzles & nursery essentials",
+    subcategories: [
+      {
+        name: "Educational & STEM Toys",
+        slug: "educational-toys",
+        href: "/category/educational-toys",
+        description: "Montessori wooden boards, circuit kits & sensory puzzles",
+        icon: "Puzzle",
+      },
+      {
+        name: "Cars & Vehicles",
+        slug: "cars-vehicles",
+        href: "/category/cars-vehicles",
+        description: "Magnetic modular racers, RC stunt cars & wooden trains",
+        icon: "Car",
+      },
+      {
+        name: "Unique & Kinetic Toys",
+        slug: "unique-toys",
+        href: "/category/unique-toys",
+        description: "Kinetic balance sculptures, optical illusions & marble runs",
+        icon: "Sparkles",
+      },
+      {
+        name: "Puzzles & Brain Games",
+        slug: "puzzles-games",
+        href: "/category/puzzles-games",
+        description: "Brainteasers, logic challenges & sensory sorting sets",
+        icon: "Gamepad2",
+      },
+      {
+        name: "Newborn & Toddler Essentials",
+        slug: "newborn-babies",
+        href: "/category/newborn-babies",
+        description: "Organic rattles, teething sets & nursery milestone keepsakes",
+        icon: "Heart",
+      },
+    ],
+  },
+  {
+    name: "Gift Combos",
+    slug: "gift-combos",
+    href: "/category/gift-combos",
+    icon: "Gift",
+    description: "Curated celebration bundles, surprise packs & ready-to-gift sets",
+    subcategories: [
+      {
+        name: "Newborn Baby Hampers",
+        slug: "newborn-babies",
+        href: "/category/gift-combos?sub=newborn-babies",
+        description: "Gentle organic rattles, swaddle sets & milestone boxes",
+        icon: "Baby",
+      },
+      {
+        name: "Birthday Celebration Boxes",
+        slug: "birthday-babies",
+        href: "/category/gift-combos?sub=birthday-babies",
+        description: "All-in-one party surprise packs & festive developmental bundles",
+        icon: "PartyPopper",
+      },
+      {
+        name: "Home Decor Gift Sets",
+        slug: "home-decor-gifts",
+        href: "/category/gift-combos?sub=home-decor-gifts",
+        description: "Ambient glow lamps & artisanal aesthetic sculptures",
+        icon: "Lamp",
+      },
+      {
+        name: "Smart Gadget Kits",
+        slug: "gadget-bundles",
+        href: "/category/gift-combos?sub=gadget-bundles",
+        description: "Multi-device smart exploration kits & coding sets",
+        icon: "Bot",
+      },
+    ],
+  },
+  {
+    name: "Digital Gadgets",
+    slug: "digital-gadgets",
+    href: "/category/digital-gadgets",
+    icon: "Cpu",
+    description: "Smart learning companions, planetariums & tech desk gadgets",
+    subcategories: [
+      {
+        name: "Planetarium & Projectors",
+        slug: "planetarium-lights",
+        href: "/category/digital-gadgets?sub=planetarium-lights",
+        description: "High-definition galaxy projectors & star atmosphere lamps",
+        icon: "Moon",
+      },
+      {
+        name: "Coding & Robotics",
+        slug: "coding-robots",
+        href: "/category/digital-gadgets?sub=coding-robots",
+        description: "Interactive coding bots & smart AI companions for kids",
+        icon: "Bot",
+      },
+      {
+        name: "Kids Smartwatches & Audio",
+        slug: "smart-audio",
+        href: "/category/digital-gadgets?sub=kids-smartwatches",
+        description: "Kid-safe audio gadgets & interactive music creators",
+        icon: "Headphones",
+      },
+      {
+        name: "Smart Desk Tech",
+        slug: "desk-tech",
+        href: "/category/digital-gadgets?sub=desk-tech",
+        description: "Minimalist desktop timers, clocks & sensory ambient lighting",
+        icon: "Clock",
+      },
+    ],
+  },
+  {
+    name: "Home Decor",
+    slug: "home-decor",
+    href: "/category/home-decor",
+    icon: "Home",
+    description: "Aesthetic nursery accents, ambient glow lamps & desk art",
+    subcategories: [
+      {
+        name: "Ambient Lighting",
+        slug: "ambient-lighting",
+        href: "/category/home-decor?sub=ambient-lighting",
+        description: "Artisanal mushroom lamps & soothing night lights",
+        icon: "Lamp",
+      },
+      {
+        name: "Wall Art & Shelves",
+        slug: "wall-shelves",
+        href: "/category/home-decor?sub=wall-shelves",
+        description: "Floating cloud shelves & geometric wall accents",
+        icon: "LayoutGrid",
+      },
+      {
+        name: "Kinetic Desk Sculptures",
+        slug: "kinetic-sculptures",
+        href: "/category/home-decor?sub=kinetic-sculptures",
+        description: "Perpetual motion balance sculptures & kinetic desktop art",
+        icon: "Orbit",
+      },
+      {
+        name: "Nursery Accents",
+        slug: "nursery-decor",
+        href: "/category/home-decor?sub=nursery-decor",
+        description: "Playroom mobiles, storage organizers & decorative accents",
+        icon: "Sparkles",
+      },
+    ],
+  },
+];
 
 export const CATEGORIES_META: Record<string, CategoryMeta> = {
   "all": {
@@ -24,13 +199,28 @@ export const CATEGORIES_META: Record<string, CategoryMeta> = {
     slug: "all",
     headline: "Explore Our Full Curated Collection",
     description: "Discover handcrafted Montessori toys, STEM electronic gadgets, ambient home decor, and ready-to-gift celebration hampers.",
+    showAgeFilter: false,
     subcategories: [
-      { id: "sub-all-1", name: "Gift Combos", slug: "gift-combos" },
-      { id: "sub-all-2", name: "Educational Toys", slug: "educational-toys" },
-      { id: "sub-all-3", name: "Cars & Vehicles", slug: "cars-vehicles" },
-      { id: "sub-all-4", name: "Unique Toys", slug: "unique-toys" },
-      { id: "sub-all-5", name: "Home Decor", slug: "home-decor" },
-      { id: "sub-all-6", name: "Digital Gadgets", slug: "digital-gadgets" },
+      { id: "sub-all-1", name: "Baby & Kids", slug: "baby-kids" },
+      { id: "sub-all-2", name: "Gift Combos", slug: "gift-combos" },
+      { id: "sub-all-3", name: "Digital Gadgets", slug: "digital-gadgets" },
+      { id: "sub-all-4", name: "Home Decor", slug: "home-decor" },
+      { id: "sub-all-5", name: "Deals Zone", slug: "deals" },
+    ],
+  },
+  "baby-kids": {
+    id: "cat-baby-kids",
+    name: "Baby & Kids",
+    slug: "baby-kids",
+    headline: "Developmental Toys, Vehicles & Nursery Essentials",
+    description: "Foster spatial reasoning, motor coordination, cognitive logic, and joyful discovery with curated Montessori and STEM tools.",
+    showAgeFilter: true,
+    subcategories: [
+      { id: "sub-bk-1", name: "Educational & STEM Toys", slug: "educational-toys", description: "Montessori wooden boards, circuit kits & sensory puzzles" },
+      { id: "sub-bk-2", name: "Cars & Vehicles", slug: "cars-vehicles", description: "Magnetic modular racers, RC stunt cars & wooden trains" },
+      { id: "sub-bk-3", name: "Unique & Kinetic Toys", slug: "unique-toys", description: "Kinetic balance sculptures, optical illusions & marble runs" },
+      { id: "sub-bk-4", name: "Puzzles & Brain Games", slug: "puzzles-games", description: "Brainteasers, logic challenges & sensory sorting sets" },
+      { id: "sub-bk-5", name: "Newborn & Toddler Essentials", slug: "newborn-babies", description: "Organic rattles, teething sets & nursery milestone keepsakes" },
     ],
   },
   "gift-combos": {
@@ -39,19 +229,21 @@ export const CATEGORIES_META: Record<string, CategoryMeta> = {
     slug: "gift-combos",
     headline: "Curated Celebration Bundles & Ready-to-Gift Sets",
     description: "Thoughtfully assembled surprise packs, organic newborn hampers, birthday boxes, and smart gadget combos.",
+    showAgeFilter: true,
     subcategories: [
-      { id: "c1111111-1111-1111-1111-111111111112", name: "Newborn Babies", slug: "newborn-babies", description: "Gentle organic rattles, teether sets, and nursery keepsakes" },
-      { id: "c1111111-1111-1111-1111-111111111113", name: "Birthday Celebrations", slug: "birthday-babies", description: "All-in-one party surprise packs and celebratory bundles" },
-      { id: "c1111111-1111-1111-1111-111111111114", name: "Home Decor Gifts", slug: "home-decor-gifts", description: "Ambient lamps and aesthetic desktop sculptures" },
-      { id: "c1111111-1111-1111-1111-111111111115", name: "Gadget Bundles", slug: "gadget-bundles", description: "Multi-device smart exploration kits and robotic sets" },
+      { id: "c1111111-1111-1111-1111-111111111112", name: "Newborn Baby Hampers", slug: "newborn-babies", description: "Gentle organic rattles, teether sets, and nursery keepsakes" },
+      { id: "c1111111-1111-1111-1111-111111111113", name: "Birthday Celebration Boxes", slug: "birthday-babies", description: "All-in-one party surprise packs and celebratory bundles" },
+      { id: "c1111111-1111-1111-1111-111111111114", name: "Home Decor Gift Sets", slug: "home-decor-gifts", description: "Ambient lamps and aesthetic desktop sculptures" },
+      { id: "c1111111-1111-1111-1111-111111111115", name: "Smart Gadget Kits", slug: "gadget-bundles", description: "Multi-device smart exploration kits and robotic sets" },
     ],
   },
   "newborn-babies": {
     id: "c1111111-1111-1111-1111-111111111112",
-    name: "Newborn Babies Gifts",
+    name: "Newborn & Toddler Essentials",
     slug: "newborn-babies",
     headline: "Pure & Organic Milestone Keepsakes",
     description: "Gentle organic cotton swaddles, handmade crochet rattles, and natural beechwood milestone sets for newborns.",
+    showAgeFilter: true,
     subcategories: [
       { id: "sub-nb-1", name: "Organic Swaddles", slug: "newborn-babies" },
       { id: "sub-nb-2", name: "Sensory Rattles", slug: "newborn-babies" },
@@ -64,6 +256,7 @@ export const CATEGORIES_META: Record<string, CategoryMeta> = {
     slug: "birthday-babies",
     headline: "Unforgettable Birthday Surprise Boxes",
     description: "Packed with wonder, developmental games, and cheerful celebration items for toddlers and kids.",
+    showAgeFilter: true,
     subcategories: [
       { id: "sub-bb-1", name: "Party Sets", slug: "birthday-babies" },
       { id: "sub-bb-2", name: "STEM Birthday Bundles", slug: "birthday-babies" },
@@ -75,6 +268,7 @@ export const CATEGORIES_META: Record<string, CategoryMeta> = {
     slug: "home-decor-gifts",
     headline: "Warm Ambient Lights & Modern Accent Pieces",
     description: "Artisanal glow lamps, kinetic perpetual sculptures, and aesthetic nursery mobiles.",
+    showAgeFilter: false,
     subcategories: [
       { id: "sub-hdg-1", name: "Night Lights", slug: "home-decor-gifts" },
       { id: "sub-hdg-2", name: "Desk Sculptures", slug: "home-decor-gifts" },
@@ -86,6 +280,7 @@ export const CATEGORIES_META: Record<string, CategoryMeta> = {
     slug: "gadget-bundles",
     headline: "Interactive STEM Kits & Smart Toy Bundles",
     description: "Curated smart gadgets, planetarium projectors, and coding companions packaged together.",
+    showAgeFilter: false,
     subcategories: [
       { id: "sub-gb-1", name: "Coding & Robotics", slug: "gadget-bundles" },
       { id: "sub-gb-2", name: "Projectors & Audio", slug: "gadget-bundles" },
@@ -93,10 +288,11 @@ export const CATEGORIES_META: Record<string, CategoryMeta> = {
   },
   "educational-toys": {
     id: "c2222222-2222-2222-2222-222222222222",
-    name: "Educational Toys",
+    name: "Educational & STEM Toys",
     slug: "educational-toys",
     headline: "Montessori & STEM Brain-Building Toys",
     description: "Foster spatial reasoning, motor coordination, cognitive logic, and imaginative problem-solving.",
+    showAgeFilter: true,
     subcategories: [
       { id: "sub-edu-1", name: "Montessori Wooden", slug: "educational-toys" },
       { id: "sub-edu-2", name: "STEM Electronics", slug: "educational-toys" },
@@ -110,6 +306,7 @@ export const CATEGORIES_META: Record<string, CategoryMeta> = {
     slug: "cars-vehicles",
     headline: "Magnetic Speedsters, RC Racers & Wooden Railways",
     description: "High-precision diecast models, modular magnetic vehicles, and smooth-rolling tracks.",
+    showAgeFilter: true,
     subcategories: [
       { id: "sub-car-1", name: "Magnetic Modular", slug: "cars-vehicles" },
       { id: "sub-car-2", name: "RC Stunt Cars", slug: "cars-vehicles" },
@@ -118,14 +315,28 @@ export const CATEGORIES_META: Record<string, CategoryMeta> = {
   },
   "unique-toys": {
     id: "c4444444-4444-4444-4444-444444444444",
-    name: "Unique Toys",
+    name: "Unique & Kinetic Toys",
     slug: "unique-toys",
     headline: "Whimsical Kinetic Art, Illusions & Brainteasers",
     description: "Mesmerizing balance sculptures, optical puzzles, and magnetic marble circuits.",
+    showAgeFilter: true,
     subcategories: [
       { id: "sub-uniq-1", name: "Kinetic Sculptures", slug: "unique-toys" },
       { id: "sub-uniq-2", name: "Optical Illusions", slug: "unique-toys" },
       { id: "sub-uniq-3", name: "Marble Runs", slug: "unique-toys" },
+    ],
+  },
+  "puzzles-games": {
+    id: "cat-puzzles-games",
+    name: "Puzzles & Brain Games",
+    slug: "puzzles-games",
+    headline: "Tactile Brainteasers & Cognitive Logic Games",
+    description: "Multi-level spatial challenges, sensory shape sorting, and family board games.",
+    showAgeFilter: true,
+    subcategories: [
+      { id: "sub-pg-1", name: "Sensory Sorting", slug: "puzzles-games" },
+      { id: "sub-pg-2", name: "3D Wooden Teasers", slug: "puzzles-games" },
+      { id: "sub-pg-3", name: "Logic Boards", slug: "puzzles-games" },
     ],
   },
   "home-decor": {
@@ -134,10 +345,12 @@ export const CATEGORIES_META: Record<string, CategoryMeta> = {
     slug: "home-decor",
     headline: "Aesthetic Nursery Accents & Ambient Illumination",
     description: "Playful mushroom lamps, cloud floating shelves, minimalist perpetual calendars, and geometric wall art.",
+    showAgeFilter: false,
     subcategories: [
       { id: "sub-hd-1", name: "Ambient Lighting", slug: "home-decor" },
       { id: "sub-hd-2", name: "Wall Art & Shelves", slug: "home-decor" },
-      { id: "sub-hd-3", name: "Desk Accessories", slug: "home-decor" },
+      { id: "sub-hd-3", name: "Kinetic Desk Sculptures", slug: "home-decor" },
+      { id: "sub-hd-4", name: "Nursery Accents", slug: "home-decor" },
     ],
   },
   "digital-gadgets": {
@@ -146,10 +359,12 @@ export const CATEGORIES_META: Record<string, CategoryMeta> = {
     slug: "digital-gadgets",
     headline: "Smart Learning Companions & Starry Projectors",
     description: "Cutting-edge kids coding bots, high-definition galaxy planetariums, and interactive sound generators.",
+    showAgeFilter: false,
     subcategories: [
-      { id: "sub-dg-1", name: "Planetarium Lights", slug: "digital-gadgets" },
-      { id: "sub-dg-2", name: "Kids Smartwatches", slug: "digital-gadgets" },
-      { id: "sub-dg-3", name: "Coding Robots", slug: "digital-gadgets" },
+      { id: "sub-dg-1", name: "Planetarium & Projectors", slug: "digital-gadgets" },
+      { id: "sub-dg-2", name: "Coding & Robotics", slug: "digital-gadgets" },
+      { id: "sub-dg-3", name: "Kids Smartwatches & Audio", slug: "digital-gadgets" },
+      { id: "sub-dg-4", name: "Smart Desk Tech", slug: "digital-gadgets" },
     ],
   },
   "deals": {
@@ -158,6 +373,7 @@ export const CATEGORIES_META: Record<string, CategoryMeta> = {
     slug: "deals",
     headline: "Limited-Time Offers & Exclusive Discounts",
     description: "Special prices on curated bestsellers, bundles, and seasonal developmental toys.",
+    showAgeFilter: false,
     subcategories: [
       { id: "sub-dl-1", name: "Flash Sales", slug: "deals" },
       { id: "sub-dl-2", name: "Bundle Discounts", slug: "deals" },
@@ -170,6 +386,7 @@ export const CATEGORIES_META: Record<string, CategoryMeta> = {
     slug: "new-arrivals",
     headline: "Freshly Curated Additions for Curious Minds",
     description: "Check out the newest educational discoveries, toys, and aesthetic additions to Mirai Mart.",
+    showAgeFilter: false,
     subcategories: [
       { id: "sub-na-1", name: "This Month", slug: "new-arrivals" },
       { id: "sub-na-2", name: "Trending Now", slug: "new-arrivals" },
@@ -181,54 +398,10 @@ export const CATEGORIES_META: Record<string, CategoryMeta> = {
     slug: "best-sellers",
     headline: "Most-Loved Picks by Parents & Creators",
     description: "Top-rated Montessori boards, galaxy projectors, gift hampers, and vehicles loved by hundreds of families.",
+    showAgeFilter: false,
     subcategories: [
       { id: "sub-bs-1", name: "Top Rated 5★", slug: "best-sellers" },
       { id: "sub-bs-2", name: "Parent Favorites", slug: "best-sellers" },
-    ],
-  },
-  "toys-games": {
-    id: "cat-tg",
-    name: "Toys & Games",
-    slug: "toys-games",
-    headline: "Creative Play, Puzzles & Vehicle Adventures",
-    description: "A wide assortment of wooden Montessori puzzles, kinetic toys, and magnetic vehicles.",
-    subcategories: [
-      { id: "sub-tg-1", name: "Educational", slug: "educational-toys" },
-      { id: "sub-tg-2", name: "Vehicles", slug: "cars-vehicles" },
-      { id: "sub-tg-3", name: "Unique Toys", slug: "unique-toys" },
-    ],
-  },
-  "home-living": {
-    id: "cat-hl",
-    name: "Home & Living",
-    slug: "home-living",
-    headline: "Cozy Aesthetics & Playful Spaces",
-    description: "Warm lights, organizers, decorative wall art, and ambient nursery additions.",
-    subcategories: [
-      { id: "sub-hl-1", name: "Lighting", slug: "home-decor" },
-      { id: "sub-hl-2", name: "Wall Accents", slug: "home-decor" },
-    ],
-  },
-  "baby-kids": {
-    id: "cat-bk",
-    name: "Baby & Kids",
-    slug: "baby-kids",
-    headline: "Gentle Developmental Play for Growing Little Ones",
-    description: "Organic hampers, sensory rattles, sorting boards, and safe developmental items.",
-    subcategories: [
-      { id: "sub-bk-1", name: "Newborn 0-1", slug: "newborn-babies" },
-      { id: "sub-bk-2", name: "Toddler 1-3", slug: "educational-toys" },
-    ],
-  },
-  "smart-gadgets": {
-    id: "cat-sg",
-    name: "Smart Gadgets",
-    slug: "smart-gadgets",
-    headline: "Smart Electronics, Coding Companions & Projectors",
-    description: "Interactive exploration gadgets designed to spark curiosity and technical thinking.",
-    subcategories: [
-      { id: "sub-sg-1", name: "Projectors", slug: "digital-gadgets" },
-      { id: "sub-sg-2", name: "Coding Bots", slug: "digital-gadgets" },
     ],
   },
 };
@@ -236,21 +409,21 @@ export const CATEGORIES_META: Record<string, CategoryMeta> = {
 export const CATEGORY_CIRCLES: CategoryCircleItem[] = [
   {
     id: "cat-1",
-    name: "Educational Toys",
-    slug: "educational-toys",
-    imageUrl: "/images/cat-educational.svg",
+    name: "Baby & Kids",
+    slug: "baby-kids",
+    imageUrl: "/images/cat-baby-kids.svg",
   },
   {
     id: "cat-2",
-    name: "Smart Gadgets",
-    slug: "digital-gadgets",
-    imageUrl: "/images/cat-smart-gadgets.svg",
+    name: "Gift Combos",
+    slug: "gift-combos",
+    imageUrl: "/images/cat-arts-crafts.svg",
   },
   {
     id: "cat-3",
-    name: "Gift Combos",
-    slug: "gift-combos",
-    imageUrl: "/images/cat-baby-kids.svg",
+    name: "Digital Gadgets",
+    slug: "digital-gadgets",
+    imageUrl: "/images/cat-smart-gadgets.svg",
   },
   {
     id: "cat-4",
@@ -260,26 +433,8 @@ export const CATEGORY_CIRCLES: CategoryCircleItem[] = [
   },
   {
     id: "cat-5",
-    name: "Cars & Vehicles",
-    slug: "cars-vehicles",
-    imageUrl: "/images/cat-outdoor-play.svg",
-  },
-  {
-    id: "cat-6",
-    name: "Unique Toys",
-    slug: "unique-toys",
-    imageUrl: "/images/cat-arts-crafts.svg",
-  },
-  {
-    id: "cat-7",
-    name: "Newborn Gifts",
-    slug: "newborn-babies",
-    imageUrl: "/images/cat-puzzles-games.svg",
-  },
-  {
-    id: "cat-8",
-    name: "All Categories",
-    slug: "all",
+    name: "Deals Zone",
+    slug: "deals",
     imageUrl: "/images/cat-all-categories.svg",
   },
 ];

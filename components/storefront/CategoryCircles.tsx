@@ -5,7 +5,7 @@ import { CATEGORY_CIRCLES } from "@/lib/mock-data";
 export function CategoryCircles() {
   return (
     <section className="py-2">
-      <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-4 sm:gap-6 justify-items-center">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-4 sm:gap-8 justify-items-center max-w-4xl mx-auto">
         {CATEGORY_CIRCLES.map((cat) => (
           <Link
             key={cat.id}
@@ -23,7 +23,6 @@ export function CategoryCircles() {
                     sizes="88px"
                     className="object-contain"
                   />
-
                 </div>
               )}
             </div>
