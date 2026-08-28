@@ -546,6 +546,45 @@ Last updated: August 24, 2026
 
 ---
 
+### Static Content & Error Pages
+
+#### 23. `StaticPageLayout`
+File: `components/storefront/StaticPageLayout.tsx`
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`) content card, `bg-primary-surface/30` (info notice) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-primary/30` (notice) |
+| Border radius | `rounded-2xl` (`16px`) content card, `rounded-xl` (`12px`) notice |
+| Text — primary | `font-heading font-bold text-3xl sm:text-4xl text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-base leading-relaxed text-neutral-muted` (`#6E797F`) |
+| Spacing | `max-w-4xl mx-auto`, `px-4 sm:px-6 lg:px-8 py-8 sm:py-12` page, `p-6 sm:p-8` card |
+| Accent usage | `hover:text-primary` breadcrumb links |
+
+**Pattern notes:**
+- Server-component shell for static footer pages: breadcrumb, title, optional lead, optional info notice, and a card body.
+- Powers the `(content)` route group: `/contact`, `/shipping`, `/returns`, `/faq`, `/track-order`, `/about`, `/story`, `/careers`, `/blog`, `/press`, `/terms`, `/privacy`, `/sitemap`.
+- The `notice` prop marks pages whose binding policy copy is still under review, so no legal text is invented in code.
+- Pairs with `StaticSection` (`components/storefront/StaticSection.tsx`), a small heading-plus-paragraph block reused across the content pages so the section token classes live in one place.
+
+#### 24. `NotFound` (root 404)
+File: `app/not-found.tsx`
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-neutral-bg` (`#F8F9FC`) canvas, `bg-surface` (`#FFFFFF`) card |
+| Border | `border border-neutral-border` (`#E7E8EB`) |
+| Border radius | `rounded-2xl` (`16px`) card, `rounded-md` (`8px`) button |
+| Text — primary | `font-heading font-bold text-6xl text-primary` (`#0A98C3`) 404 mark |
+| Text — secondary | `font-sans text-sm leading-relaxed text-neutral-muted` (`#6E797F`) |
+| Accent usage | `bg-primary text-white` back-to-home button, `hover:text-primary` quick links |
+
+**Pattern notes:**
+- Branded fallback for any unmatched route, replacing the bare Next.js 404 screen.
+- Gives navigation back to the store: home button plus quick links to All Products, Track Your Order, and Contact.
+
+---
+
 ## Component Usage Rules
 
 1. **Named Exports Only**: Always use named exports (`export function ComponentName()`), never default exports.

@@ -67,6 +67,9 @@ Update this file after every completed feature. Any AI agent reading this should
 - Live predictive search Route Handler (`app/api/search/route.ts`) provides debounced instant autocomplete previews with thumbnail images, category pills, and `৳` pricing.
 - Bidirectional URL query parameter synchronization keeps PLP filter and search state shareable and bookmarkable without full page reloads.
 - Product Detail Page (PDP) implemented with 60/40 showcase layout, hover magnifying lens zoom preview, multi-variant selectors, 1-click WhatsApp order link generation with structured message, curator notes ("Why We Love It"), 5-tab technical and customer review panel, frequently bought together bundle recommendation, and sticky bottom buy bar.
+- Footer static routes scaffolded into a shared `(content)` route group under `(storefront)`, driven by the reusable `StaticPageLayout` shell: `/contact`, `/shipping`, `/returns`, `/faq`, `/track-order`, `/about`, `/story`, `/careers`, `/blog`, `/press`, `/terms`, `/privacy`, `/sitemap`. Every footer link now resolves instead of returning a 404.
+- Binding policy pages (`/returns`, `/shipping`, `/terms`, `/privacy`) ship structure only, with an "under review" notice; final legal copy is left for a human.
+- Added `app/not-found.tsx`, a branded 404 that gives navigation back into the store.
 
 ---
 
