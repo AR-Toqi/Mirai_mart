@@ -1,46 +1,52 @@
-# Memory — Live Backend Setup & Category PLP Full UI
+# Memory — Product Detail Page (PDP) Full UI, WhatsApp Order & Review
 
-Last updated: 2026-08-24 22:16:00 +06:00
+Last updated: August 29, 2026 01:27:00 +06:00
 
 ## What was built
 
-- Authenticated and linked InsForge CLI to project `Mirai_mart` (`ctxg94dh.ap-southeast`).
-- Executed database migrations on live InsForge PostgreSQL: created all 8 tables (`profiles`, `categories`, `products`, `product_variants`, `orders`, `order_items`, `reviews`, `promotions`), seeded 10 categories/subcategories, 6 products, 8 variants, 3 promotions, 3 reviews, and created public storage bucket `products`.
-- Secured `scripts/seed-db.mjs` to read `DATABASE_URL` dynamically from `.env.local` without hardcoded credentials.
-- Completed **Phase 2 — Feature 05: Category & Product Listing Page (PLP) — Full UI**:
-  - `app/(commonRoutes)/(storefront)/category/[slug]/page.tsx` — Server Component with dynamic SEO metadata generation supporting all parent and subcategory slugs.
-  - `components/storefront/CategoryHeader.tsx` — Category header banner with breadcrumb navigation, Baloo 2 headline, description, and horizontal subcategory pill chip navigation.
-  - `components/storefront/FilterSidebar.tsx` — Faceted filter sidebar with 5 age range chips (`0–1`, `1–3`, `3–5`, `5–8`, `8+`), dual price range slider in `৳`, theme tag checkboxes, in-stock toggle, and responsive mobile slide-over drawer.
-  - `components/storefront/ProductToolbar.tsx` — Results counter, dismissable active filter tags with `✕` triggers, sort dropdown selector, and Grid/List view mode switcher.
-  - `components/storefront/ProductListRow.tsx` — Horizontal card layout for list-mode browsing with thumbnail, ratings, price in `৳`, and cart button.
-  - `components/storefront/PLPClient.tsx` — Leaf client orchestrator managing active filters, sorting pipeline, view mode, empty state, and 12-item pagination.
-  - `lib/mock-data.ts` — Expanded with rich category metadata and 18 products across all categories and age brackets.
-- Updated `context/ui-registry.md` via `/imprint` and checked off Feature 05 in `context/progress-tracker.md`.
+- **Phase 2 — Feature 07: Product Detail Page (PDP) — Full UI & Logic**:
+  - `app/(commonRoutes)/(storefront)/product/[slug]/page.tsx` — Server Component with dynamic `generateMetadata`, server data fetching via `getProductBySlug` and `getRelatedProducts`, and 404 safety.
+  - `components/storefront/PDPImageGallery.tsx` — High-resolution multi-image gallery with cursor pan-zoom preview, thumbnail rail switcher, status badges, interactive Wishlist toggle, and Share link copy button.
+  - `components/storefront/PDPBuyBox.tsx` — Purchasing command center with breadcrumb navigation, `Baloo 2` title, rating stars with review anchor, Bangladeshi Taka pricing (`৳`), calculated savings badge, interactive variant swatches, stock availability status, `QuantityStepper`, **Triple Action Group (Add to Cart, Buy Now, and Order via WhatsApp with prefilled message and wa.me link)**, Free Delivery banner, and "Why We Love It" curator card.
+  - `components/storefront/PDPTabs.tsx` — 5 comprehensive specification tabs: Description & Highlights (with What's in the Box), Tech Specs & Dimensions (2-column key-value matrix), Safety & Certifications (EN71/ASTM standards), Delivery & Returns (Dhaka 24-48h, outside Dhaka 2-4 days, 30-day returns), and Customer Reviews (5-star distribution chart, verified buyer badges, helpful vote counter).
+  - `components/storefront/PDPFrequentlyBoughtTogether.tsx` — Cross-sell bundle card with interactive item checkboxes and 10% combo discount calculation.
+  - `components/storefront/PDPStickyBar.tsx` — Floating bottom order bar on mobile and upon scroll past 450px with product thumbnail, title, price, WhatsApp button, and Add to Cart.
+  - `components/storefront/PDPClient.tsx` — Client-side orchestrator with PostHog `product_viewed` & `item_added_to_cart` event tracking and toast notifications.
+  - `lib/constants.ts` — Business constants (`FREE_SHIPPING_THRESHOLD = 999`) and `generateWhatsAppOrderLink(...)` generating WhatsApp URLs with structured order details.
+  - `lib/mock-data.ts` — Enriched products with 4-image galleries, bulleted features, full tech specs dictionaries, safety certifications, in-box contents, variant matrices, and `MOCK_REVIEWS`.
+- **Quality & Verification**:
+  - Ran `/review` covering Plan Alignment, System Integrity, and Production Readiness (0 issues across 3 layers).
+  - Ran `/imprint` capturing design tokens and component specs for all 5 PDP components into `context/ui-registry.md`.
+  - Checked off Feature 07 in `context/progress-tracker.md`.
 
 ## Decisions made
 
-- `app/(commonRoutes)/(storefront)/category/[slug]/page.tsx` remains strictly a Server Component per Next.js 16 conventions, isolating client reactivity into leaf component `PLPClient.tsx`.
-- All PLP pricing, sliders, and promotional limits strictly adhere to Bangladeshi Taka (`৳`).
-- List view is supported alongside Grid view with responsive layout toggling.
+- "Order via WhatsApp" button uses the standard brand Emerald Green color (`bg-[#25D366]`) with official WhatsApp SVG icon and pre-fills structured order metadata (product, variant, SKU, quantity, unit price, total price, and product link).
+- Variant switching dynamically updates the active SKU, price, compare-at strikethrough, stock availability indicator, and primary image gallery.
+- Main page entrypoint `product/[slug]/page.tsx` strictly remains a Server Component, delegating interactive state to `PDPClient`.
+- Implemented cursor-following pan-zoom on hover without layout reflow.
 
 ## Problems solved
 
-- Fixed PostgreSQL UUID hex formatting in `supabase/seed.sql` by replacing non-hex prefixes with valid hex digits (`a111...`, `b111...`, `d011...`, `e111...`).
-- Fixed subcategory insert column ordering in `supabase/seed.sql` to match insert value positions.
-- Provisioned live InsForge PostgreSQL database and verified table record counts.
+- Fixed TypeScript error `Property 'maxRating' does not exist on type 'IntrinsicAttributes & Props'` by aligning `RatingStars` prop usage in `PDPTabs.tsx` and `PDPBuyBox.tsx`.
+- Seamlessly integrated 1-click WhatsApp order flow alongside traditional e-commerce Add to Cart and Buy Now buttons.
+- Aligned dynamic variant selection with reactive price, stock quantity, and gallery updates.
 
 ## Current state
 
-- Phase 1 (Features 01–04) and Phase 2 Feature 05 (PLP Full UI) are 100% complete and tested.
-- Dev server is running with 0 TypeScript compiler / linting errors (`npx tsc --noEmit` exits with code 0).
-- Next target is Phase 2 — Feature 06: Dynamic Filtering & Search Logic.
+- Phase 1 (Features 01–04) and Phase 2 (Features 05, 06, and 07) are 100% complete and verified.
+- Dev server running smoothly with all PDP features, gallery zoom, variant selection, WhatsApp order links, tabs, and sticky order bar verified.
+- Next target is **Phase 3 — Feature 08: Cart Drawer & Page — Full UI & Local State**.
 
 ## Next session starts with
 
-- **Phase 2 — Feature 06: Dynamic Filtering & Search Logic**
-- Create Server Action in `actions/products.ts` to query `products` and `product_variants` tables with dynamic filtering clauses (category slug, age range overlap, price min/max, sort orders).
-- Implement predictive search route handler in `app/api/search/route.ts` with debounce handling and thumbnail previews.
-- Sync client-side URL query parameters (`?category=gift-combos&age=1-3&sort=price_asc`) with active filters.
+- **Phase 3 — Feature 08: Cart Drawer & Page — Full UI & Local State**
+- Build the Slide-over Cart Drawer (`components/storefront/CartDrawer.tsx`) with animated backdrop and transition slide-in.
+- Build dynamic Free Shipping Progress Bar (`৳ 999` threshold) with live calculation and animated fill.
+- Build line items list with thumbnail, variant badge, quantity stepper, and remove action.
+- Build Gift Wrapping add-on checkbox (`+৳ 99`) and personalized gift message card.
+- Build Full Cart view (`app/(commonRoutes)/(storefront)/cart/page.tsx`).
+- Wire persistent client-side Cart Context (or Zustand/React Context + `localStorage`).
 
 ## Open questions
 

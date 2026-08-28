@@ -18,6 +18,9 @@ type FilteredProductsResult = {
 /**
  * Maps database product and variant records to storefront Product type
  */
+/**
+ * Maps database product and variant records to storefront Product type
+ */
 function mapRecordToProduct(
   p: ProductRecord,
   variants: ProductVariantRecord[] = [],
@@ -28,15 +31,39 @@ function mapRecordToProduct(
     defaultVariant?.images?.[0] ||
     "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&q=80&w=800";
 
+  const allImages = Array.from(
+    new Set([
+      primaryImage,
+      ...(variants.flatMap((v) => v.images || [])),
+    ])
+  ).filter(Boolean);
+
   const isOutOfStock =
     variants.length > 0 && variants.every((v) => (v.stock_quantity ?? 0) <= 0);
 
   const tags = (p.specs?.tags as string[]) || (p.specs?.skills as string[]) || [];
+  const features = (p.specs?.features as string[]) || undefined;
+  const safetyCertifications =
+    (p.specs?.safetyCertifications as string[]) || undefined;
+  const inBoxItems = (p.specs?.inBoxItems as string[]) || undefined;
+
+  const mappedVariants = variants.map((v) => ({
+    id: v.id,
+    sku: v.sku,
+    title: v.title,
+    price: v.price,
+    compareAtPrice: v.compare_at_price ?? undefined,
+    stockQuantity: v.stock_quantity,
+    attributes: v.attributes,
+    images: v.images,
+    isDefault: v.is_default,
+  }));
 
   return {
     id: p.id,
     title: p.title,
     slug: p.slug,
+    sku: defaultVariant?.sku || undefined,
     category: cat?.name || "General",
     categorySlug: cat?.slug || "all",
     price: defaultVariant?.price ?? 0,
@@ -44,12 +71,18 @@ function mapRecordToProduct(
     rating: (p.specs?.rating as number) ?? 4.8,
     reviewCount: (p.specs?.review_count as number) ?? 12,
     imageUrl: primaryImage,
+    images: allImages.length > 0 ? allImages : [primaryImage],
     badge: (p.badge as Product["badge"]) || undefined,
     isOutOfStock,
     ageRange: p.age_range || "all",
     tags,
     description: p.description,
     curatorNotes: p.curator_notes || undefined,
+    features,
+    specs: p.specs as Record<string, string | number | string[]>,
+    safetyCertifications,
+    inBoxItems,
+    variants: mappedVariants.length > 0 ? mappedVariants : undefined,
   };
 }
 
@@ -333,3 +366,34 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     return ALL_PRODUCTS.find((p) => p.slug === slug) || null;
   }
 }
+
+/**
+ * Server Action to fetch related products from same category
+ */
+export async function getRelatedProducts(
+  categorySlug?: string,
+  currentProductId?: string,
+  limit: number = 4
+): Promise<Product[]> {
+  try {
+    let list = ALL_PRODUCTS.filter((p) => p.id !== currentProductId);
+
+    if (categorySlug && categorySlug !== "all") {
+      const cat = categorySlug.toLowerCase();
+      const categoryMatches = list.filter(
+        (p) =>
+          p.categorySlug?.toLowerCase() === cat ||
+          p.subCategorySlug?.toLowerCase() === cat
+      );
+      if (categoryMatches.length > 0) {
+        list = categoryMatches;
+      }
+    }
+
+    return list.slice(0, limit);
+  } catch (error) {
+    console.error("[actions/products/getRelatedProducts]", error);
+    return ALL_PRODUCTS.filter((p) => p.id !== currentProductId).slice(0, limit);
+  }
+}
+

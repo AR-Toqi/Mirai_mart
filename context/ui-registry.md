@@ -343,15 +343,142 @@ Last updated: August 24, 2026
 | Shadow | `shadow-xs` |
 | Accent usage | `bg-primary text-white` for active page pill and empty state CTA |
 
+#### 14. `PLPClient`
+File: `components/storefront/PLPClient.tsx`  
+Last updated: August 24, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`) for empty state card |
+| Border | `border border-neutral-border` (`#E7E8EB`) |
+| Border radius | `rounded-2xl` (`16px`) empty state card, `rounded-xl` (`12px`) pagination buttons |
+| Text — primary | `font-heading font-bold text-xl text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted` (`#6E797F`) |
+| Spacing | `space-y-6 sm:space-y-8` layout gap, `p-10 sm:p-14` empty state padding |
+| Hover state | `hover:border-primary`, `hover:bg-neutral-bg` for pagination pills |
+| Shadow | `shadow-xs` |
+| Accent usage | `bg-primary text-white` for active page pill and empty state CTA |
+
 **Pattern notes:**
 - Client orchestrator component combining FilterSidebar, ProductToolbar, ProductCard grid, and ProductListRow list.
 - Renders empty state card with reset action when no products match active filters.
 
 ---
 
+#### 15. `PDPImageGallery`
+File: `components/storefront/PDPImageGallery.tsx`  
+Last updated: August 29, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-surface/90 backdrop-blur-md` (floating controls) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-primary` (active thumbnail) |
+| Border radius | `rounded-2xl` (`16px`) main container, `rounded-xl` (`12px`) thumbnail buttons, `rounded-full` controls |
+| Text — primary | `font-sans text-xs text-white` (zoom indicator) |
+| Text — secondary | `text-neutral-muted` (`#6E797F`), `text-error` (wishlisted) |
+| Spacing | `aspect-square w-full` stage, `h-20 w-20` thumbnail size, `gap-3` thumbnail rail |
+| Hover state | `scale-160` pan zoom on hover, `hover:scale-110` floating buttons |
+| Shadow | `shadow-xs` container & active thumbnail |
+| Accent usage | `border-primary ring-2 ring-primary/20` for active thumbnail, `bg-primary-surface text-primary` badge |
+
+**Pattern notes:**
+- Main viewport includes cursor-following pan zoom magnifier without layout shift.
+- Floating quick buttons provide instant Wishlist heart state and Share URL copy action.
+
+---
+
+#### 16. `PDPBuyBox`
+File: `components/storefront/PDPBuyBox.tsx`  
+Last updated: August 29, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`) price card, `bg-secondary-surface/30` (curator card), `bg-primary-surface/30` (delivery bar) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-secondary/40` (curator card) |
+| Border radius | `rounded-2xl` (`16px`) price box, `rounded-xl` (`12px`) curator card & variant chips, `rounded-md` (`8px`) buttons |
+| Text — primary | `font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs text-neutral-muted` (`#6E797F`), `text-success` (in-stock) |
+| Spacing | `p-4 sm:p-5` price card, `gap-2.5` CTA button grid, `p-3.5` delivery bar |
+| Hover state | `hover:bg-tertiary` (Add to Cart), `hover:bg-secondary-light` (Buy Now), `hover:bg-[#20bd5a]` (WhatsApp) |
+| Shadow | `shadow-xs` on cards and CTA buttons |
+| Accent usage | `bg-primary` Add to Cart, `bg-secondary` Buy Now, `bg-[#25D366]` WhatsApp Order, `bg-warning-light text-warning` savings pill |
+
+**Pattern notes:**
+- Triple Action CTAs: Add to Cart (Sky Blue), Buy Now (Sunny Yellow), and 1-Click WhatsApp Order (Emerald Green).
+- WhatsApp button pre-fills structured order details (Product, Variant, SKU, Quantity, Price, URL).
+- Curator card presents editorial "Why We Love It" commentary.
+
+---
+
+#### 17. `PDPTabs`
+File: `components/storefront/PDPTabs.tsx`  
+Last updated: August 29, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`) card, `bg-neutral-bg/60` (tab bar & spec alternating rows), `bg-success-surface` (safety badges) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-b-2 border-primary` (active tab) |
+| Border radius | `rounded-2xl` (`16px`) container, `rounded-xl` (`12px`) review & safety cards, `rounded-lg` in-box items |
+| Text — primary | `font-heading font-bold text-lg sm:text-xl text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted` (`#6E797F`) |
+| Spacing | `px-5 sm:px-6 py-4` tab buttons, `p-6 sm:p-8` content padding, `gap-4` spec rows |
+| Hover state | `hover:text-neutral-dark hover:bg-surface/50` tab items, `hover:text-primary` helpful button |
+| Shadow | `shadow-xs` container, `shadow-2xs` individual review cards |
+| Accent usage | `text-primary` active tab label & specs icons, `bg-secondary` 5-star rating distribution bar |
+
+**Pattern notes:**
+- 5 comprehensive tabs: Description & Highlights, Tech Specs & Dimensions, Safety & Certifications, Delivery & Returns, and Customer Reviews.
+- Customer Reviews tab includes 5-star distribution percentage bars, verified buyer badges, and interactive helpful counter.
+
+---
+
+#### 18. `PDPFrequentlyBoughtTogether`
+File: `components/storefront/PDPFrequentlyBoughtTogether.tsx`  
+Last updated: August 29, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg/60` (bundle summary card) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-primary/40` (selected card) |
+| Border radius | `rounded-2xl` (`16px`) container, `rounded-xl` (`12px`) item cards & summary box, `rounded-md` checkbox |
+| Text — primary | `font-heading font-bold text-lg sm:text-xl text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs text-neutral-muted` (`#6E797F`), `text-success` (bundle savings) |
+| Spacing | `p-6 sm:p-8` container padding, `p-3` item card padding, `h-20 w-20 sm:h-24 sm:w-24` thumbnail size |
+| Hover state | `hover:bg-tertiary` bundle CTA |
+| Shadow | `shadow-xs` container, `shadow-2xs` item cards |
+| Accent usage | `bg-primary` checkbox and CTA button, `bg-secondary-surface` 10% bundle savings tag |
+
+**Pattern notes:**
+- Dynamic bundle discount calculation (10% bundle discount when all combo items selected).
+- Checkboxes permit toggling complementary items while preserving main product.
+
+---
+
+#### 19. `PDPStickyBar`
+File: `components/storefront/PDPStickyBar.tsx`  
+Last updated: August 29, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface/95 backdrop-blur-md` |
+| Border | `border-t border-neutral-border` (`#E7E8EB`) |
+| Border radius | `rounded-lg` (`8px`) mini thumbnail, `rounded-md` action buttons |
+| Text — primary | `font-heading font-bold text-sm text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs text-primary font-bold` |
+| Spacing | `px-4 py-3` bar padding, `h-12 w-12` mini thumbnail |
+| Hover state | `hover:bg-tertiary` (Add to Cart), `hover:bg-[#20bd5a]` (WhatsApp) |
+| Shadow | `shadow-lg` floating elevation |
+| Accent usage | `bg-[#25D366]` WhatsApp icon pill, `bg-primary` Add to Cart |
+
+**Pattern notes:**
+- Floats at the bottom viewport when user scrolls past 450px.
+- Provides immediate 1-click WhatsApp order and Add to Cart access from any scroll position.
+
+---
+
 ### Auth & Customer Account Components
 
-#### 11. `LoginForm`
+#### 20. `LoginForm`
 File: `components/auth/LoginForm.tsx`  
 Last updated: August 24, 2026
 
@@ -373,7 +500,7 @@ Last updated: August 24, 2026
 
 ---
 
-#### 12. `RegisterForm` (Multi-Step & OTP Verification)
+#### 21. `RegisterForm` (Multi-Step & OTP Verification)
 File: `components/auth/RegisterForm.tsx`  
 Last updated: August 24, 2026
 
@@ -395,7 +522,7 @@ Last updated: August 24, 2026
 
 ---
 
-#### 13. `AccountDashboardClient` (Customer Portal)
+#### 22. `AccountDashboardClient` (Customer Portal)
 File: `components/account/AccountDashboardClient.tsx`  
 Last updated: August 24, 2026
 
@@ -419,8 +546,6 @@ Last updated: August 24, 2026
 
 ---
 
-
-
 ## Component Usage Rules
 
 1. **Named Exports Only**: Always use named exports (`export function ComponentName()`), never default exports.
@@ -428,3 +553,4 @@ Last updated: August 24, 2026
 3. **No Hardcoded Hex Colors**: Use Tailwind utility classes with Mirai Mart design tokens (e.g. `bg-primary`, `bg-secondary`, `text-neutral-dark`, `border-neutral-border`).
 4. **Currency Format**: Always format currency using Bangladeshi Taka (`৳ [amount]`).
 5. **Server vs Client Boundary**: Components requiring hooks (`useState`, `useEffect`) or browser event listeners must declare `"use client"` at the top. Pure presentation components remain Server Components.
+
