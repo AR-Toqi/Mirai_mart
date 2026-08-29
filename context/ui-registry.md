@@ -372,23 +372,26 @@ Last updated: August 24, 2026
 
 #### 15. `PDPImageGallery`
 File: `components/storefront/PDPImageGallery.tsx`  
-Last updated: August 29, 2026
+Last updated: August 30, 2026
 
 | Property | Class |
 | --- | --- |
-| Background | `bg-surface` (`#FFFFFF`), `bg-surface/90 backdrop-blur-md` (floating controls) |
+| Background | `bg-surface` (`#FFFFFF`), `bg-surface/90 backdrop-blur-md` (floating controls), `bg-neutral-dark/70` (image counter badge) |
 | Border | `border border-neutral-border` (`#E7E8EB`), `border-primary` (active thumbnail) |
 | Border radius | `rounded-2xl` (`16px`) main container, `rounded-xl` (`12px`) thumbnail buttons, `rounded-full` controls |
-| Text — primary | `font-sans text-xs text-white` (zoom indicator) |
+| Text — primary | `font-sans text-xs text-white` (zoom indicator), `text-[11px] font-bold text-white` (image counter badge) |
 | Text — secondary | `text-neutral-muted` (`#6E797F`), `text-error` (wishlisted) |
 | Spacing | `aspect-square w-full` stage, `h-20 w-20` thumbnail size, `gap-3` thumbnail rail |
-| Hover state | `scale-160` pan zoom on hover, `hover:scale-110` floating buttons |
+| Hover state | `scale-160` pan zoom on hover, `hover:scale-110` floating buttons & arrow navigators |
 | Shadow | `shadow-xs` container & active thumbnail |
 | Accent usage | `border-primary ring-2 ring-primary/20` for active thumbnail, `bg-primary-surface text-primary` badge |
 
 **Pattern notes:**
 - Main viewport includes cursor-following pan zoom magnifier without layout shift.
 - Floating quick buttons provide instant Wishlist heart state and Share URL copy action.
+- Left/Right arrow controls and floating `X / Y` photo counter badge for seamless multi-image browsing.
+- Multi-image gallery with thumbnail navigation displaying all available product and variant images.
+- Auto-advances active image every 3 seconds (`3000ms`) with smooth transitions; automatically pauses when hovering or zooming.
 
 ---
 
@@ -417,23 +420,23 @@ Last updated: August 29, 2026
 
 #### 17. `PDPTabs`
 File: `components/storefront/PDPTabs.tsx`  
-Last updated: August 29, 2026
+Last updated: August 30, 2026
 
 | Property | Class |
 | --- | --- |
-| Background | `bg-surface` (`#FFFFFF`) card, `bg-neutral-bg/60` (tab bar & spec alternating rows), `bg-success-surface` (safety badges) |
+| Background | `bg-surface` (`#FFFFFF`) card, `bg-neutral-bg/60` (tab bar & spec alternating rows), `bg-neutral-bg/40` (features & ratings background) |
 | Border | `border border-neutral-border` (`#E7E8EB`), `border-b-2 border-primary` (active tab) |
-| Border radius | `rounded-2xl` (`16px`) container, `rounded-xl` (`12px`) review & safety cards, `rounded-lg` in-box items |
+| Border radius | `rounded-2xl` (`16px`) container, `rounded-xl` (`12px`) review & specs cards, `rounded-lg` in-box items |
 | Text — primary | `font-heading font-bold text-lg sm:text-xl text-neutral-dark` (`#191C1E`) |
 | Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted` (`#6E797F`) |
-| Spacing | `px-5 sm:px-6 py-4` tab buttons, `p-6 sm:p-8` content padding, `gap-4` spec rows |
+| Spacing | `px-6 sm:px-8 py-4` tab buttons, `p-6 sm:p-8` content padding, `gap-3.5` spec rows |
 | Hover state | `hover:text-neutral-dark hover:bg-surface/50` tab items, `hover:text-primary` helpful button |
 | Shadow | `shadow-xs` container, `shadow-2xs` individual review cards |
 | Accent usage | `text-primary` active tab label & specs icons, `bg-secondary` 5-star rating distribution bar |
 
 **Pattern notes:**
-- 5 comprehensive tabs: Description & Highlights, Tech Specs & Dimensions, Safety & Certifications, Delivery & Returns, and Customer Reviews.
-- Customer Reviews tab includes 5-star distribution percentage bars, verified buyer badges, and interactive helpful counter.
+- Streamlined 2-tab layout: **Product Description** (About, Features & Highlights, In the Box, Specifications) and **Customer Reviews** (Rating Score Breakdown, Star Bars, Verified Testimonials, Helpful Votes).
+- Clean, focused PDP structure keeping the most essential product insights immediately accessible.
 
 ---
 

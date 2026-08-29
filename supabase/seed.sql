@@ -129,7 +129,7 @@ VALUES
         750.00,
         45,
         '{"color": "Natural Beech", "edition": "Classic"}'::jsonb,
-        '["https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=800&auto=format&fit=crop", "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?q=80&w=800&auto=format&fit=crop"]'::jsonb,
+        '["https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1560859251-d563a49c5e4a?q=80&w=1200&auto=format&fit=crop"]'::jsonb,
         TRUE
     ),
     (
@@ -142,7 +142,7 @@ VALUES
         900.00,
         30,
         '{"color": "Pastel Rainbow", "edition": "Deluxe"}'::jsonb,
-        '["https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=800&auto=format&fit=crop"]'::jsonb,
+        '["https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1560859251-d563a49c5e4a?q=80&w=1200&auto=format&fit=crop"]'::jsonb,
         FALSE
     ),
     -- Astronaut Projector Variants
@@ -156,7 +156,7 @@ VALUES
         1300.00,
         60,
         '{"color": "Lunar White", "controls": "Wireless Remote"}'::jsonb,
-        '["https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop"]'::jsonb,
+        '["https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1507499739999-097706ad8914?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop"]'::jsonb,
         TRUE
     ),
     (
@@ -169,7 +169,7 @@ VALUES
         1350.00,
         25,
         '{"color": "Cosmic Obsidian", "controls": "Wireless Remote"}'::jsonb,
-        '["https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop"]'::jsonb,
+        '["https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1507499739999-097706ad8914?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop"]'::jsonb,
         FALSE
     ),
     -- Magnetic Speedster
@@ -183,7 +183,7 @@ VALUES
         950.00,
         40,
         '{"color": "Crimson Red", "pieces": "24pc"}'::jsonb,
-        '["https://images.unsplash.com/photo-1594787318286-3d835c1d207f?q=80&w=800&auto=format&fit=crop"]'::jsonb,
+        '["https://images.unsplash.com/photo-1594787318286-3d835c1d207f?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1581235720704-06d3acfcb36f?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1563245372-f21724e3856d?q=80&w=1200&auto=format&fit=crop"]'::jsonb,
         TRUE
     ),
     -- Kinetic Desktop Sculpture
@@ -197,7 +197,7 @@ VALUES
         1500.00,
         20,
         '{"finish": "Matte Titanium"}'::jsonb,
-        '["https://images.unsplash.com/photo-1558060370-d644479cb6f7?q=80&w=800&auto=format&fit=crop"]'::jsonb,
+        '["https://images.unsplash.com/photo-1558060370-d644479cb6f7?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?q=80&w=1200&auto=format&fit=crop"]'::jsonb,
         TRUE
     ),
     -- Milestone Gift Hamper
@@ -211,21 +211,21 @@ VALUES
         2100.00,
         18,
         '{"palette": "Oat Cream & Sage"}'::jsonb,
-        '["https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=800&auto=format&fit=crop"]'::jsonb,
+        '["https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1200&auto=format&fit=crop"]'::jsonb,
         TRUE
     ),
     -- Mushroom Bedside Lamp
     (
         'b6666666-6666-6666-6666-666666666661',
         'a6666666-6666-6666-6666-666666666666',
-        'LAMP-MUSH-AMB',
-        'Honey Amber Warm Glow',
-        2150.00,
-        2650.00,
+        'MUSH-LAMP-AMB',
+        'Warm Amber Frosted Glass',
+        2190.00,
+        2600.00,
         1100.00,
         35,
-        '{"color": "Honey Amber"}'::jsonb,
-        '["https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=800&auto=format&fit=crop"]'::jsonb,
+        '{"shade": "Warm Amber Frosted"}'::jsonb,
+        '["https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop", "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=1200&auto=format&fit=crop"]'::jsonb,
         TRUE
     )
 ON CONFLICT (sku) DO UPDATE 

@@ -35,13 +35,14 @@ export function PDPClient({ product, relatedProducts }: Props) {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Gallery images prioritized from selected variant or product gallery
-  const activeImages =
-    selectedVariant?.images && selectedVariant.images.length > 0
-      ? selectedVariant.images
-      : product.images && product.images.length > 0
-      ? product.images
-      : [product.imageUrl];
+  // Gallery images: prioritized from selected variant combined with full product image gallery
+  const activeImages = Array.from(
+    new Set([
+      ...(selectedVariant?.images || []),
+      ...(product.images || []),
+      product.imageUrl,
+    ])
+  ).filter(Boolean);
 
   // Track product_viewed event on mount
   useEffect(() => {

@@ -60,12 +60,12 @@ export function generateWhatsAppOrderLink(params: {
     process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || DEFAULT_WHATSAPP_NUMBER
   ).replace(/[^\d+]/g, "");
 
-  const origin =
-    typeof window !== "undefined"
-      ? window.location.origin
-      : "https://miraimart.com";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "https://miraimart.com";
 
-  const productUrl = `${origin}/product/${params.productSlug}`;
+  const productUrl = `${baseUrl.replace(/\/$/, "")}/product/${params.productSlug}`;
 
   const message = [
     "👋 Hello Mirai Mart! I would like to place an order:",

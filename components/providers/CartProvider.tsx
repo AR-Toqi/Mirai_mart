@@ -117,19 +117,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     queryKey: ["user-active-cart", user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
-      const { data, error } = await insforge.database
-        .from("profiles")
-        .select("active_cart")
-        .eq("id", user.id)
-        .single();
-      if (error) {
-        console.warn("[CartProvider/TanStack] Could not fetch remote cart:", error.message);
+      try {
+        const { data, error } = await insforge.database
+          .from("profiles")
+          .select("active_cart")
+          .eq("id", user.id)
+          .single();
+        if (error) {
+          return null;
+        }
+        return data;
+      } catch {
         return null;
       }
-      return data;
     },
     enabled: isHydrated && isAuthenticated && !!user?.id && !hasMergedRemote,
     staleTime: 5 * 60 * 1000,
+    retry: false,
   });
 
   // Merge remote cart items with local cart items on initial login resolution
@@ -193,20 +197,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       appliedPromo: AppliedPromo | null;
     }) => {
       if (!user?.id) return null;
-      const { data, error } = await insforge.database
-        .from("profiles")
-        .update({ active_cart: payload })
-        .eq("id", user.id);
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await insforge.database
+          .from("profiles")
+          .update({ active_cart: payload })
+          .eq("id", user.id);
+        if (error) return null;
+        return data;
+      } catch {
+        return null;
+      }
     },
     onSuccess: (data, variables) => {
-      queryClient.setQueryData(["user-active-cart", user?.id], {
-        active_cart: variables,
-      });
+      if (data) {
+        queryClient.setQueryData(["user-active-cart", user?.id], {
+          active_cart: variables,
+        });
+      }
     },
-    onError: (err) => {
-      console.warn("[CartProvider/TanStack] Cart mutation error:", err);
+    onError: () => {
+      // LocalStorage already has the latest cart state
     },
   });
 

@@ -27,37 +27,57 @@ function mapRecordToProduct(
   cat?: CategoryRecord
 ): Product {
   const defaultVariant = variants.find((v) => v.is_default) || variants[0];
+  const matchingMock = ALL_PRODUCTS.find(
+    (item) => item.slug === p.slug || item.id === p.id
+  );
+
   const primaryImage =
     defaultVariant?.images?.[0] ||
+    matchingMock?.imageUrl ||
     "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&q=80&w=800";
+
+  const specsImages = Array.isArray(p.specs?.images) ? (p.specs.images as string[]) : [];
+  const mockImages = matchingMock?.images || [];
 
   const allImages = Array.from(
     new Set([
       primaryImage,
       ...(variants.flatMap((v) => v.images || [])),
+      ...specsImages,
+      ...mockImages,
     ])
   ).filter(Boolean);
 
   const isOutOfStock =
     variants.length > 0 && variants.every((v) => (v.stock_quantity ?? 0) <= 0);
 
-  const tags = (p.specs?.tags as string[]) || (p.specs?.skills as string[]) || [];
-  const features = (p.specs?.features as string[]) || undefined;
+  const tags = (p.specs?.tags as string[]) || (p.specs?.skills as string[]) || matchingMock?.tags || [];
+  const features = (p.specs?.features as string[]) || matchingMock?.features || undefined;
   const safetyCertifications =
-    (p.specs?.safetyCertifications as string[]) || undefined;
-  const inBoxItems = (p.specs?.inBoxItems as string[]) || undefined;
+    (p.specs?.safetyCertifications as string[]) || matchingMock?.safetyCertifications || undefined;
+  const inBoxItems = (p.specs?.inBoxItems as string[]) || matchingMock?.inBoxItems || undefined;
 
-  const mappedVariants = variants.map((v) => ({
-    id: v.id,
-    sku: v.sku,
-    title: v.title,
-    price: v.price,
-    compareAtPrice: v.compare_at_price ?? undefined,
-    stockQuantity: v.stock_quantity,
-    attributes: v.attributes,
-    images: v.images,
-    isDefault: v.is_default,
-  }));
+  const mappedVariants = variants.map((v) => {
+    const matchingMockVariant = matchingMock?.variants?.find(
+      (mv) => mv.sku === v.sku || mv.title === v.title
+    );
+    const variantImages =
+      Array.isArray(v.images) && v.images.length > 0
+        ? v.images
+        : matchingMockVariant?.images || (mockImages.length > 0 ? mockImages : [primaryImage]);
+
+    return {
+      id: v.id,
+      sku: v.sku,
+      title: v.title,
+      price: v.price,
+      compareAtPrice: v.compare_at_price ?? undefined,
+      stockQuantity: v.stock_quantity,
+      attributes: v.attributes,
+      images: variantImages,
+      isDefault: v.is_default,
+    };
+  });
 
   return {
     id: p.id,

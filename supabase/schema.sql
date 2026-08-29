@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     avatar_url TEXT,
     role VARCHAR(30) NOT NULL DEFAULT 'customer' CHECK (role IN ('admin', 'store-manager', 'customer')),
     addresses JSONB DEFAULT '[]'::jsonb,
+    active_cart JSONB DEFAULT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

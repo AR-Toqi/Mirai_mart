@@ -3,23 +3,18 @@
 import { useState } from "react";
 import {
   CheckCircle2,
-  ShieldCheck,
-  Truck,
-  RotateCcw,
   Sparkles,
   Package,
-  Ruler,
   Star,
-  Clock,
-  MapPin,
   ThumbsUp,
   Award,
+  FileText,
 } from "lucide-react";
 import { RatingStars } from "@/components/shared/RatingStars";
 import { MOCK_REVIEWS, type ProductReview } from "@/lib/mock-data";
 import type { Product } from "@/types";
 
-type TabKey = "description" | "specs" | "safety" | "shipping" | "reviews";
+type TabKey = "description" | "reviews";
 
 type Props = {
   product: Product;
@@ -45,13 +40,10 @@ export function PDPTabs({ product, reviews = MOCK_REVIEWS }: Props) {
 
   return (
     <div id="reviews" className="rounded-2xl border border-neutral-border bg-surface shadow-xs overflow-hidden">
-      {/* Tab Navigation Strip */}
+      {/* Tab Navigation Strip - Only Product Description & Customer Reviews */}
       <div className="flex border-b border-neutral-border overflow-x-auto scrollbar-none bg-neutral-bg/60">
         {[
-          { id: "description", label: "Description & Highlights", icon: Sparkles },
-          { id: "specs", label: "Tech Specs & Dimensions", icon: Ruler },
-          { id: "safety", label: "Safety & Certifications", icon: ShieldCheck },
-          { id: "shipping", label: "Delivery & Returns", icon: Truck },
+          { id: "description", label: "Product Description", icon: FileText },
           {
             id: "reviews",
             label: `Customer Reviews (${product.reviewCount})`,
@@ -65,7 +57,7 @@ export function PDPTabs({ product, reviews = MOCK_REVIEWS }: Props) {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id as TabKey)}
-              className={`flex items-center gap-2 whitespace-nowrap px-5 sm:px-6 py-4 text-xs sm:text-sm font-bold transition-all border-b-2 ${
+              className={`flex items-center gap-2 whitespace-nowrap px-6 sm:px-8 py-4 text-xs sm:text-sm font-bold transition-all border-b-2 ${
                 isActive
                   ? "border-primary bg-surface text-primary"
                   : "border-transparent text-neutral-muted hover:text-neutral-dark hover:bg-surface/50"
@@ -80,7 +72,7 @@ export function PDPTabs({ product, reviews = MOCK_REVIEWS }: Props) {
 
       {/* Tab Content Panels */}
       <div className="p-6 sm:p-8">
-        {/* 1. Description Tab */}
+        {/* 1. Product Description Tab */}
         {activeTab === "description" && (
           <div className="flex flex-col gap-6">
             <div>
@@ -92,7 +84,7 @@ export function PDPTabs({ product, reviews = MOCK_REVIEWS }: Props) {
               </p>
             </div>
 
-            {/* Key Features List */}
+            {/* Key Features & Highlights */}
             {product.features && product.features.length > 0 && (
               <div className="rounded-xl border border-neutral-border bg-neutral-bg/40 p-5">
                 <h4 className="font-heading text-sm font-bold text-neutral-dark uppercase tracking-wider mb-3.5 flex items-center gap-2">
@@ -134,147 +126,37 @@ export function PDPTabs({ product, reviews = MOCK_REVIEWS }: Props) {
                 </div>
               </div>
             )}
-          </div>
-        )}
 
-        {/* 2. Specs Tab */}
-        {activeTab === "specs" && (
-          <div>
-            <h3 className="font-heading text-lg sm:text-xl font-bold text-neutral-dark mb-4">
-              Detailed Specifications
-            </h3>
-            {product.specs && Object.keys(product.specs).length > 0 ? (
-              <div className="divide-y divide-neutral-border rounded-xl border border-neutral-border overflow-hidden">
-                {Object.entries(product.specs).map(([key, value], index) => (
-                  <div
-                    key={key}
-                    className={`grid grid-cols-1 sm:grid-cols-3 p-4 text-xs sm:text-sm ${
-                      index % 2 === 0 ? "bg-surface" : "bg-neutral-bg/40"
-                    }`}
-                  >
-                    <span className="font-bold text-neutral-dark sm:col-span-1">
-                      {key}
-                    </span>
-                    <span className="text-neutral-muted sm:col-span-2 font-sans">
-                      {Array.isArray(value) ? value.join(", ") : String(value)}
-                    </span>
-                  </div>
-                ))}
+            {/* Product Specifications Table */}
+            {product.specs && Object.keys(product.specs).length > 0 && (
+              <div className="mt-2">
+                <h4 className="font-heading text-sm font-bold text-neutral-dark uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  Product Specifications
+                </h4>
+                <div className="divide-y divide-neutral-border rounded-xl border border-neutral-border overflow-hidden">
+                  {Object.entries(product.specs).map(([key, value], index) => (
+                    <div
+                      key={key}
+                      className={`grid grid-cols-1 sm:grid-cols-3 p-3.5 text-xs sm:text-sm ${
+                        index % 2 === 0 ? "bg-surface" : "bg-neutral-bg/40"
+                      }`}
+                    >
+                      <span className="font-bold text-neutral-dark sm:col-span-1">
+                        {key}
+                      </span>
+                      <span className="text-neutral-muted sm:col-span-2 font-sans">
+                        {Array.isArray(value) ? value.join(", ") : String(value)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ) : (
-              <p className="text-xs text-neutral-muted">
-                Specifications for this product are verified upon batch production.
-              </p>
             )}
           </div>
         )}
 
-        {/* 3. Safety Tab */}
-        {activeTab === "safety" && (
-          <div className="flex flex-col gap-6">
-            <div>
-              <h3 className="font-heading text-lg sm:text-xl font-bold text-neutral-dark mb-2">
-                Child Safety, Quality & Lab Certifications
-              </h3>
-              <p className="text-xs sm:text-sm font-sans text-neutral-muted">
-                At Mirai Mart, every product undergoes rigorous toxicological and mechanical safety audits before being curated.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {product.safetyCertifications && product.safetyCertifications.length > 0 ? (
-                product.safetyCertifications.map((cert, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-start gap-3 rounded-xl border border-success/30 bg-success-surface p-4"
-                  >
-                    <ShieldCheck className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="text-xs font-bold text-neutral-dark">{cert}</h4>
-                      <p className="text-[11px] text-neutral-muted mt-0.5">
-                        Independently verified non-hazardous to oral contact, skin, and eyes.
-                      </p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="flex items-start gap-3 rounded-xl border border-success/30 bg-success-surface p-4 col-span-2">
-                  <ShieldCheck className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="text-xs font-bold text-neutral-dark">100% Non-Toxic & Child-Safe Standards</h4>
-                    <p className="text-[11px] text-neutral-muted mt-0.5">
-                      Complies with international EN71 and ASTM safety requirements.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Age Suitability Advisory */}
-            <div className="rounded-xl border border-primary/20 bg-primary-surface/20 p-4">
-              <h4 className="text-xs font-bold text-tertiary mb-1">
-                Recommended Age Advisory: {product.ageRange ? `${product.ageRange} Years` : "All Ages"}
-              </h4>
-              <p className="text-[11px] text-neutral-muted leading-relaxed">
-                Designed to stimulate cognitive growth and sensory exploration without fine small-part choking hazards when used in accordance with parent guidelines.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* 4. Shipping Tab */}
-        {activeTab === "shipping" && (
-          <div className="flex flex-col gap-6">
-            <div>
-              <h3 className="font-heading text-lg sm:text-xl font-bold text-neutral-dark mb-2">
-                Fast Nationwide Delivery & 30-Day Guarantee
-              </h3>
-              <p className="text-xs sm:text-sm font-sans text-neutral-muted">
-                Orders placed before 2:00 PM are dispatched on the same business day from our central Dhaka hub.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="rounded-xl border border-neutral-border bg-surface p-4 shadow-2xs">
-                <div className="flex items-center gap-2 text-primary font-bold text-xs mb-2">
-                  <MapPin className="h-4 w-4" />
-                  Inside Dhaka City
-                </div>
-                <div className="text-base font-bold text-neutral-dark">24–48 Hours</div>
-                <div className="text-xs text-neutral-muted mt-1">Delivery Charge: ৳ 60</div>
-              </div>
-
-              <div className="rounded-xl border border-neutral-border bg-surface p-4 shadow-2xs">
-                <div className="flex items-center gap-2 text-primary font-bold text-xs mb-2">
-                  <Truck className="h-4 w-4" />
-                  Outside Dhaka
-                </div>
-                <div className="text-base font-bold text-neutral-dark">2–4 Business Days</div>
-                <div className="text-xs text-neutral-muted mt-1">Delivery Charge: ৳ 120</div>
-              </div>
-
-              <div className="rounded-xl border border-success/30 bg-success-surface p-4 shadow-2xs">
-                <div className="flex items-center gap-2 text-success font-bold text-xs mb-2">
-                  <RotateCcw className="h-4 w-4" />
-                  Hassle-Free Returns
-                </div>
-                <div className="text-base font-bold text-neutral-dark">30 Days Return</div>
-                <div className="text-xs text-neutral-muted mt-1">Instant replacement or full refund</div>
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-neutral-border bg-neutral-bg p-4 text-xs text-neutral-muted space-y-1.5">
-              <p className="font-bold text-neutral-dark">
-                🚚 Free Delivery on Orders Over ৳ 3,000
-              </p>
-              <p>
-                We accept Cash on Delivery (COD), bKash, Nagad, and all major cards. Inspect your parcel at your doorstep upon delivery.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* 5. Reviews Tab */}
+        {/* 2. Customer Reviews Tab */}
         {activeTab === "reviews" && (
           <div className="flex flex-col gap-8">
             {/* Rating Summary Header */}

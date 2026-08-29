@@ -51,6 +51,7 @@ export function CartPageClient() {
     removePromoCode,
     clearCart,
     addItem,
+    isHydrated,
   } = useCart();
 
   const [promoInput, setPromoInput] = useState("");
@@ -121,6 +122,17 @@ export function CartPageClient() {
 
     return `https://wa.me/${cleanNumber.replace("+", "")}?text=${encodeURIComponent(message)}`;
   })();
+
+  if (!isHydrated) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs font-medium text-neutral-muted">Loading your shopping bag...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

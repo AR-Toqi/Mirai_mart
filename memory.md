@@ -41,6 +41,7 @@ Last updated: August 30, 2026 00:25:00 +06:00
 ## Current state
 
 - Checkout flow, order placement server action, payment verification, and delivery zone calculations are 100% operational and verified.
+- Product Detail Page (PDP) image gallery features 4 distinct multi-angle views with a 3-second auto-cycle carousel timer (pauses on user hover/zoom) and synchronized thumbnail rail.
 - Production build and development server running cleanly with 0 errors.
 
 ## Next session starts with

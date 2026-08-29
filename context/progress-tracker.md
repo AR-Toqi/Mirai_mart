@@ -80,7 +80,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - Database seed script executed: 10 categories/subcategories, 6 products, 8 variants, 3 promotions, and 3 customer reviews seeded.
 - InsForge Storage public bucket `products` created for media assets.
 - Feature 06 (Dynamic Filtering & Search Logic) complete.
-- Feature 07 (Product Detail Page Full UI & Logic with WhatsApp Order) complete and tested in browser.
+- Feature 07 (Product Detail Page Full UI & Logic with WhatsApp Order) refined: simplified tabs to Product Description & Customer Reviews only, and enhanced PDP gallery to support multiple distinct photos for all products with left/right arrows, photo counter, and synchronized thumbnail navigation.
 - Feature 08 (Cart Drawer Slide-Over with Framer Motion, interactive item checkboxes, free shipping milestone progress bar, 1-click promo code application, celebratory banner, and checkout CTAs) complete and verified with 0 build errors.
 - Next step is Phase 3: Feature 09 — Checkout Flow & Order Placement.
 
