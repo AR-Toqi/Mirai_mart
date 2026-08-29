@@ -552,6 +552,30 @@ Last updated: August 29, 2026
 | WhatsApp CTA | `bg-[#25D366] text-white` Order Entire Bag via WhatsApp with prefilled multi-item list |
 | Trust Bar | Genuine Quality, 30-Day Easy Returns, Cash on Delivery nationwide |
 
+---
+
+#### 24. `CheckoutPageClient` (Checkout Page)
+File: `components/storefront/CheckoutPageClient.tsx`  
+Last updated: August 29, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-neutral-bg` (canvas), `bg-surface` (form cards & sticky summary) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-error` (invalid input), `border-primary` (active payment option) |
+| Border radius | `rounded-2xl` (`16px`) cards & summary, `rounded-xl` (`12px`) payment options, `rounded-md` (`8px`) inputs and CTA |
+| Text — primary | `font-heading font-bold text-2xl sm:text-3xl lg:text-4xl text-neutral-dark` |
+| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted` |
+| Inputs | `rounded-md` with `focus:ring-2 focus:ring-primary/20 focus:border-primary`, inline `FieldError` note in `text-error` |
+| Place Order CTA | `bg-[#25D366] text-white` Place Order via WhatsApp |
+| Trust Bar | Genuine Quality, Cash on Delivery nationwide |
+
+**Pattern notes:**
+- Reads `selectedItems` and the selection totals from `CartProvider`; a shared `generateWhatsAppCartOrderLink` helper (`lib/constants.ts`) builds the WhatsApp order link for both the cart page and the checkout page.
+- Renders four states: loading skeleton (before cart hydration), empty selection, delivery form with order summary, and order confirmation.
+- `handlePlaceOrder` guards against an empty or undefined item list, validates the delivery fields, opens WhatsApp with the structured order, and clears the cart.
+
+---
+
 ### Auth & Customer Account Components
 
 #### 20. `LoginForm`
