@@ -2,11 +2,20 @@
  * Mirai Mart Central Business Constants & Helpers
  */
 
-export const FREE_SHIPPING_THRESHOLD = 999; // ৳ 999 free shipping across Bangladesh
-export const STANDARD_SHIPPING_FEE = 60; // ৳ 60 standard shipping if subtotal < ৳ 999
+export const FREE_SHIPPING_THRESHOLD = 3000; // ৳ 3000 free shipping across Bangladesh
+export const SHIPPING_RATES = {
+  inside_dhaka: 80, // ৳ 80 delivery fee Inside Dhaka
+  outside_dhaka: 120, // ৳ 120 delivery fee Outside Dhaka
+} as const;
+export const STANDARD_SHIPPING_FEE = 80; // Default standard shipping
 export const GIFT_WRAP_PRICE = 99; // ৳ 99 gift wrap add-on
 export const MAX_COMPARE_ITEMS = 4; // Max 4 products compared side-by-side
 export const DEFAULT_PAGE_SIZE = 12; // Products per PLP page
+
+export const DEFAULT_BKASH_NUMBER =
+  process.env.NEXT_PUBLIC_BKASH_NUMBER || "01931105403";
+export const DEFAULT_NAGAD_NUMBER =
+  process.env.NEXT_PUBLIC_NAGAD_NUMBER || "01931105403";
 
 export const VALID_PROMO_CODES: Record<
   string,

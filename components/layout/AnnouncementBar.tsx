@@ -4,7 +4,7 @@ import { useState } from "react";
 import { TruckIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/Icons";
 
 const ANNOUNCEMENTS = [
-  "Free shipping on orders over ৳999 • Use code MIRAI10 for 10% off",
+  "Free shipping on orders over ৳3,000 • Use code MIRAI10 for 10% off",
   "Special Gift Combos available for Newborns & Birthdays!",
   "30-Day Hassle-Free Returns on all items",
 ];

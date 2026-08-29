@@ -265,7 +265,7 @@ export function PDPTabs({ product, reviews = MOCK_REVIEWS }: Props) {
 
             <div className="rounded-xl border border-neutral-border bg-neutral-bg p-4 text-xs text-neutral-muted space-y-1.5">
               <p className="font-bold text-neutral-dark">
-                🚚 Free Delivery on Orders Over ৳ 999
+                🚚 Free Delivery on Orders Over ৳ 3,000
               </p>
               <p>
                 We accept Cash on Delivery (COD), bKash, Nagad, and all major cards. Inspect your parcel at your doorstep upon delivery.

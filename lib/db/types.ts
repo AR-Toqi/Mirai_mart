@@ -26,6 +26,7 @@ export interface AddressRecord {
   state?: string;
   postalCode: string;
   country: string;
+  deliveryZone?: "inside_dhaka" | "outside_dhaka" | string;
   isDefault?: boolean;
 }
 

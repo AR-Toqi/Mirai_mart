@@ -56,8 +56,8 @@ Update this file after every completed feature. Any AI agent reading this should
   - Tertiary: `#007EA3` (Main), `#4CB3C9` (Light), `#B3EBFF` (Surface)
   - Neutrals: `#191C1E` (Dark), `#6E797F` (Muted), `#E7E8EB` (Border), `#F8F9FC` (Background)
   - Semantic: `#22C55E` (Success), `#EF4444` (Error), `#F59E0B` (Warning)
-  - Currency: Bangladeshi Taka (`৳`), Free Shipping Threshold: `৳ 999`
-  - Typography: Baloo 2 (`--font-heading`) for Headings, DM Sans (`--font-sans`) for Body & UI
+  - Currency: Bangladeshi Taka (`৳`), Free Shipping Threshold: `৳ 3,000`
+  - Delivery Zones: Inside Dhaka (`৳ 80`), Outside Dhaka (`৳ 120`)
 - Full page UI is built with mock data first — verified visually and interactively before wiring backend logic.
 - All page entrypoints (`app/**/page.tsx`) and layouts (`layout.tsx`) are strictly Server Components; interactive features are isolated into leaf Client Components in `components/`.
 - Next.js 16 App Router routing hierarchy reorganized into `(commonRoutes)` (public pages, storefront, auth) and `(protectedRoutes)` (customer dashboard, admin portal).

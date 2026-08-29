@@ -329,14 +329,22 @@ export function PLPClient({
           {paginatedProducts.length > 0 ? (
             viewMode === "grid" ? (
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-3.5 sm:gap-5">
-                {paginatedProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                {paginatedProducts.map((product, index) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    priority={index < 4}
+                  />
                 ))}
               </div>
             ) : (
               <div className="space-y-3.5">
-                {paginatedProducts.map((product) => (
-                  <ProductListRow key={product.id} product={product} />
+                {paginatedProducts.map((product, index) => (
+                  <ProductListRow
+                    key={product.id}
+                    product={product}
+                    priority={index < 4}
+                  />
                 ))}
               </div>
             )

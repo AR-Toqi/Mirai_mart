@@ -14,9 +14,10 @@ import type { Product } from "@/types";
 type Props = {
   product: Product;
   className?: string;
+  priority?: boolean;
 };
 
-export function ProductCard({ product, className }: Props) {
+export function ProductCard({ product, className, priority }: Props) {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const { addItem } = useCart();
 
@@ -70,6 +71,7 @@ export function ProductCard({ product, className }: Props) {
               src={product.imageUrl}
               alt={product.title}
               fill
+              priority={priority}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />

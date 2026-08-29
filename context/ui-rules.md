@@ -157,8 +157,8 @@ Fill Background: #0A98C3 (Primary)
 Completed Background (৳ 999+): #22C55E (Success)
 ```
 
-- When `subtotal < ৳ 999`: Text reads *"Add ৳[remaining] more for Free Delivery!"* with Primary fill.
-- When `subtotal >= ৳ 999`: Text reads *"🎉 Free shipping on orders over ৳ 999 unlocked!"* with Success fill.
+- When `subtotal < ৳ 3000`: Text reads *"Add ৳[remaining] more for Free Delivery!"* with Primary fill.
+- When `subtotal >= ৳ 3000`: Text reads *"🎉 Free shipping on orders over ৳ 3,000 unlocked!"* with Success fill.
 
 ---
 

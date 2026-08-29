@@ -269,4 +269,4 @@ Focus: outline-none ring-2 ring-primary/20 border-primary
 ### Currency & Local Pricing
 - Currency Symbol: **`৳`** (Bangladeshi Taka)
 - Default format: `৳ 1,450`
-- Free Shipping Threshold: **`৳ 999`**
+- Free Shipping Threshold: **`৳ 3,000`**

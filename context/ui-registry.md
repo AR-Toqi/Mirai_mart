@@ -552,6 +552,49 @@ Last updated: August 29, 2026
 | WhatsApp CTA | `bg-[#25D366] text-white` Order Entire Bag via WhatsApp with prefilled multi-item list |
 | Trust Bar | Genuine Quality, 30-Day Easy Returns, Cash on Delivery nationwide |
 
+#### 24. `CheckoutClient`
+File: `components/storefront/CheckoutClient.tsx`  
+Last updated: August 30, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (cards), `bg-neutral-bg` (body/trust strip), `bg-success-surface` (security badge), `bg-primary-surface/30` (active delivery zone) |
+| Border | `border border-neutral-border/80` (cards), `border border-neutral-border/90` (pill inputs), `border-primary` (active delivery zone) |
+| Border radius | `rounded-3xl` (cards), `rounded-full` (inputs, zone buttons, CTAs), `rounded-2xl` (thumbnails, trust badge container), `rounded-md` (quantity stepper) |
+| Text — primary | `font-heading font-bold text-xl sm:text-2xl text-neutral-dark` |
+| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted` |
+| Spacing | `p-6 sm:p-8` (card container padding), `space-y-4` (form rows), `px-5 py-3` (input padding) |
+| Hover state | `hover:bg-secondary-light` (primary CTA), `hover:bg-tertiary` (links/back), `hover:bg-neutral-bg` (zone & stepper buttons) |
+| Shadow | `shadow-xs` (cards), `shadow-md` (Place Order CTA) |
+| Accent usage | `bg-secondary` (`#FCE35F`) for Place Order CTA, `text-primary` (`#0A98C3`) for grand totals & prices, `text-success` (`#22C55E`) for security lock |
+
+**Pattern notes:**
+- **Layout Partition**: 2-Column desktop grid (`lg:grid-cols-12`) with Billing Details on the left (`lg:col-span-6`) and Order Details + Payment Verification on the right (`lg:col-span-6`).
+- **Billing Inputs**: Uses `rounded-full` pill inputs with clear required asterisks (`<span className="text-red-500 font-bold">*</span>`).
+- **Delivery Zone Selector**: Segmented pill cards directly providing Inside Dhaka (৳80) and Outside Dhaka (৳120) with live free shipping evaluation at ৳ 3,000 threshold.
+- **Order Details**: Clean inline table format with thumbnail, `[-] qty [+]` quantity stepper, line subtotals, and `✕` remove button.
+
+#### 25. `CheckoutPaymentMethod`
+File: `components/storefront/CheckoutPaymentMethod.tsx`  
+Last updated: August 30, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (card body), `bg-primary` (header instructions banner), `bg-tertiary` (amount tag), `bg-[#FDF2F7]` (active bKash tab), `bg-[#FFF8EE]` (active Nagad tab) |
+| Border | `border border-neutral-border` (card), `border-[#E2136E]` (bKash tab), `border-[#F7941D]` (Nagad tab) |
+| Border radius | `rounded-2xl` (container & switcher tabs), `rounded-full` (inputs & badges), `rounded-lg` (copy button) |
+| Text — primary | `font-heading font-bold text-lg sm:text-xl text-white` (header), `font-mono font-bold text-base sm:text-lg text-neutral-dark` (MFS numbers) |
+| Text — secondary | `font-sans text-xs sm:text-sm text-white/90` (header instructions), `text-xs text-neutral-muted` (hints) |
+| Spacing | `px-5 py-4` (banner padding), `p-5 sm:p-6` (body padding), `space-y-5` (card flow) |
+| Hover state | `hover:bg-neutral-bg/60` (inactive tabs), `hover:bg-surface` (copy button) |
+| Shadow | `shadow-xs` (card), `shadow-2xs` (badges) |
+| Accent usage | Official bKash brand pink (`#E2136E`) and Nagad orange (`#F7941D`) vector SVGs, `bg-primary` (`#0A98C3`) header banner |
+
+**Pattern notes:**
+- **Official Logos**: 100% authentic vector SVGs embedded (`BkashLogo` with origami multi-facet bird and wordmark; `NagadLogo` with dual-color swirl and Bengali wordmark).
+- **Payment Mode Toggle**: Radio cards for Cash on Delivery (Advance Delivery Charge Only) vs Full Payment with dynamic amount badge updates.
+- **Copy Utility**: 1-click clipboard copy for MFS numbers with temporary checkmark and `"Copied"` confirmation.
+
 ### Auth & Customer Account Components
 
 #### 20. `LoginForm`

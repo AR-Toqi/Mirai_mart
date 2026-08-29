@@ -63,7 +63,7 @@ export function HeroBanner() {
               </div>
               <div>
                 <h4 className="font-sans font-bold text-xs text-neutral-dark">Free Shipping</h4>
-                <p className="text-[11px] text-neutral-muted">On orders over ৳999</p>
+                <p className="text-[11px] text-neutral-muted">On orders over ৳3,000</p>
               </div>
             </div>
 

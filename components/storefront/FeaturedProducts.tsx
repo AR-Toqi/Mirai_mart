@@ -27,8 +27,8 @@ export function FeaturedProducts() {
 
       {/* 5-Column Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
-        {FEATURED_PRODUCTS.map((prod) => (
-          <ProductCard key={prod.id} product={prod} />
+        {FEATURED_PRODUCTS.map((prod, index) => (
+          <ProductCard key={prod.id} product={prod} priority={index < 4} />
         ))}
       </div>
 
