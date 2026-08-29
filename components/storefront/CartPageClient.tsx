@@ -25,8 +25,8 @@ import { CartItemRow } from "@/components/storefront/CartItemRow";
 import { formatCurrency } from "@/lib/utils";
 import {
   GIFT_WRAP_PRICE,
-  DEFAULT_WHATSAPP_NUMBER,
   VALID_PROMO_CODES,
+  generateWhatsAppCartOrderLink,
 } from "@/lib/constants";
 import { ALL_PRODUCTS } from "@/lib/mock-data";
 import type { Product } from "@/types";
@@ -85,42 +85,13 @@ export function CartPageClient() {
   }
 
   // WhatsApp Order for entire Cart
-  const whatsAppCartUrl = (() => {
-    const cleanNumber = (
-      process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || DEFAULT_WHATSAPP_NUMBER
-    ).replace(/[^\d+]/g, "");
-
-    const itemListText = items
-      .map(
-        (it, idx) =>
-          `${idx + 1}. *${it.productTitle}* ${
-            it.variantTitle && it.variantTitle !== "Default"
-              ? `(${it.variantTitle})`
-              : ""
-          } x ${it.quantity} = ৳ ${(it.price * it.quantity).toLocaleString()}`
-      )
-      .join("\n");
-
-    const message = [
-      "👋 Hello Mirai Mart! I want to place an order for my cart:",
-      "",
-      itemListText,
-      "",
-      giftOptions.isGift ? `🎁 *Gift Wrapping:* Yes (৳ ${GIFT_WRAP_PRICE})` : null,
-      giftOptions.isGift && giftOptions.message
-        ? `💌 *Gift Note:* "${giftOptions.message}"`
-        : null,
-      appliedPromo ? `🏷️ *Promo Applied:* ${appliedPromo.code}` : null,
-      `💰 *Grand Total:* ৳ ${grandTotal.toLocaleString()}`,
-      `🚚 *Delivery:* ${shippingFee === 0 ? "FREE" : `৳ ${shippingFee}`}`,
-      "",
-      "Please confirm my order and send payment instructions! ✨",
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    return `https://wa.me/${cleanNumber.replace("+", "")}?text=${encodeURIComponent(message)}`;
-  })();
+  const whatsAppCartUrl = generateWhatsAppCartOrderLink({
+    items,
+    giftOptions,
+    appliedPromo,
+    grandTotal,
+    shippingFee,
+  });
 
   if (items.length === 0) {
     return (

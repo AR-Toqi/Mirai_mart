@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 3 — Cart Drawer & Checkout  
-**Last completed:** 08 Cart Drawer & Page — Full UI & Local State  
-**Next:** 09 Checkout Flow & Order Placement  
+**Last completed:** 09 Checkout Flow & Order Placement  
+**Next:** 10 Customer Account & Order History — Full UI & Logic  
 
 ---
 
@@ -32,7 +32,7 @@ Update this file after every completed feature. Any AI agent reading this should
 ### Phase 3 — Cart Drawer & Checkout
 
 - [x] 08 Cart Drawer & Page — Full UI & Local State
-- [ ] 09 Checkout Flow & Order Placement
+- [x] 09 Checkout Flow & Order Placement
 
 ### Phase 4 — Customer Portal & Features
 
@@ -82,7 +82,8 @@ Update this file after every completed feature. Any AI agent reading this should
 - Feature 06 (Dynamic Filtering & Search Logic) complete.
 - Feature 07 (Product Detail Page Full UI & Logic with WhatsApp Order) complete and tested in browser.
 - Feature 08 (Cart Drawer Slide-Over with Framer Motion, interactive item checkboxes, free shipping milestone progress bar, 1-click promo code application, celebratory banner, and checkout CTAs) complete and verified with 0 build errors.
-- Next step is Phase 3: Feature 09 — Checkout Flow & Order Placement.
+- Feature 09 (Checkout Flow & Order Placement) complete and verified with 0 build errors. The `/checkout` route collects delivery details and a payment method, then places the order for the selected cart items through WhatsApp. `CartProvider` now exposes `selectedItems` on the context. Both the cart page and the checkout page build the WhatsApp order link with one shared helper, `generateWhatsAppCartOrderLink` in `lib/constants.ts`.
+- Next step is Phase 4: Feature 10 — Customer Account & Order History.
 
 
 

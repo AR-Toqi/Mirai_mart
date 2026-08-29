@@ -25,6 +25,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export interface CartContextType {
   items: CartItem[];
+  selectedItems: CartItem[];
   selectedItemIds: string[];
   giftOptions: CartGiftOptions;
   appliedPromo: AppliedPromo | null;
@@ -488,6 +489,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     <CartContext.Provider
       value={{
         items,
+        selectedItems,
         selectedItemIds,
         giftOptions,
         appliedPromo,
