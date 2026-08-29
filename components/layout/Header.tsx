@@ -12,6 +12,7 @@ import {
   UserIcon,
 } from "@/components/ui/Icons";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useCart } from "@/components/providers/CartProvider";
 import { formatCurrency } from "@/lib/utils";
 import type { SearchResultItem } from "@/app/api/search/route";
 
@@ -26,6 +27,7 @@ export function Header() {
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const { user, profile, isAuthenticated, signOut } = useAuth();
+  const { itemCount, openCartDrawer, isHydrated } = useCart();
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -268,22 +270,26 @@ export function Header() {
             <span className="text-[11px] font-medium mt-0.5">Wishlist</span>
           </Link>
 
-          {/* Cart */}
-          <Link
-            href="/cart"
-            className="flex flex-col items-center text-neutral-dark hover:text-primary transition-colors group"
+          {/* Cart Trigger */}
+          <button
+            type="button"
+            onClick={openCartDrawer}
+            aria-label={`Shopping Cart with ${itemCount} items`}
+            className="flex flex-col items-center text-neutral-dark hover:text-primary transition-colors group cursor-pointer"
           >
             <div className="relative">
               <ShoppingCartIcon
                 size={20}
                 className="text-neutral-dark group-hover:text-primary transition-colors"
               />
-              <span className="absolute -top-1.5 -right-2 bg-primary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
-                3
-              </span>
+              {isHydrated && itemCount > 0 && (
+                <span className="absolute -top-1.5 -right-2 bg-primary text-white text-[10px] font-bold h-4 min-w-4 px-1 rounded-full flex items-center justify-center shadow-xs animate-in zoom-in-50 duration-200">
+                  {itemCount > 99 ? "99+" : itemCount}
+                </span>
+              )}
             </div>
             <span className="text-[11px] font-medium mt-0.5">Cart</span>
-          </Link>
+          </button>
 
           {/* Account / User Menu */}
           {isAuthenticated ? (

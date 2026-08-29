@@ -1,52 +1,61 @@
-# Memory — Product Detail Page (PDP) Full UI, WhatsApp Order & Review
+# Memory — Slide-Over Cart Drawer, TanStack Query State & ProductCard Refinements
 
-Last updated: August 29, 2026 01:27:00 +06:00
+Last updated: August 29, 2026 13:51:00 +06:00
 
 ## What was built
 
-- **Phase 2 — Feature 07: Product Detail Page (PDP) — Full UI & Logic**:
-  - `app/(commonRoutes)/(storefront)/product/[slug]/page.tsx` — Server Component with dynamic `generateMetadata`, server data fetching via `getProductBySlug` and `getRelatedProducts`, and 404 safety.
-  - `components/storefront/PDPImageGallery.tsx` — High-resolution multi-image gallery with cursor pan-zoom preview, thumbnail rail switcher, status badges, interactive Wishlist toggle, and Share link copy button.
-  - `components/storefront/PDPBuyBox.tsx` — Purchasing command center with breadcrumb navigation, `Baloo 2` title, rating stars with review anchor, Bangladeshi Taka pricing (`৳`), calculated savings badge, interactive variant swatches, stock availability status, `QuantityStepper`, **Triple Action Group (Add to Cart, Buy Now, and Order via WhatsApp with prefilled message and wa.me link)**, Free Delivery banner, and "Why We Love It" curator card.
-  - `components/storefront/PDPTabs.tsx` — 5 comprehensive specification tabs: Description & Highlights (with What's in the Box), Tech Specs & Dimensions (2-column key-value matrix), Safety & Certifications (EN71/ASTM standards), Delivery & Returns (Dhaka 24-48h, outside Dhaka 2-4 days, 30-day returns), and Customer Reviews (5-star distribution chart, verified buyer badges, helpful vote counter).
-  - `components/storefront/PDPFrequentlyBoughtTogether.tsx` — Cross-sell bundle card with interactive item checkboxes and 10% combo discount calculation.
-  - `components/storefront/PDPStickyBar.tsx` — Floating bottom order bar on mobile and upon scroll past 450px with product thumbnail, title, price, WhatsApp button, and Add to Cart.
-  - `components/storefront/PDPClient.tsx` — Client-side orchestrator with PostHog `product_viewed` & `item_added_to_cart` event tracking and toast notifications.
-  - `lib/constants.ts` — Business constants (`FREE_SHIPPING_THRESHOLD = 999`) and `generateWhatsAppOrderLink(...)` generating WhatsApp URLs with structured order details.
-  - `lib/mock-data.ts` — Enriched products with 4-image galleries, bulleted features, full tech specs dictionaries, safety certifications, in-box contents, variant matrices, and `MOCK_REVIEWS`.
-- **Quality & Verification**:
-  - Ran `/review` covering Plan Alignment, System Integrity, and Production Readiness (0 issues across 3 layers).
-  - Ran `/imprint` capturing design tokens and component specs for all 5 PDP components into `context/ui-registry.md`.
-  - Checked off Feature 07 in `context/progress-tracker.md`.
+- **Framer Motion Slide-Over Cart Drawer (`components/storefront/CartDrawer.tsx`)**:
+  - Implemented animated slide-in and backdrop fade using `framer-motion` (`AnimatePresence`, spring physics `damping: 28, stiffness: 260`).
+  - Free shipping progress bar (`৳ 999` threshold) with dynamic live calculations and milestone messages.
+  - Interactive item selection checkboxes with selective checkout calculations.
+  - Product line items with image thumbnails, `Baloo 2` typography, quantity steppers, and trash delete icon.
+  - Coupon card (`MIRAI10`) with 1-click apply and applied status feedback.
+  - Summary breakdown (Subtotal, Discount, Shipping, Total) and free shipping celebration banner.
+  - "Proceed to Checkout" and "View Cart" CTA buttons (trust badges excluded per design direction).
+  - Mounted globally inside `<CartProvider>` in `app/layout.tsx`.
+- **TanStack Query v5 + Context Hybrid State Management**:
+  - Installed `@tanstack/react-query` and created `components/providers/QueryProvider.tsx`.
+  - Wrapped `QueryProvider` around `AuthProvider` and `CartProvider` in `app/layout.tsx`.
+  - Integrated `useQuery` in `CartProvider.tsx` to fetch `profiles.active_cart` from InsForge PostgreSQL on login and merge with guest cart items.
+  - Integrated `useMutation` in `CartProvider.tsx` to debounce (700ms) and sync active cart changes to InsForge database asynchronously.
+  - Updated `ProfileRecord` in `lib/db/types.ts` with `active_cart?: Record<string, unknown> | null`.
+- **ProductCard Visual Refinement (`components/storefront/ProductCard.tsx`)**:
+  - Placed Category Name and Rating Stars (`RatingStars`) side-by-side on the same row (`flex items-center justify-between gap-2`).
+  - Positioned Price row cleanly above the CTA.
+  - Implemented full-width action button (`w-full mt-3 h-9 rounded-xl bg-secondary`) at the bottom of the card.
+  - Implemented snappy 150ms `ease-out` slide/fade hover animation transitioning from `Add to Cart` to `[🛒 Add to Cart]`.
+- **Performance & Error Resolutions**:
+  - Added `priority` property to `/images/promo-summer.svg` in `components/storefront/PromoBanner.tsx` to optimize LCP.
+  - Disabled PostHog session recording in development in `instrumentation-client.ts` to silence recorder console traces.
+- **Skill Runs & Verification**:
+  - Ran `/review` verifying Plan Alignment, System Integrity, and Production Readiness (0 issues found across all 3 layers).
+  - Ran `/imprint` capturing `ProductCard` and `CartDrawer` visual patterns into `context/ui-registry.md`.
+  - Ran `next build` with 0 TypeScript/ESLint/bundling errors.
 
 ## Decisions made
 
-- "Order via WhatsApp" button uses the standard brand Emerald Green color (`bg-[#25D366]`) with official WhatsApp SVG icon and pre-fills structured order metadata (product, variant, SKU, quantity, unit price, total price, and product link).
-- Variant switching dynamically updates the active SKU, price, compare-at strikethrough, stock availability indicator, and primary image gallery.
-- Main page entrypoint `product/[slug]/page.tsx` strictly remains a Server Component, delegating interactive state to `PDPClient`.
-- Implemented cursor-following pan-zoom on hover without layout reflow.
+- **Hybrid State Architecture**:
+  - **React Context API + `localStorage`** owns client-side UI responsiveness, stepper clicks, and guest shopping persistence (0ms latency).
+  - **TanStack Query v5** owns asynchronous cloud synchronization with `profiles.active_cart` in InsForge PostgreSQL.
+- **On-Login Merge Strategy**: When an unauthenticated user with local items logs in, local items are merged with remote items by `uniqueId` (preserving higher quantities up to `maxStock`) and persisted.
+- **ProductCard Bottom CTA**: Switched to a full-width bottom button with snappy 150ms `ease-out` hover animation.
 
 ## Problems solved
 
-- Fixed TypeScript error `Property 'maxRating' does not exist on type 'IntrinsicAttributes & Props'` by aligning `RatingStars` prop usage in `PDPTabs.tsx` and `PDPBuyBox.tsx`.
-- Seamlessly integrated 1-click WhatsApp order flow alongside traditional e-commerce Add to Cart and Buy Now buttons.
-- Aligned dynamic variant selection with reactive price, stock quantity, and gallery updates.
+- Fixed PostHog development session recorder error by adding `disable_session_recording: process.env.NODE_ENV === "development"` and setting `debug: false` in `instrumentation-client.ts`.
+- Resolved Next.js LCP browser warning by setting `priority` on the above-the-fold promo image.
+- Corrected InsForge database call signature from `insforge.from` to `insforge.database.from` for database operations.
 
 ## Current state
 
-- Phase 1 (Features 01–04) and Phase 2 (Features 05, 06, and 07) are 100% complete and verified.
-- Dev server running smoothly with all PDP features, gallery zoom, variant selection, WhatsApp order links, tabs, and sticky order bar verified.
-- Next target is **Phase 3 — Feature 08: Cart Drawer & Page — Full UI & Local State**.
+- Slide-over Cart Drawer, Cart State synchronization, and ProductCard micro-interactions are 100% complete and tested.
+- Production build passes cleanly with 0 errors.
 
 ## Next session starts with
 
-- **Phase 3 — Feature 08: Cart Drawer & Page — Full UI & Local State**
-- Build the Slide-over Cart Drawer (`components/storefront/CartDrawer.tsx`) with animated backdrop and transition slide-in.
-- Build dynamic Free Shipping Progress Bar (`৳ 999` threshold) with live calculation and animated fill.
-- Build line items list with thumbnail, variant badge, quantity stepper, and remove action.
-- Build Gift Wrapping add-on checkbox (`+৳ 99`) and personalized gift message card.
-- Build Full Cart view (`app/(commonRoutes)/(storefront)/cart/page.tsx`).
-- Wire persistent client-side Cart Context (or Zustand/React Context + `localStorage`).
+- **Phase 3 — Feature 08/09: Dedicated Cart Page & Checkout Flow**:
+  - Polish full Cart Page (`app/(commonRoutes)/(storefront)/cart/page.tsx`) with full table layout, gift wrap options, and order notes.
+  - Proceed to **Phase 3 — Feature 09: Checkout Flow & Order Placement** (`app/(commonRoutes)/(storefront)/checkout/page.tsx`).
 
 ## Open questions
 

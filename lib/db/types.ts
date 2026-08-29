@@ -9,6 +9,7 @@ export interface ProfileRecord {
   avatar_url: string | null;
   role: UserRole;
   addresses: AddressRecord[];
+  active_cart?: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import posthog from "posthog-js";
 import { CheckCircle2, Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useCart } from "@/components/providers/CartProvider";
 import { PDPImageGallery } from "./PDPImageGallery";
 import { PDPBuyBox } from "./PDPBuyBox";
 import { PDPTabs } from "./PDPTabs";
@@ -20,6 +21,7 @@ type Props = {
 
 export function PDPClient({ product, relatedProducts }: Props) {
   const router = useRouter();
+  const { addItem } = useCart();
 
   // Selected variant state
   const defaultVariant =
@@ -68,42 +70,95 @@ export function PDPClient({ product, relatedProducts }: Props) {
   function handleAddToCart() {
     setIsAddingToCart(true);
 
-    try {
-      posthog.capture("item_added_to_cart", {
+    addItem(
+      {
         productId: product.id,
-        variantId: selectedVariant?.id || null,
-        title: product.title,
-        variantTitle: selectedVariant?.title || null,
+        productTitle: product.title,
+        productSlug: product.slug,
+        variantId: selectedVariant?.id,
+        variantTitle: selectedVariant?.title,
+        sku: selectedVariant?.sku || product.sku,
         price: selectedVariant?.price ?? product.price,
+        compareAtPrice: selectedVariant?.compareAtPrice ?? product.compareAtPrice,
+        imageUrl: activeImages[0] || product.imageUrl,
         quantity,
-      });
-    } catch (err) {
-      console.warn("[PostHog] item_added_to_cart capture error:", err);
-    }
+        maxStock: selectedVariant?.stockQuantity,
+      },
+      { openDrawer: true }
+    );
 
     setTimeout(() => {
       setIsAddingToCart(false);
       showToast(`Added ${quantity}x "${product.title}" to cart! 🛍️`);
-    }, 300);
+    }, 200);
   }
 
   function handleBuyNow() {
-    handleAddToCart();
+    addItem(
+      {
+        productId: product.id,
+        productTitle: product.title,
+        productSlug: product.slug,
+        variantId: selectedVariant?.id,
+        variantTitle: selectedVariant?.title,
+        sku: selectedVariant?.sku || product.sku,
+        price: selectedVariant?.price ?? product.price,
+        compareAtPrice: selectedVariant?.compareAtPrice ?? product.compareAtPrice,
+        imageUrl: activeImages[0] || product.imageUrl,
+        quantity,
+        maxStock: selectedVariant?.stockQuantity,
+      },
+      { openDrawer: false }
+    );
     router.push("/checkout");
   }
 
   function handleAddBundleToCart(items: Product[]) {
+    // Add main product
+    addItem(
+      {
+        productId: product.id,
+        productTitle: product.title,
+        productSlug: product.slug,
+        variantId: selectedVariant?.id,
+        variantTitle: selectedVariant?.title,
+        sku: selectedVariant?.sku || product.sku,
+        price: Math.round((selectedVariant?.price ?? product.price) * 0.9), // 10% bundle discount
+        compareAtPrice: selectedVariant?.price ?? product.price,
+        imageUrl: activeImages[0] || product.imageUrl,
+        quantity: 1,
+      },
+      { openDrawer: false }
+    );
+
+    // Add complementary bundle items
+    items.forEach((item, idx) => {
+      const isLast = idx === items.length - 1;
+      addItem(
+        {
+          productId: item.id,
+          productTitle: item.title,
+          productSlug: item.slug,
+          price: Math.round(item.price * 0.9), // 10% bundle discount
+          compareAtPrice: item.price,
+          imageUrl: item.imageUrl,
+          quantity: 1,
+        },
+        { openDrawer: isLast } // open drawer on last item added
+      );
+    });
+
     try {
       posthog.capture("bundle_added_to_cart", {
         mainProductId: product.id,
-        itemCount: items.length,
-        itemIds: items.map((i) => i.id),
+        itemCount: items.length + 1,
+        itemIds: [product.id, ...items.map((i) => i.id)],
       });
     } catch (err) {
       console.warn("[PostHog] bundle_added_to_cart capture error:", err);
     }
 
-    showToast(`Added ${items.length} items from combo bundle to cart! 🎉`);
+    showToast(`Added ${items.length + 1} bundle items with 10% discount to cart! 🎉`);
   }
 
   return (

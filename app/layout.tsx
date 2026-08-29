@@ -22,7 +22,10 @@ export const metadata: Metadata = {
     "A modern, optimistic and friendly store for curated educational toys, creative developmental items, home decor, and digital gadgets.",
 };
 
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { CartProvider } from "@/components/providers/CartProvider";
+import { CartDrawer } from "@/components/storefront/CartDrawer";
 
 export default function RootLayout({
   children,
@@ -35,7 +38,14 @@ export default function RootLayout({
       className={`${baloo.variable} ${dmSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <AuthProvider>{children}</AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <CartProvider>
+              {children}
+              <CartDrawer />
+            </CartProvider>
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );

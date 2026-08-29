@@ -7,6 +7,7 @@ import Link from "next/link";
 import { HeartIcon, ShoppingCartIcon } from "@/components/ui/Icons";
 import { ProductBadge } from "@/components/shared/ProductBadge";
 import { RatingStars } from "@/components/shared/RatingStars";
+import { useCart } from "@/components/providers/CartProvider";
 import { formatCurrency, cn } from "@/lib/utils";
 import type { Product } from "@/types";
 
@@ -17,6 +18,7 @@ type Props = {
 
 export function ProductCard({ product, className }: Props) {
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const { addItem } = useCart();
 
   return (
     <div
@@ -81,46 +83,57 @@ export function ProductCard({ product, className }: Props) {
               {product.title}
             </h3>
           </Link>
-          <p className="text-[12px] font-sans text-neutral-muted mt-0.5">{product.category}</p>
 
-          <div className="mt-1.5">
+          {/* Category & Review on same row */}
+          <div className="flex items-center justify-between gap-2 mt-1">
+            <p className="text-[12px] font-sans text-neutral-muted truncate">
+              {product.category}
+            </p>
             <RatingStars rating={product.rating} reviewCount={product.reviewCount} />
+          </div>
+
+          {/* Price Row */}
+          <div className="flex items-baseline gap-1.5 mt-2.5">
+            {product.compareAtPrice && (
+              <span className="text-[12px] text-neutral-muted line-through font-sans">
+                {formatCurrency(product.compareAtPrice)}
+              </span>
+            )}
+            <span className="font-sans font-bold text-[17px] text-neutral-dark">
+              {formatCurrency(product.price)}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Footer Price & Cart */}
-      <div className="flex items-center justify-between mt-3 pt-1">
-        <div className="flex items-baseline gap-1.5">
-          {product.compareAtPrice && (
-            <span className="text-[12px] text-neutral-muted line-through font-sans">
-              {formatCurrency(product.compareAtPrice)}
-            </span>
-          )}
-          <span className="font-sans font-bold text-[17px] text-neutral-dark">
-            {formatCurrency(product.price)}
-          </span>
-        </div>
-
-        <button
-          type="button"
-          aria-label={`Add ${product.title} to cart`}
-          onClick={() => {
-            posthog.capture("product_added_to_cart", {
-              product_id: product.id,
-              product_name: product.title,
-              product_category: product.category,
-              product_price: product.price,
-              product_slug: product.slug,
-              has_badge: !!product.badge,
-              badge_type: product.badge ?? null,
-            });
-          }}
-          className="w-8 h-8 rounded-lg bg-secondary/60 text-neutral-dark hover:bg-secondary-light flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
-        >
+      {/* Full-width Action Button at bottom of card with smooth ease-in hover animation */}
+      <button
+        type="button"
+        aria-label={`Add ${product.title} to cart`}
+        onClick={() => {
+          addItem(
+            {
+              productId: product.id,
+              productTitle: product.title,
+              productSlug: product.slug,
+              price: product.price,
+              compareAtPrice: product.compareAtPrice,
+              imageUrl: product.imageUrl,
+              quantity: 1,
+            },
+            { openDrawer: true }
+          );
+        }}
+        className="w-full mt-3 h-9 rounded-xl bg-secondary hover:bg-secondary-light text-neutral-dark flex items-center justify-center gap-1.5 font-sans font-bold text-xs shadow-xs hover:shadow-sm transition-all duration-150 ease-out cursor-pointer active:scale-[0.98] group/btn overflow-hidden relative"
+      >
+        <span className="inline-flex items-center gap-1.5 transition-all duration-150 ease-out group-hover/btn:-translate-y-6 group-hover/btn:opacity-0">
+          <span>Add to Cart</span>
+        </span>
+        <span className="inline-flex items-center gap-1.5 transition-all duration-150 ease-out translate-y-6 opacity-0 group-hover/btn:translate-y-0 group-hover/btn:opacity-100 absolute">
           <ShoppingCartIcon size={16} className="w-4 h-4" />
-        </button>
-      </div>
+          <span>Add to Cart</span>
+        </span>
+      </button>
     </div>
   );
 }

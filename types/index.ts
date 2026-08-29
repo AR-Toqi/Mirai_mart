@@ -53,6 +53,40 @@ export type TrustItem = {
   description: string;
 };
 
+export interface CartItem {
+  id: string; // unique item key: `${productId}_${variantId || 'default'}`
+  productId: string;
+  productTitle: string;
+  productSlug: string;
+  variantId?: string;
+  variantTitle?: string;
+  sku?: string;
+  price: number; // Unit price in BDT (৳)
+  compareAtPrice?: number | null;
+  imageUrl: string;
+  quantity: number;
+  maxStock?: number;
+}
+
+export interface CartGiftOptions {
+  isGift: boolean;
+  wrapFee: number; // ৳ 99
+  message: string;
+}
+
+export interface AppliedPromo {
+  code: string;
+  discountType: "percentage" | "fixed_amount" | "free_shipping";
+  discountValue: number; // e.g. 10 for 10%, 150 for ৳ 150
+}
+
+export interface CartState {
+  items: CartItem[];
+  giftOptions: CartGiftOptions;
+  appliedPromo: AppliedPromo | null;
+  isCartDrawerOpen: boolean;
+}
+
 export * from "./auth";
 export * from "@/lib/db/types";
 

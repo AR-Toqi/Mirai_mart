@@ -17,8 +17,10 @@ if (!token) {
     defaults: "2026-01-30",
     // Enables capturing unhandled exceptions via Error Tracking
     capture_exceptions: true,
-    // Turn on debug in development mode
-    debug: process.env.NODE_ENV === "development",
+    // Disable session recording in development to prevent console noise
+    disable_session_recording: process.env.NODE_ENV === "development",
+    // Turn off verbose debug logging in development console
+    debug: false,
   });
 }
 

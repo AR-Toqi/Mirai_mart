@@ -167,23 +167,28 @@ Last updated: August 25, 2026
 
 #### 6. `ProductCard.tsx`
 - **Path**: `components/storefront/ProductCard.tsx`
-- **Purpose**: Standard e-commerce product card matching the design system image.
-- **Visuals**: 16px radius card (`rounded-xl`), border `#E7E8EB`, image with `12px` radius (`rounded-lg`), Baloo 2 title, category subtitle ("Creative • Educational"), Bangladeshi Taka price (`৳ 1,450`), and vibrant secondary yellow `bg-secondary` shopping cart icon button with neutral dark icon.
-- **Props**:
+- **Last updated**: 2026-08-29
+
+| Property | Class / Token |
+| :--- | :--- |
+| **Card Background** | `bg-surface` (`#FFFFFF`), image container `bg-neutral-bg/60` |
+| **Card Border** | `border border-neutral-border` (`#E7E8EB`) |
+| **Border Radius** | Card: `rounded-2xl` (`16px`), Image & CTA button: `rounded-xl` (`12px`), Wishlist: `rounded-full` |
+| **Text — Primary** | Title: `font-heading font-semibold text-[15px] text-neutral-dark`, Price: `font-sans font-bold text-[17px] text-neutral-dark` |
+| **Text — Secondary** | Category & Strikethrough: `font-sans text-[12px] text-neutral-muted` |
+| **Spacing** | Card: `p-3.5`, Content: `pt-3`, Category/Reviews: `mt-1`, Price: `mt-2.5`, Button: `mt-3` |
+| **Interactive States** | Card: `hover:shadow-md`, Title: `hover:text-primary`, CTA: `bg-secondary hover:bg-secondary-light active:scale-[0.98] transition-all duration-150 ease-out` |
+| **Shadow** | Card: `hover:shadow-md`, CTA: `shadow-xs hover:shadow-sm` |
+| **Accent Usage** | Action CTA: `bg-secondary` (`#FCE35F`), Star Rating: `fill-amber-400 text-amber-400`, Wishlist: `text-rose-500` |
+
+**Pattern notes:**
+- Always place the **Category Name** and **RatingStars** on the same row with `flex items-center justify-between gap-2`.
+- The **Add to Cart** action button spans the full width of the card bottom (`w-full h-9 rounded-xl`) with a snappy 150ms `ease-out` slide transition revealing the cart icon on hover.
+- Props:
   ```typescript
   type Props = {
-    id: string;
-    title: string;
-    slug: string;
-    price: number; // in BDT
-    compareAtPrice?: number;
-    rating: number;
-    reviewCount: number;
-    imageUrl: string;
-    badge?: "New" | "Sale" | "-20%" | "Best Seller" | "Exclusive";
-    categoryName?: string;
-    isOutOfStock?: boolean;
-    onAddToCart?: () => void;
+    product: Product;
+    className?: string;
   };
   ```
 
@@ -475,6 +480,77 @@ Last updated: August 29, 2026
 - Provides immediate 1-click WhatsApp order and Add to Cart access from any scroll position.
 
 ---
+
+### Cart & Checkout Components (`components/storefront/`)
+
+#### 20. `FreeShippingBar`
+File: `components/storefront/FreeShippingBar.tsx`  
+Last updated: August 29, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-primary-surface/40` (in progress), `bg-success-surface` (unlocked) |
+| Border | `border border-primary/20` (in progress), `border-success/30` (unlocked) |
+| Border radius | `rounded-xl` (`12px`) container, `rounded-full` progress track |
+| Text — primary | `font-heading font-bold text-xs sm:text-sm text-success` / `text-primary` |
+| Text — secondary | `font-sans text-xs text-neutral-dark`, `text-[10px] text-neutral-muted` |
+| Track / Fill | `bg-neutral-border/80` track; gradient `from-primary to-primary-light` (progress) & `from-success to-emerald-500` (unlocked) |
+| Props | `show?: boolean` (default `true` for future admin toggle), `compact?: boolean` |
+
+---
+
+#### 21. `CartDrawer`
+File: `components/storefront/CartDrawer.tsx`  
+Last updated: August 29, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-dark/40 backdrop-blur-xs` (backdrop overlay) |
+| Border | `border-l border-neutral-border` (`#E7E8EB`), `border-t border-neutral-border` (footer summary) |
+| Border radius | `rounded-l-3xl` panel, `rounded-full` close icon, `rounded-2xl` item cards, `rounded-xl` checkout CTAs |
+| Text — primary | `font-heading font-bold text-2xl text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs text-neutral-muted` (`#6E797F`), `text-success font-semibold` (free shipping milestone) |
+| Animation | Framer Motion `AnimatePresence` with spring slide-in (`damping: 28, stiffness: 260`) and fade overlay |
+| Shadow | `shadow-2xl` drawer panel, `shadow-xs` CTA buttons |
+| CTAs | `bg-primary text-white` Proceed to Checkout (with lock icon), `text-primary` View Cart |
+
+**Pattern notes:**
+- Framer Motion `AnimatePresence` handles entry/exit transitions for both the darkened backdrop and sliding drawer panel.
+- Product list supports interactive selection checkboxes with live subtotal and discount recalculations.
+- Features dynamic free-shipping progress track with vehicle milestone indicator, 1-click coupon application card (`MIRAI10`), celebratory banner, and quick quantity stepper controls.
+
+---
+
+#### 22. `CartItemRow`
+File: `components/storefront/CartItemRow.tsx`  
+Last updated: August 29, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (thumbnail container) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `hover:border-neutral-border/80` |
+| Border radius | `rounded-xl` (`12px`) card container, `rounded-lg` (`8px`) image thumbnail |
+| Text — primary | `font-heading font-bold text-sm sm:text-base text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-[11px] text-neutral-muted`, `bg-primary-surface/40 text-tertiary` (variant badge) |
+| Stepper | `QuantityStepper` (compact: `size="sm"`, page: `size="md"`) |
+| Delete Action | `Trash2` icon with `hover:text-error hover:bg-error-surface` |
+
+---
+
+#### 23. `CartPageClient` (Full Cart Page)
+File: `components/storefront/CartPageClient.tsx`  
+Last updated: August 29, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-neutral-bg` (canvas), `bg-surface` (cards & sticky summary), `bg-secondary-surface/20` (gift wrap card) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-secondary/40` (gift wrap card) |
+| Border radius | `rounded-2xl` (`16px`) for cards and summary container, `rounded-md` (`8px`) for inputs and CTAs |
+| Text — primary | `font-heading font-bold text-2xl sm:text-3xl lg:text-4xl text-neutral-dark` |
+| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted` |
+| Promo Input | Monospace uppercase code input with instant validation and quick suggestion pills (`MIRAI10`, `WELCOME50`, `FREESHIP`) |
+| WhatsApp CTA | `bg-[#25D366] text-white` Order Entire Bag via WhatsApp with prefilled multi-item list |
+| Trust Bar | Genuine Quality, 30-Day Easy Returns, Cash on Delivery nationwide |
 
 ### Auth & Customer Account Components
 

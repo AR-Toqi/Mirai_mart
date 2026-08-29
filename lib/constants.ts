@@ -3,9 +3,34 @@
  */
 
 export const FREE_SHIPPING_THRESHOLD = 999; // ৳ 999 free shipping across Bangladesh
+export const STANDARD_SHIPPING_FEE = 60; // ৳ 60 standard shipping if subtotal < ৳ 999
 export const GIFT_WRAP_PRICE = 99; // ৳ 99 gift wrap add-on
 export const MAX_COMPARE_ITEMS = 4; // Max 4 products compared side-by-side
 export const DEFAULT_PAGE_SIZE = 12; // Products per PLP page
+
+export const VALID_PROMO_CODES: Record<
+  string,
+  { type: "percentage" | "fixed_amount" | "free_shipping"; value: number; minSubtotal: number; description: string }
+> = {
+  MIRAI10: {
+    type: "percentage",
+    value: 10,
+    minSubtotal: 500,
+    description: "10% off on orders above ৳ 500",
+  },
+  WELCOME50: {
+    type: "fixed_amount",
+    value: 50,
+    minSubtotal: 300,
+    description: "৳ 50 off on orders above ৳ 300",
+  },
+  FREESHIP: {
+    type: "free_shipping",
+    value: 0,
+    minSubtotal: 0,
+    description: "Free delivery on any order",
+  },
+};
 
 export const DEFAULT_WHATSAPP_NUMBER =
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "+8801700000000";

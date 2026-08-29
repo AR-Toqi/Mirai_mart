@@ -40,26 +40,14 @@ export function PDPImageGallery({ images, title, badge }: Props) {
     }
   }
 
-  // Map badge variant string to ProductBadge component variant prop
-  const badgeVariantMap: Record<string, "bestseller" | "new" | "sale" | "discount" | "exclusive"> = {
-    "Bestseller": "bestseller",
-    "New": "new",
-    "Sale": "sale",
-    "-15%": "discount",
-    "-20%": "discount",
-    "Exclusive": "exclusive",
-  };
-
-  const badgeVariant = badge ? badgeVariantMap[badge] || "bestseller" : undefined;
-
   return (
     <div className="flex flex-col gap-4">
       {/* Main Image Stage */}
       <div className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-neutral-border bg-surface shadow-xs">
         {/* Floating Badges */}
         <div className="absolute left-4 top-4 z-10 flex flex-col items-start gap-2">
-          {badgeVariant && (
-            <ProductBadge variant={badgeVariant} label={badge} className="shadow-xs" />
+          {badge && (
+            <ProductBadge badge={badge} className="shadow-xs" />
           )}
           <span className="inline-flex items-center gap-1 rounded-full bg-surface/90 px-2.5 py-1 text-[11px] font-semibold text-primary backdrop-blur-md shadow-2xs border border-primary/20">
             <Sparkles className="h-3 w-3 text-secondary" />

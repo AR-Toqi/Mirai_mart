@@ -7,6 +7,7 @@ import posthog from "posthog-js";
 import { HeartIcon, ShoppingCartIcon } from "@/components/ui/Icons";
 import { ProductBadge } from "@/components/shared/ProductBadge";
 import { RatingStars } from "@/components/shared/RatingStars";
+import { useCart } from "@/components/providers/CartProvider";
 import { formatCurrency, cn } from "@/lib/utils";
 import type { Product } from "@/types";
 
@@ -17,6 +18,7 @@ type Props = {
 
 export function ProductListRow({ product, className }: Props) {
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const { addItem } = useCart();
 
   return (
     <div
@@ -141,12 +143,18 @@ export function ProductListRow({ product, className }: Props) {
         <button
           type="button"
           onClick={() => {
-            posthog.capture("item_added_to_cart", {
-              productId: product.id,
-              variantId: product.id,
-              price: product.price,
-              quantity: 1,
-            });
+            addItem(
+              {
+                productId: product.id,
+                productTitle: product.title,
+                productSlug: product.slug,
+                price: product.price,
+                compareAtPrice: product.compareAtPrice,
+                imageUrl: product.imageUrl,
+                quantity: 1,
+              },
+              { openDrawer: true }
+            );
           }}
           className="inline-flex items-center gap-1.5 bg-primary text-white hover:bg-tertiary px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
         >
