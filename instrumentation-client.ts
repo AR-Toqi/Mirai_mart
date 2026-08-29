@@ -15,8 +15,8 @@ if (!token) {
     ui_host: host,
     // Include the defaults option as required by PostHog
     defaults: "2026-01-30",
-    // Enables capturing unhandled exceptions via Error Tracking
-    capture_exceptions: true,
+    // Capture unhandled exceptions via Error Tracking in production only
+    capture_exceptions: process.env.NODE_ENV === "production",
     // Disable session recording in development to prevent console noise
     disable_session_recording: process.env.NODE_ENV === "development",
     // Turn off verbose debug logging in development console
