@@ -326,6 +326,13 @@ export function Header() {
                     >
                       My Account & Orders
                     </Link>
+                    <Link
+                      href="/track-order"
+                      onClick={() => setIsAccountMenuOpen(false)}
+                      className="block px-4 py-1.5 text-xs text-neutral-dark hover:bg-neutral-bg font-medium transition-colors"
+                    >
+                      Track Parcel Status
+                    </Link>
                   </div>
 
                   <div className="pt-1 border-t border-neutral-border">

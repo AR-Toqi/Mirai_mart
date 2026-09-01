@@ -660,11 +660,93 @@ Last updated: August 24, 2026
 | Shadow | `shadow-xs` on cards |
 | Accent usage | `bg-[#1b6b93]` initials avatar, `bg-primary-surface/50 text-primary` for active navigation tab |
 
+---
+
+#### 26. `OrderTrackingTimeline` (Fulfillment Progression Stepper)
+File: `components/storefront/OrderTrackingTimeline.tsx`  
+Last updated: September 1, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-primary-surface` (active ring/courier badge), `bg-neutral-bg` (estimated delivery pill) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-error/30` (cancelled banner) |
+| Border radius | `rounded-2xl` (`16px`) container, `rounded-xl` (`12px`) cards & badges, `rounded-full` milestone nodes |
+| Text — primary | `font-heading font-bold text-neutral-dark` (`#191C1E`), `text-primary` (`#0A98C3`) |
+| Text — secondary | `font-sans text-xs text-neutral-muted` (`#6E797F`), `text-success` (`#22C55E`) |
+| Spacing | `p-5 sm:p-7` container padding, `mt-8 pt-2` stepper layout |
+| Hover state | `hover:text-neutral-dark` for 1-click tracking number copy |
+| Shadow | `shadow-xs` container, `ring-4 ring-primary-surface` active pulse |
+| Accent usage | `bg-success` for completed nodes, `bg-primary` for active node, `bg-error-surface` for cancelled orders |
+
 **Pattern notes:**
-- Strictly matches `context/design/My-account_page.png`.
-- Grouped sidebar navigation with `ACCOUNT`, `SETTINGS`, and `SUPPORT` sections.
-- Order status badges use color tokens: `Delivered` (`#e6f8ee`/`#15803d`), `Shipped` (`bg-primary-surface text-primary`), `In Transit` (`#fef3c7`/`#b45309`), `Cancelled` (`#fee2e2`/`#b91c1c`).
-- All monetary values formatted in Bangladeshi Taka (`৳`).
+- Adaptive responsive layout: Desktop horizontal connector line stepper and Mobile compact vertical timeline.
+- Dynamic delivery estimates calculated automatically from order date and delivery zone (Inside Dhaka 1–2 days vs Outside Dhaka 2–4 days).
+- Includes Consignment tracking number clipboard copy and Steadfast/Pathao courier identification.
+
+---
+
+#### 27. `TrackOrderClient` (Public Order Lookup Portal)
+File: `components/storefront/TrackOrderClient.tsx`  
+Last updated: September 1, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (inputs & FAQ cards), `bg-primary-surface` (hero pill) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `focus:border-primary` |
+| Border radius | `rounded-3xl` (`24px`) search card, `rounded-xl` (`12px`) inputs & submit button |
+| Text — primary | `font-heading font-extrabold text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs text-neutral-muted` (`#6E797F`), `font-mono` for order numbers |
+| Spacing | `p-6 sm:p-8` search container, `gap-4` grid layout |
+| Hover state | `hover:bg-tertiary` submit button, `hover:bg-[#20bd5a]` WhatsApp CTA |
+| Shadow | `shadow-sm` search card, `shadow-xs` submit button |
+| Accent usage | `bg-primary` for lookup CTA, `bg-[#25D366]` for WhatsApp help |
+
+**Pattern notes:**
+- Self-service public tracking lookup requiring Order Number + Phone/Email to protect customer privacy.
+- Displays full order breakdown, live milestone tracker, FAQ accordion, and 1-tap WhatsApp support deep link.
+
+---
+
+#### 28. `OrderSuccessClient` (Celebratory Confirmation & Official Invoice Receipt)
+File: `components/storefront/OrderSuccessClient.tsx`  
+Last updated: September 1, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-success-surface` (success icon & advance badge), `bg-neutral-bg` (order ID box & due badge), `bg-secondary-surface/40` (gift wrap banner & ambient glow) |
+| Border | `border border-success/30` (celebration card), `border border-neutral-border` (`#E7E8EB`), `border-neutral-border/60` (dividers) |
+| Border radius | `rounded-3xl` (`24px`) celebration banner, `rounded-2xl` (`16px`) order chip, items summary & info cards, `rounded-xl` (`12px`) action CTAs |
+| Text — primary | `font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl text-neutral-dark` (`#191C1E`), `font-mono font-extrabold text-primary` (order ID) |
+| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted` (`#6E797F`), `font-bold text-success` (free delivery / verified badge) |
+| Spacing | `p-6 sm:p-10` celebration banner padding, `p-5 sm:p-7` summary card, `p-5` info cards, `gap-3.5` CTAs gap |
+| Hover state | `hover:bg-tertiary` (Continue Shopping), `hover:bg-neutral-bg` (Track Order & Print Receipt), `hover:bg-[#20bd5a]` (WhatsApp) |
+| Shadow | `shadow-sm` celebration card, `shadow-xs` itemized receipt & CTA buttons, `shadow-2xs` print receipt pill |
+| Accent usage | `bg-primary` (`#0A98C3`) Continue Shopping CTA, `text-success` (`#22C55E`) checkmark, `bg-[#25D366]` WhatsApp CTA, `text-secondary` bounce sparkle |
+
+**Pattern notes:**
+- Full dual-mode layout: Rich interactive screen presentation with celebratory glows and structured clean PDF/print invoice layout (`print:hidden`, `print:block`).
+- Integrated 1-click order number copy, instant printable receipt, live milestone stepper, advance vs doorstep COD balance breakdown, and prefilled WhatsApp support link.
+
+---
+
+#### 29. `QuantityStepper` (Compact & Standard Stepper)
+File: `components/shared/QuantityStepper.tsx`  
+Last updated: September 1, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`) container |
+| Border | `border border-neutral-border` (`#E7E8EB`) |
+| Border radius | `rounded-md` (`8px`) |
+| Text — primary | `font-sans font-bold text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `disabled:opacity-30 disabled:hover:bg-transparent` |
+| Spacing | `h-7 w-7` / `w-7` (compact `sm`), `h-9 w-9` / `w-9` (standard `md`) |
+| Hover state | `hover:bg-neutral-bg` (plus / minus buttons) |
+| Shadow | `shadow-2xs` |
+| Accent usage | None (clean neutral design system controls) |
+
+**Pattern notes:**
+- Standardized numeric quantity incrementor used across Cart Drawer (`size="sm"`), Full Cart Page (`size="md"`), and Checkout Review (`size="sm"`).
 
 ---
 
@@ -675,4 +757,6 @@ Last updated: August 24, 2026
 3. **No Hardcoded Hex Colors**: Use Tailwind utility classes with Mirai Mart design tokens (e.g. `bg-primary`, `bg-secondary`, `text-neutral-dark`, `border-neutral-border`).
 4. **Currency Format**: Always format currency using Bangladeshi Taka (`৳ [amount]`).
 5. **Server vs Client Boundary**: Components requiring hooks (`useState`, `useEffect`) or browser event listeners must declare `"use client"` at the top. Pure presentation components remain Server Components.
+
+
 

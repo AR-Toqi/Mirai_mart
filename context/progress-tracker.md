@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Phase:** Phase 3 — Cart Drawer & Checkout  
-**Last completed:** 08 Cart Drawer & Page — Full UI & Local State  
-**Next:** 09 Checkout Flow & Order Placement  
+**Phase:** Phase 3 — Cart Drawer & Checkout (Complete) / Phase 4 — Customer Portal & Features  
+**Last completed:** 09 Checkout Flow & Order Placement  
+**Next:** 10 Order Success, Live Order Tracking & Public Track Order Page  
 
 ---
 
@@ -32,11 +32,11 @@ Update this file after every completed feature. Any AI agent reading this should
 ### Phase 3 — Cart Drawer & Checkout
 
 - [x] 08 Cart Drawer & Page — Full UI & Local State
-- [ ] 09 Checkout Flow & Order Placement
+- [x] 09 Checkout Flow & Order Placement
 
 ### Phase 4 — Customer Portal & Features
 
-- [ ] 10 Customer Account & Order History — Full UI & Logic
+- [ ] 10 Order Success, Live Order Tracking (`/track-order`) & Customer Order History
 - [ ] 11 Product Comparison Page (`/compare`)
 
 ### Phase 5 — Admin Management Panel
@@ -67,6 +67,9 @@ Update this file after every completed feature. Any AI agent reading this should
 - Live predictive search Route Handler (`app/api/search/route.ts`) provides debounced instant autocomplete previews with thumbnail images, category pills, and `৳` pricing.
 - Bidirectional URL query parameter synchronization keeps PLP filter and search state shareable and bookmarkable without full page reloads.
 - Product Detail Page (PDP) implemented with 60/40 showcase layout, hover magnifying lens zoom preview, multi-variant selectors, 1-click WhatsApp order link generation with structured message, curator notes ("Why We Love It"), 5-tab technical and customer review panel, frequently bought together bundle recommendation, and sticky bottom buy bar.
+- Checkout flow re-architected into a responsive 2-column layout (Left: Billing Details & Trust Badges; Right: Order Details Table, MFS Payment Verification & Place Order CTA).
+- Simplified delivery zone model (Inside Dhaka ৳80 vs Outside Dhaka ৳120) with free shipping auto-applied on orders >= ৳3,000.
+- Embedded 100% authentic bKash & Nagad vector SVG brand logos with 1-click account copy.
 
 ---
 
@@ -80,9 +83,10 @@ Update this file after every completed feature. Any AI agent reading this should
 - Database seed script executed: 10 categories/subcategories, 6 products, 8 variants, 3 promotions, and 3 customer reviews seeded.
 - InsForge Storage public bucket `products` created for media assets.
 - Feature 06 (Dynamic Filtering & Search Logic) complete.
-- Feature 07 (Product Detail Page Full UI & Logic with WhatsApp Order) refined: simplified tabs to Product Description & Customer Reviews only, and enhanced PDP gallery to support multiple distinct photos for all products with left/right arrows, photo counter, and synchronized thumbnail navigation.
-- Feature 08 (Cart Drawer Slide-Over with Framer Motion, interactive item checkboxes, free shipping milestone progress bar, 1-click promo code application, celebratory banner, and checkout CTAs) complete and verified with 0 build errors.
-- Next step is Phase 3: Feature 09 — Checkout Flow & Order Placement.
+- Feature 07 (Product Detail Page Full UI & Logic with WhatsApp Order) refined.
+- Feature 08 (Cart Drawer Slide-Over with Framer Motion) complete.
+- Feature 09 (Checkout Flow & Order Placement) complete and verified with 0 build errors.
+- Next step is Phase 4: Feature 10 — Order Success, Live Order Tracking & Public Track Order Page (`/track-order`).
 
 
 

@@ -122,7 +122,7 @@ export function AccountDashboardClient() {
     {
       id: "MM-1252",
       title: "Brainy Puzzle Set",
-      image: "https://images.unsplash.com/photo-1618842676087-59ee79a70bc9?w=100&h=100&fit=crop",
+      image: "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=100&h=100&fit=crop",
       status: "Cancelled",
       statusVariant: "cancelled",
       date: "May 10, 2024",

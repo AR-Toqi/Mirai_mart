@@ -303,11 +303,12 @@ export async function getOrderDetailsAction(
   orderNumber: string
 ): Promise<{ success: boolean; order?: OrderRecord & { items?: OrderItemRecord[] }; error?: string }> {
   try {
+    const cleanOrderNumber = orderNumber.trim();
     const insforge = await createInsforgeServer();
     const { data: order, error } = await insforge.database
       .from("orders")
       .select("*, items:order_items(*)")
-      .eq("order_number", orderNumber)
+      .eq("order_number", cleanOrderNumber)
       .single();
 
     if (error || !order) {
@@ -329,3 +330,82 @@ export async function getOrderDetailsAction(
     };
   }
 }
+
+export interface TrackOrderLookupResult {
+  success: boolean;
+  order?: OrderRecord & { items?: OrderItemRecord[] };
+  error?: string;
+}
+
+/**
+ * Server Action for public self-service order tracking lookup
+ * Requires Order Number + matching Phone Number or Email for customer privacy
+ */
+export async function trackOrderLookupAction(
+  orderNumber: string,
+  phoneOrEmail: string
+): Promise<TrackOrderLookupResult> {
+  try {
+    const cleanOrderNumber = (orderNumber || "").trim().toUpperCase();
+    const cleanInput = (phoneOrEmail || "").trim().toLowerCase();
+    const numericPhone = cleanInput.replace(/[^\d]/g, "");
+
+    if (!cleanOrderNumber) {
+      return {
+        success: false,
+        error: "Please enter a valid Order Number (e.g. MM-749215).",
+      };
+    }
+
+    if (!cleanInput) {
+      return {
+        success: false,
+        error: "Please enter the Mobile Number or Email used during checkout.",
+      };
+    }
+
+    const insforge = await createInsforgeServer();
+    const { data: order, error } = await insforge.database
+      .from("orders")
+      .select("*, items:order_items(*)")
+      .eq("order_number", cleanOrderNumber)
+      .single();
+
+    if (error || !order) {
+      return {
+        success: false,
+        error: `No order found with number "${cleanOrderNumber}". Please check your order ID and try again.`,
+      };
+    }
+
+    // Verify contact info matches for privacy
+    const typedOrder = order as OrderRecord & { items?: OrderItemRecord[] };
+    const orderEmail = (typedOrder.customer_email || typedOrder.shipping_address?.email || "").toLowerCase();
+    const orderPhone = (typedOrder.shipping_address?.phone || "").replace(/[^\d]/g, "");
+
+    const isEmailMatch = cleanInput.includes("@") && orderEmail && orderEmail === cleanInput;
+    const isPhoneMatch =
+      numericPhone.length >= 6 &&
+      orderPhone &&
+      (orderPhone.includes(numericPhone) || numericPhone.includes(orderPhone));
+
+    if (!isEmailMatch && !isPhoneMatch) {
+      return {
+        success: false,
+        error: "The contact number or email provided does not match the order details on file.",
+      };
+    }
+
+    return {
+      success: true,
+      order: typedOrder,
+    };
+  } catch (err) {
+    console.error("[actions/orders/trackOrderLookupAction] Error:", err);
+    return {
+      success: false,
+      error: "An error occurred while looking up your tracking status. Please try again.",
+    };
+  }
+}
+
