@@ -25,7 +25,9 @@ export const metadata: Metadata = {
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { CartProvider } from "@/components/providers/CartProvider";
+import { CompareProvider } from "@/lib/context/CompareContext";
 import { CartDrawer } from "@/components/storefront/CartDrawer";
+import { CompareDock } from "@/components/shared/CompareDock";
 
 export default function RootLayout({
   children,
@@ -42,8 +44,11 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>
             <CartProvider>
-              {children}
-              <CartDrawer />
+              <CompareProvider>
+                {children}
+                <CartDrawer />
+                <CompareDock />
+              </CompareProvider>
             </CartProvider>
           </AuthProvider>
         </QueryProvider>

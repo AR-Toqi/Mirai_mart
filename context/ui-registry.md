@@ -646,7 +646,7 @@ Last updated: August 24, 2026
 
 #### 22. `AccountDashboardClient` (Customer Portal)
 File: `components/account/AccountDashboardClient.tsx`  
-Last updated: August 24, 2026
+Last updated: September 2, 2026
 
 | Property | Class |
 | --- | --- |
@@ -659,6 +659,11 @@ Last updated: August 24, 2026
 | Hover state | `hover:bg-neutral-bg/50` for order rows, `hover:underline` for action links |
 | Shadow | `shadow-xs` on cards |
 | Accent usage | `bg-[#1b6b93]` initials avatar, `bg-primary-surface/50 text-primary` for active navigation tab |
+
+**Pattern notes:**
+- Active tab state is bidirectionally synchronized with URL search parameter `?tab=` (`dashboard`, `orders`, `wishlist`, `reviews`, `addresses`, `payments`, `profile`, `password`, `notifications`).
+- Uses Next.js App Router `useSearchParams()`, `usePathname()`, and `router.replace(url, { scroll: false })` with Suspense boundary in `app/(protectedRoutes)/account/page.tsx`.
+- Default `"dashboard"` tab omits query string for clean `/account` root URL; browser back/forward navigation is handled via `useEffect` listener on `searchParams`.
 
 ---
 
@@ -747,6 +752,70 @@ Last updated: September 1, 2026
 
 **Pattern notes:**
 - Standardized numeric quantity incrementor used across Cart Drawer (`size="sm"`), Full Cart Page (`size="md"`), and Checkout Review (`size="sm"`).
+
+#### 30. `CompareDock` (Floating Product Comparison Bar)
+File: `components/shared/CompareDock.tsx`  
+Last updated: September 1, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface/95 backdrop-blur-md` |
+| Border | `border border-neutral-border` (`#E7E8EB`), dashed border on empty slots |
+| Border radius | `rounded-2xl` (`16px`) dock container, `rounded-xl` (`12px`) thumbnail slots & CTA button |
+| Text — primary | `font-heading font-bold text-sm text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-[11px] text-neutral-muted` (`#6E797F`) |
+| Spacing | `p-3 sm:p-4` dock padding, `w-11 h-11 sm:w-12 sm:h-12` slot thumbnails |
+| Hover state | `hover:bg-secondary-light` (CTA), `hover:bg-error-surface hover:text-error` (trash) |
+| Shadow | `shadow-xl` floating dock elevation, `shadow-xs` CTA |
+| Accent usage | `bg-secondary` (`#FCE35F`) for Compare Now button, `bg-primary-surface text-primary` scale icon |
+
+**Pattern notes:**
+- Persistent floating dock at bottom viewport when comparison queue has items.
+- Displays slot progression up to 4 items with interactive remove `✕` overlays.
+
+---
+
+#### 31. `CompareClient` (Side-by-Side Product Comparison Matrix)
+File: `components/storefront/CompareClient.tsx`  
+Last updated: September 1, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg/40` (header row), `bg-secondary-surface/30` (highlighted difference rows) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-dashed` (empty slot card) |
+| Border radius | `rounded-3xl` (`24px`) matrix table container, `rounded-2xl` (`16px`) thumbnails & empty slot |
+| Text — primary | `font-heading font-extrabold text-2xl sm:text-3xl text-neutral-dark`, `font-bold text-lg sm:text-xl` (prices) |
+| Text — secondary | `font-sans text-xs text-neutral-muted`, `text-primary font-bold text-[11px]` (category pills) |
+| Spacing | `p-4 sm:p-5` matrix cell padding, `min-w-[220px]` product column width |
+| Hover state | `hover:bg-tertiary` (Add to Cart), `hover:bg-[#20bd5a]` (WhatsApp), `hover:border-primary/60` (empty slot) |
+| Shadow | `shadow-sm` matrix table, `shadow-xs` CTA buttons |
+| Accent usage | `bg-primary` for Add to Cart, `bg-[#25D366]` for WhatsApp direct order, `bg-secondary-surface` for active spec diffs |
+
+**Pattern notes:**
+- Dynamic specification row generation extracting all unique JSONB keys from `products.specs`.
+- Features "Highlight Differences" filter toggle and built-in interactive Product Picker Modal.
+
+---
+
+#### 32. `OrderDetailModal` (Customer Order Detail & Live Timeline Drawer)
+File: `components/account/OrderDetailModal.tsx`  
+Last updated: September 1, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg/40` (header/footer), `bg-primary-surface` (icon container) |
+| Border | `border border-neutral-border` (`#E7E8EB`) |
+| Border radius | `rounded-3xl` (`24px`) modal window, `rounded-2xl` (`16px`) inner section cards, `rounded-xl` (`12px`) CTAs |
+| Text — primary | `font-heading font-extrabold text-lg text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs text-neutral-muted` (`#6E797F`), `font-bold text-success` (discounts & advance paid) |
+| Spacing | `p-5 sm:p-6` modal padding, `space-y-6` content flow |
+| Hover state | `hover:bg-neutral-bg` (close & copy triggers), `hover:text-primary` |
+| Shadow | `shadow-2xl` modal backdrop elevation, `shadow-2xs` inner cards |
+| Accent usage | Embeds `OrderTrackingTimeline`, `text-primary` for totals, `bg-[#25D366]` for WhatsApp help |
+
+**Pattern notes:**
+- Reuses `OrderTrackingTimeline.tsx` with dynamic delivery estimates, carrier consignment details, and `PaymentStatus | "partial"` support for cash-on-delivery advance payments.
+- Itemized product breakdown with financial accounting (Subtotal, Zone Delivery Fee, Advance Paid, Cash Due on Doorstep).
 
 ---
 

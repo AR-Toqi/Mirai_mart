@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Phase:** Phase 3 — Cart Drawer & Checkout (Complete) / Phase 4 — Customer Portal & Features  
-**Last completed:** 09 Checkout Flow & Order Placement  
-**Next:** 10 Order Success, Live Order Tracking & Public Track Order Page  
+**Phase:** Phase 4 — Customer Portal & Features (Complete) / Phase 5 — Admin Management Panel  
+**Last completed:** 10 Customer Order History & Tracking Modal, 11 Product Comparison Page (`/compare`)  
+**Next:** Phase 5 — Feature 12 (Admin Layout & Dashboard — Full UI & Real Metrics)  
 
 ---
 
@@ -21,7 +21,6 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] 02 Authentication & RBAC
 - [x] 03 PostHog Initialization
 - [x] 04 Database Schema & Seeds
-
 
 ### Phase 2 — Catalog, Discovery & PDP
 
@@ -36,8 +35,8 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 4 — Customer Portal & Features
 
-- [ ] 10 Order Success, Live Order Tracking (`/track-order`) & Customer Order History
-- [ ] 11 Product Comparison Page (`/compare`)
+- [x] 10 Order Success, Live Order Tracking (`/track-order`) & Customer Order History
+- [x] 11 Product Comparison Page (`/compare`)
 
 ### Phase 5 — Admin Management Panel
 
@@ -86,6 +85,8 @@ Update this file after every completed feature. Any AI agent reading this should
 - Feature 07 (Product Detail Page Full UI & Logic with WhatsApp Order) refined.
 - Feature 08 (Cart Drawer Slide-Over with Framer Motion) complete.
 - Feature 09 (Checkout Flow & Order Placement) complete and verified with 0 build errors.
+- Customer Account Portal (`/account`) updated with bidirectional URL query parameter synchronization (`?tab=orders`, `?tab=wishlist`, etc.), `<Suspense>` boundary wrapping, and browser history (Back/Forward) navigation.
+- Aligned `PaymentStatus | "partial"` across `OrderTrackingTimeline` and `OrderDetailModal` for full compatibility with Cash on Delivery advance deposit accounting.
 - Next step is Phase 4: Feature 10 — Order Success, Live Order Tracking & Public Track Order Page (`/track-order`).
 
 

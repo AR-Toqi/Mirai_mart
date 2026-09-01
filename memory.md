@@ -1,46 +1,42 @@
-# Memory — Order Success Receipt, Live Tracking & UI Registry Imprint
+# Memory — Customer Account Tabs URL Sync, Payment Status Type Alignment & UI Registry
 
-Last updated: September 1, 2026 11:29:00 +06:00
+Last updated: September 2, 2026 00:58:30 +06:00
 
 ## What was built
 
-- **Order Success & Printable Receipt (`components/storefront/OrderSuccessClient.tsx`)**:
-  - Implemented dual-mode presentation: celebratory interactive UI for web screen (`rounded-3xl` card, ambient gradient blurs, confetti sparkles) and clean black-and-white formatted invoice for print/PDF (`print:hidden`, `print:block`, `border-neutral-dark`).
-  - Added 1-click order number clipboard copy with checkmark state.
-  - Added native print trigger button (`window.print()`).
-  - Integrated financial breakdown displaying itemized subtotal, delivery zone fee, promo discounts, gift wrapping fee, advance MFS payment verified badge, and cash due on doorstep delivery.
-  - Linked prefilled WhatsApp customer support deep link with structured order parameters.
-- **Fulfillment Milestone Stepper (`components/storefront/OrderTrackingTimeline.tsx`)**:
-  - Built adaptive responsive stepper (horizontal desktop connector line vs compact vertical mobile timeline) supporting all order fulfillment states (`pending`, `confirmed`, `processing`, `shipped`, `delivered`, `cancelled`).
-  - Integrated dynamic delivery estimation based on creation date and delivery zone (Inside Dhaka 1–2 days vs Outside Dhaka 2–4 days).
-  - Added Steadfast/Pathao courier carrier identification and 1-click tracking number clipboard copy.
-- **Public Order Lookup Portal (`components/storefront/TrackOrderClient.tsx`)**:
-  - Built self-service tracking lookup requiring Order Number + Phone/Email verification for customer privacy.
-  - Displays full order breakdown, live milestone stepper, FAQ accordion, and 1-tap WhatsApp support deep link.
-- **UI Registry Imprints (`context/ui-registry.md`)**:
-  - Formally imprinted entry #26 `OrderTrackingTimeline`, entry #27 `TrackOrderClient`, entry #28 `OrderSuccessClient`, and entry #29 `QuantityStepper`.
+- **Customer Account Portal URL Synchronization (`components/account/AccountDashboardClient.tsx`)**:
+  - Implemented bidirectional synchronization between active tab state and URL query parameters (`/account?tab=orders`, `/account?tab=wishlist`, etc.) via Next.js `useSearchParams()`, `usePathname()`, and `router.replace(url, { scroll: false })`.
+  - Added browser history support (Back/Forward navigation) using a dedicated `useEffect` listener on `searchParams`.
+  - Configured clean URL handling where selecting the default `"dashboard"` tab clears the query string to maintain a tidy `/account` root path.
+  - Added `<Suspense>` boundary in `app/(protectedRoutes)/account/page.tsx` following Next.js App Router conventions for client components reading search parameters.
+- **Payment Status Type Alignment (`components/storefront/OrderTrackingTimeline.tsx` & `components/account/OrderDetailModal.tsx`)**:
+  - Extended `OrderTrackingTimelineProps` and `CustomerOrder` interfaces to accept `PaymentStatus | "partial"`.
+  - Fully resolved TypeScript compilation error at `OrderDetailModal.tsx:L145` while preserving database enum integrity.
+- **UI Registry & Progress Tracker Updates (`context/ui-registry.md` & `context/progress-tracker.md`)**:
+  - Updated registry entry #22 `AccountDashboardClient`, #26 `OrderTrackingTimeline`, and #32 `OrderDetailModal` with updated pattern notes and routing rules.
 
 ## Decisions made
 
-- **Dual-Mode Invoice Design**: Used Tailwind `print:` variants on `OrderSuccessClient.tsx` so users can directly print official receipts or save as PDF without requiring server-side PDF generation libraries.
-- **Doorstep COD vs Advance Transparency**: Explicitly split total amount into "Advance Paid via MFS" and "Cash Due on Doorstep Delivery" in the success receipt to avoid delivery dispute at customer doorstep.
-- **Privacy-Preserving Tracking**: Track order lookup requires both Order Number and phone/email to prevent unauthorized order enumeration.
+- **Clean URL Strategy**: The default `"dashboard"` tab omits the `?tab` query parameter to keep the primary `/account` URL clean, while explicitly parameterizing all nested views (`orders`, `wishlist`, `reviews`, `addresses`, `payments`, `profile`, `password`, `notifications`).
+- **Scroll Preservation**: Applied `{ scroll: false }` to `router.replace` transitions so tab switching does not cause disruptive viewport jumping.
+- **Partial Payment Representation**: Unified `PaymentStatus | "partial"` across UI components to cleanly accommodate Bangladesh Cash on Delivery advance deposit workflows alongside full database status types.
 
 ## Problems solved
 
-- Ensured print layout strips ambient glows, navigation buttons, and unnecessary interactive elements while generating clean tabular invoices.
-- Standardized quantity stepper controls (`QuantityStepper.tsx`) across Cart Drawer (`size="sm"`), Full Cart Page (`size="md"`), and Checkout Review (`size="sm"`).
+- Fixed TypeScript error `Type '"paid" | "partial" | "unpaid"' is not assignable to type 'PaymentStatus | undefined'` when passing order payment status into `OrderTrackingTimeline`.
+- Fixed tab switching in the customer account dashboard failing to update the browser URL, enabling bookmarking, direct linking, and back-button navigation.
 
 ## Current state
 
-- Order placement, Order Confirmation receipt (`/checkout/success/[orderNumber]`), fulfillment milestone tracking (`OrderTrackingTimeline`), and public order tracking (`/track-order`) are fully built and registered in `ui-registry.md`.
-- Next.js development server is running cleanly with 0 build errors.
+- Customer Account Dashboard (`/account`), Order Detail Modal, Fulfillment Progression Timeline (`OrderTrackingTimeline`), and Order Confirmation Receipt are fully functional, typed, and verified with 0 errors.
+- Dev server running cleanly.
 
 ## Next session starts with
 
-- **Phase 4 — Feature 10 (Customer Order History) & Feature 11 (Product Comparison Page)**:
-  - Wire customer portal order history in `app/(protectedRoutes)/account/orders/page.tsx` with live database order records.
-  - Build the product comparison page (`/compare`) with spec matrix and visual feature diffing.
+- **Customer Order History Live Data**:
+  - Wire customer portal order history in `app/(protectedRoutes)/account/` with live database order records from InsForge PostgreSQL.
+- **Product Comparison Page**:
+  - Finalize `/compare` product matrix and spec comparison capabilities.
 
 ## Open questions
 

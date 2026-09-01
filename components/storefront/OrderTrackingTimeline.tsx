@@ -19,7 +19,7 @@ import type { OrderStatus, PaymentStatus } from "@/lib/db/types";
 
 interface OrderTrackingTimelineProps {
   status: OrderStatus;
-  paymentStatus?: PaymentStatus;
+  paymentStatus?: PaymentStatus | "partial";
   carrier?: string | null;
   trackingNumber?: string | null;
   deliveryZone?: string;

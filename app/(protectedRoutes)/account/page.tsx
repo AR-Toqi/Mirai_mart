@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { AccountDashboardClient } from "@/components/account/AccountDashboardClient";
 
 export const metadata: Metadata = {
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function AccountPage() {
-  return <AccountDashboardClient />;
+  return (
+    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-12 text-center text-xs text-neutral-muted">Loading account...</div>}>
+      <AccountDashboardClient />
+    </Suspense>
+  );
 }

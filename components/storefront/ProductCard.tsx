@@ -5,9 +5,11 @@ import posthog from "posthog-js";
 import Image from "next/image";
 import Link from "next/link";
 import { HeartIcon, ShoppingCartIcon } from "@/components/ui/Icons";
+import { ScaleIcon } from "lucide-react";
 import { ProductBadge } from "@/components/shared/ProductBadge";
 import { RatingStars } from "@/components/shared/RatingStars";
 import { useCart } from "@/components/providers/CartProvider";
+import { useCompare } from "@/lib/context/CompareContext";
 import { formatCurrency, cn } from "@/lib/utils";
 import type { Product } from "@/types";
 
@@ -20,6 +22,8 @@ type Props = {
 export function ProductCard({ product, className, priority }: Props) {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const { addItem } = useCart();
+  const { toggleCompare, isInCompare } = useCompare();
+  const isCompared = isInCompare(product.id);
 
   return (
     <div
@@ -37,34 +41,55 @@ export function ProductCard({ product, className, priority }: Props) {
             </div>
           )}
 
-          <button
-            type="button"
-            aria-label="Add to wishlist"
-            onClick={(e) => {
-              e.preventDefault();
-              const nextWishlisted = !isWishlisted;
-              setIsWishlisted(nextWishlisted);
-              if (nextWishlisted) {
-                posthog.capture("product_wishlisted", {
-                  product_id: product.id,
-                  product_name: product.title,
-                  product_category: product.category,
-                  product_price: product.price,
-                  product_slug: product.slug,
-                });
-              }
-            }}
-            className="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-neutral-muted hover:text-rose-500 shadow-xs transition-colors cursor-pointer"
-          >
-            <HeartIcon
-              size={15}
-              filled={isWishlisted}
+          {/* Quick Action Badges (Wishlist & Compare) */}
+          <div className="absolute top-2.5 right-2.5 z-10 flex flex-col gap-1.5">
+            <button
+              type="button"
+              aria-label="Add to wishlist"
+              onClick={(e) => {
+                e.preventDefault();
+                const nextWishlisted = !isWishlisted;
+                setIsWishlisted(nextWishlisted);
+                if (nextWishlisted) {
+                  posthog.capture("product_wishlisted", {
+                    product_id: product.id,
+                    product_name: product.title,
+                    product_category: product.category,
+                    product_price: product.price,
+                    product_slug: product.slug,
+                  });
+                }
+              }}
+              className="w-7 h-7 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-neutral-muted hover:text-rose-500 shadow-xs transition-colors cursor-pointer"
+            >
+              <HeartIcon
+                size={15}
+                filled={isWishlisted}
+                className={cn(
+                  "w-3.5 h-3.5 transition-colors",
+                  isWishlisted ? "text-rose-500 fill-rose-500" : "text-neutral-muted"
+                )}
+              />
+            </button>
+
+            <button
+              type="button"
+              aria-label={isCompared ? "Remove from compare" : "Add to compare"}
+              title={isCompared ? "In Comparison" : "Add to Compare"}
+              onClick={(e) => {
+                e.preventDefault();
+                toggleCompare(product);
+              }}
               className={cn(
-                "w-3.5 h-3.5 transition-colors",
-                isWishlisted ? "text-rose-500 fill-rose-500" : "text-neutral-muted"
+                "w-7 h-7 rounded-full backdrop-blur-xs flex items-center justify-center shadow-xs transition-all cursor-pointer",
+                isCompared
+                  ? "bg-primary text-white"
+                  : "bg-white/90 text-neutral-muted hover:text-primary"
               )}
-            />
-          </button>
+            >
+              <ScaleIcon className="w-3.5 h-3.5" />
+            </button>
+          </div>
 
           <Link href={`/product/${product.slug}`} className="w-full h-full relative block">
             <Image

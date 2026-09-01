@@ -12,10 +12,12 @@ import {
   MessageCircle,
   Quote,
   ChevronRight,
+  Scale,
 } from "lucide-react";
 import { RatingStars } from "@/components/shared/RatingStars";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, cn } from "@/lib/utils";
 import { FREE_SHIPPING_THRESHOLD, generateWhatsAppOrderLink } from "@/lib/constants";
+import { useCompare } from "@/lib/context/CompareContext";
 import type { Product, ProductVariant } from "@/types";
 
 type Props = {
@@ -65,6 +67,9 @@ export function PDPBuyBox({
     productSlug: product.slug,
     sku,
   });
+
+  const { toggleCompare, isInCompare } = useCompare();
+  const isCompared = isInCompare(product.id);
 
   return (
     <div className="flex flex-col gap-5">
@@ -304,6 +309,21 @@ export function PDPBuyBox({
             </svg>
             <span>Order via WhatsApp (Instant Chat)</span>
           </a>
+
+          {/* Compare Toggle Button */}
+          <button
+            type="button"
+            onClick={() => toggleCompare(product)}
+            className={cn(
+              "flex items-center justify-center gap-2 rounded-md border py-2.5 font-sans text-xs font-semibold shadow-2xs transition-all cursor-pointer",
+              isCompared
+                ? "bg-primary-surface/60 border-primary text-primary"
+                : "bg-surface border-neutral-border text-neutral-dark hover:bg-neutral-bg hover:border-neutral-muted/40"
+            )}
+          >
+            <Scale className="h-4 w-4" />
+            <span>{isCompared ? "✓ Product in Comparison (Click to Remove)" : "Add to Side-by-Side Comparison"}</span>
+          </button>
         </div>
       </div>
 
