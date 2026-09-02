@@ -77,7 +77,11 @@ interface AddressItem {
   city: string;
 }
 
-export function AccountDashboardClient() {
+interface AccountDashboardClientProps {
+  initialOrders?: CustomerOrder[];
+}
+
+export function AccountDashboardClient({ initialOrders = [] }: AccountDashboardClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -89,6 +93,16 @@ export function AccountDashboardClient() {
   const { user, profile, isAuthenticated, isLoading, signOut } = useAuth();
   const { addItem } = useCart();
   const [activeTab, setActiveTab] = useState<NavTab>(initialTab);
+
+  // Live Orders state with initial props
+  const [orders, setOrders] = useState<CustomerOrder[]>(initialOrders);
+
+  // Keep orders state synced if initialOrders changes
+  useEffect(() => {
+    if (initialOrders) {
+      setOrders(initialOrders);
+    }
+  }, [initialOrders]);
 
   // Selected Order for detail modal
   const [selectedOrder, setSelectedOrder] = useState<CustomerOrder | null>(null);
@@ -156,15 +170,15 @@ export function AccountDashboardClient() {
     city: "Dhaka",
   });
 
-  // Sample Customer Orders Database
-  const customerOrders: CustomerOrder[] = useMemo(
+  // Fallback sample orders for demo/preview when no live orders exist yet
+  const fallbackOrders: CustomerOrder[] = useMemo(
     () => [
       {
         id: "MM-1256",
         createdAt: "May 20, 2024",
         status: "delivered",
         paymentStatus: "paid",
-        paymentMethod: "bkash",
+        paymentMethod: "bKash",
         transactionId: "BK992817420",
         deliveryZone: "inside_dhaka",
         carrier: "Steadfast Courier",
@@ -197,7 +211,7 @@ export function AccountDashboardClient() {
         createdAt: "May 18, 2024",
         status: "shipped",
         paymentStatus: "partial",
-        paymentMethod: "nagad",
+        paymentMethod: "Nagad",
         transactionId: "NG88201934",
         deliveryZone: "inside_dhaka",
         carrier: "Pathao Logistics",
@@ -223,92 +237,22 @@ export function AccountDashboardClient() {
           },
         ],
       },
-      {
-        id: "MM-1254",
-        createdAt: "May 16, 2024",
-        status: "packed",
-        paymentStatus: "paid",
-        paymentMethod: "bkash",
-        deliveryZone: "outside_dhaka",
-        carrier: "Steadfast Courier",
-        trackingNumber: "ST-6629104",
-        subtotal: 1400,
-        shippingFee: 120,
-        advancePaid: 120,
-        totalAmount: 1520,
-        shippingAddress: {
-          fullName: "Abdullah Ragib",
-          phone: "01798-765432",
-          address: "Mirpur DOHS, Avenue 3, Road 12",
-          city: "Dhaka",
-        },
-        items: [
-          {
-            id: "item-3",
-            productTitle: "Interactive Bilingual Learner Pad",
-            quantity: 1,
-            unitPrice: 1400,
-            imageUrl: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=100&h=100&fit=crop",
-          },
-        ],
-      },
-      {
-        id: "MM-1253",
-        createdAt: "May 12, 2024",
-        status: "delivered",
-        paymentStatus: "paid",
-        paymentMethod: "bkash",
-        deliveryZone: "inside_dhaka",
-        carrier: "Steadfast Courier",
-        trackingNumber: "ST-5520194",
-        subtotal: 1450,
-        shippingFee: 80,
-        advancePaid: 80,
-        totalAmount: 1530,
-        shippingAddress: {
-          fullName: "Abdullah Ragib",
-          phone: "01612-345678",
-          address: "House 12, Road 5, Block D, Banasree",
-          city: "Dhaka",
-        },
-        items: [
-          {
-            id: "item-4",
-            productTitle: "Augmented Reality Smart Interactive Globe",
-            quantity: 1,
-            unitPrice: 1450,
-            imageUrl: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=100&h=100&fit=crop",
-          },
-        ],
-      },
-      {
-        id: "MM-1252",
-        createdAt: "May 10, 2024",
-        status: "cancelled",
-        paymentStatus: "unpaid",
-        deliveryZone: "inside_dhaka",
-        subtotal: 890,
-        shippingFee: 80,
-        totalAmount: 970,
-        shippingAddress: {
-          fullName: "Abdullah Ragib",
-          phone: "01612-345678",
-          address: "House 12, Road 5, Block D, Banasree",
-          city: "Dhaka",
-        },
-        items: [
-          {
-            id: "item-5",
-            productTitle: "Geometric Wooden Brain Teaser Puzzle",
-            quantity: 1,
-            unitPrice: 890,
-            imageUrl: "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=100&h=100&fit=crop",
-          },
-        ],
-      },
     ],
     []
   );
+
+  // Active customer orders (live orders from DB if present; otherwise fallback demo orders if previewing)
+  const customerOrders: CustomerOrder[] = useMemo(() => {
+    if (orders && orders.length > 0) {
+      return orders;
+    }
+    // If user is authenticated and genuinely has 0 orders, we respect the empty state.
+    // If not authenticated or in local mock mode, we show fallback orders for preview.
+    if (isAuthenticated) {
+      return [];
+    }
+    return fallbackOrders;
+  }, [orders, isAuthenticated, fallbackOrders]);
 
   // Filtered Orders
   const filteredOrders = useMemo(() => {
@@ -793,13 +737,24 @@ export function AccountDashboardClient() {
                       </button>
                     </div>
 
-                    <div className="divide-y divide-neutral-border">
-                      {customerOrders.slice(0, 4).map((order) => (
-                        <div
-                          key={order.id}
-                          onClick={() => handleViewOrderDetails(order)}
-                          className="py-3.5 flex items-center justify-between gap-3 hover:bg-neutral-bg/60 px-2 rounded-xl transition-colors cursor-pointer group"
-                        >
+                    {customerOrders.length === 0 ? (
+                      <div className="py-8 text-center">
+                        <PackageIcon className="w-9 h-9 text-neutral-muted/40 mx-auto mb-2" />
+                        <p className="font-heading font-bold text-xs text-neutral-dark">
+                          No recent orders
+                        </p>
+                        <p className="text-[11px] text-neutral-muted mt-0.5">
+                          When you place an order, it will appear here.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-neutral-border">
+                        {customerOrders.slice(0, 4).map((order) => (
+                          <div
+                            key={order.id}
+                            onClick={() => handleViewOrderDetails(order)}
+                            className="py-3.5 flex items-center justify-between gap-3 hover:bg-neutral-bg/60 px-2 rounded-xl transition-colors cursor-pointer group"
+                          >
                           <div className="flex items-center gap-3 min-w-0">
                             <div className="w-11 h-11 rounded-lg overflow-hidden relative bg-neutral-bg shrink-0 border border-neutral-border">
                               <Image
@@ -850,7 +805,8 @@ export function AccountDashboardClient() {
                           </div>
                         </div>
                       ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Exclusive Member Benefits Banner */}
@@ -981,8 +937,29 @@ export function AccountDashboardClient() {
               </div>
 
               {/* Orders List Container */}
-              {filteredOrders.length === 0 ? (
-                <div className="bg-surface border border-neutral-border rounded-3xl p-10 text-center">
+              {customerOrders.length === 0 ? (
+                <div className="bg-surface border border-neutral-border rounded-3xl p-12 text-center shadow-xs">
+                  <div className="w-16 h-16 rounded-2xl bg-primary-surface/60 text-primary flex items-center justify-center mx-auto mb-4">
+                    <PackageIcon className="w-8 h-8" />
+                  </div>
+                  <h3 className="font-heading font-bold text-lg text-neutral-dark">
+                    No orders placed yet
+                  </h3>
+                  <p className="text-xs text-neutral-muted mt-1.5 max-w-md mx-auto leading-relaxed">
+                    You haven&apos;t placed any orders yet. Discover our curated educational toys, creative developmental sets, and digital gadgets today!
+                  </p>
+                  <div className="mt-6">
+                    <Link
+                      href="/"
+                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-tertiary text-white font-sans font-bold text-xs rounded-xl shadow-xs transition-all hover:scale-102 cursor-pointer"
+                    >
+                      <ShoppingBagIcon className="w-4 h-4" />
+                      <span>Start Shopping</span>
+                    </Link>
+                  </div>
+                </div>
+              ) : filteredOrders.length === 0 ? (
+                <div className="bg-surface border border-neutral-border rounded-3xl p-10 text-center shadow-xs">
                   <PackageIcon className="w-12 h-12 text-neutral-muted/40 mx-auto mb-3" />
                   <h3 className="font-heading font-bold text-base text-neutral-dark">
                     No orders match your filter

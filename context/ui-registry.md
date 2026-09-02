@@ -817,6 +817,27 @@ Last updated: September 1, 2026
 - Reuses `OrderTrackingTimeline.tsx` with dynamic delivery estimates, carrier consignment details, and `PaymentStatus | "partial"` support for cash-on-delivery advance payments.
 - Itemized product breakdown with financial accounting (Subtotal, Zone Delivery Fee, Advance Paid, Cash Due on Doorstep).
 
+#### 33. `AccountDashboardClient` (Customer Account Management Portal)
+File: `components/account/AccountDashboardClient.tsx`  
+Last updated: September 2, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-primary-surface/50` (active navigation link), `bg-neutral-bg` (hover/tab containers), `bg-error-surface` (logout hover) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-dashed` (empty state and add address triggers) |
+| Border radius | `rounded-2xl` (`16px`) cards/containers, `rounded-xl` (`12px`) inputs & sub-cards, `rounded-lg` (`8px`) menu buttons, `rounded-full` avatars & chips |
+| Text — primary | `font-heading font-bold text-2xl sm:text-3xl text-neutral-dark` (`#191C1E`), `text-[15px]` headings |
+| Text — secondary | `font-sans text-xs text-neutral-muted` (`#6E797F`), `font-semibold text-primary` link buttons |
+| Spacing | `p-4 sm:p-5 lg:p-6` panel padding, `gap-4 sm:gap-6` card grids, `space-y-6` view layout |
+| Hover state | `hover:bg-neutral-bg` (nav items), `hover:text-primary` (breadcrumbs & actions), `hover:bg-error-surface hover:text-error` (logout) |
+| Shadow | `shadow-xs` cards and stat containers |
+| Accent usage | `bg-primary-surface text-primary` for active tabs & KPI icons, `bg-[#1b6b93]` avatar badge, `bg-secondary` for primary CTAs |
+
+**Pattern notes:**
+- Multi-tab unified customer control center (Dashboard KPI overview, Orders history with live tracking trigger, Wishlist, Reviews, Addresses, Payment methods, Profile & Security).
+- Integrates seamlessly with `OrderDetailModal.tsx` and database order mapping via `mapOrderRecordToCustomerOrder`.
+- Follows token conventions: `rounded-2xl` for primary card surfaces and `rounded-lg` for interactive menu items.
+
 ---
 
 ## Component Usage Rules

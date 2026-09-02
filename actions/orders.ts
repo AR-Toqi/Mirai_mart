@@ -426,3 +426,64 @@ export async function trackOrderLookupAction(
   }
 }
 
+/**
+ * Server Action to fetch live order history for the authenticated customer.
+ * Queries orders joined with order_items ordered by created_at descending.
+ */
+export async function getCustomerOrdersAction(
+  userId?: string,
+  customerEmail?: string
+): Promise<{ success: boolean; orders: (OrderRecord & { items?: OrderItemRecord[] })[]; error?: string }> {
+  try {
+    const insforge = await createInsforgeServer();
+
+    let targetUserId = userId;
+    let targetEmail = customerEmail;
+
+    // If userId not provided, attempt to resolve from current authenticated session
+    if (!targetUserId && !targetEmail) {
+      const { data: authData } = await insforge.auth.getCurrentUser();
+      if (authData?.user) {
+        targetUserId = authData.user.id;
+        targetEmail = authData.user.email;
+      }
+    }
+
+    if (!targetUserId && !targetEmail) {
+      return { success: true, orders: [] };
+    }
+
+    let query = insforge.database
+      .from("orders")
+      .select("*, items:order_items(*)")
+      .order("created_at", { ascending: false });
+
+    if (targetUserId && targetEmail) {
+      query = query.or(`user_id.eq.${targetUserId},customer_email.eq.${targetEmail}`);
+    } else if (targetUserId) {
+      query = query.eq("user_id", targetUserId);
+    } else if (targetEmail) {
+      query = query.eq("customer_email", targetEmail);
+    }
+
+    const { data: orders, error } = await query;
+
+    if (error) {
+      console.warn("[actions/orders/getCustomerOrdersAction] Error querying orders:", error.message);
+      return { success: false, orders: [], error: error.message };
+    }
+
+    return {
+      success: true,
+      orders: (orders || []) as (OrderRecord & { items?: OrderItemRecord[] })[],
+    };
+  } catch (err) {
+    console.error("[actions/orders/getCustomerOrdersAction] Exception:", err);
+    return {
+      success: false,
+      orders: [],
+      error: err instanceof Error ? err.message : "Failed to fetch customer orders",
+    };
+  }
+}
+
