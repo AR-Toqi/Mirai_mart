@@ -88,6 +88,12 @@ Update this file after every completed feature. Any AI agent reading this should
 - Customer Account Portal (`/account`) updated with bidirectional URL query parameter synchronization (`?tab=orders`, `?tab=wishlist`, etc.), `<Suspense>` boundary wrapping, and browser history (Back/Forward) navigation.
 - Aligned `PaymentStatus | "partial"` across `OrderTrackingTimeline` and `OrderDetailModal` for full compatibility with Cash on Delivery advance deposit accounting.
 - Next step is Phase 4: Feature 10 — Order Success, Live Order Tracking & Public Track Order Page (`/track-order`).
+- Implemented 4-Tier Caching Architecture:
+  1. Next.js 16 ISR (`revalidate = 3600`) and `generateStaticParams` for Product Detail Pages (`/product/[slug]`) and Category Pages (`/category/[slug]`), plus Homepage ISR (`revalidate = 1800`).
+  2. Tag-based and path invalidation via `unstable_cache` & `revalidateTag` (`product-${slug}`, `products`) alongside React 19 `cache()` request deduplication and `revalidatePath` in `actions/orders.ts` and `actions/products.ts`.
+  3. Edge / CDN caching headers (`Cache-Control: public, s-maxage=120, stale-while-revalidate=600`) on `/api/search`.
+  4. Client-side predictive search refactored to `@tanstack/react-query` (`useQuery`) with 5-min `staleTime` and query-key deduplication.
+  5. Caching standards and architecture formally codified in `context/code-standards.md` and `context/architecture.md`.
 
 
 

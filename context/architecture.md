@@ -203,6 +203,17 @@ revalidatePath('/category/[slug]') and revalidatePath('/admin/products') trigger
 
 ---
 
+## Caching Strategy (4-Tier Architecture)
+
+| Tier | Mechanism | Target / Scope | Behavior & Invalidation |
+| --- | --- | --- | --- |
+| **Tier 1: Static Pre-generation & ISR** | Next.js 16 `generateStaticParams`, React 19 `cache()`, and `revalidate` (1800s Home / 3600s PDPs & PLPs) | Homepage (`/`), PLPs (`/category/[slug]`), and PDPs (`/product/[slug]`) | Static HTML pre-rendered at build time with React `cache()` request deduplication, background revalidated at scheduled intervals |
+| **Tier 2: Tag-Based & Path Invalidation** | `unstable_cache` + `revalidateTag(...)` & `revalidatePath(...)` from `next/cache` | Database query wrappers and Server Actions in `actions/orders.ts`, `actions/admin.ts`, `actions/products.ts` | Queries tagged with `['products', 'product-${slug}']`. Server Actions trigger `revalidateTag('product-${slug}')` to evict cached data across all pages instantly, plus `revalidatePath(...)` for route views |
+| **Tier 3: HTTP Edge / CDN Headers** | `Cache-Control: public, s-maxage=120, stale-while-revalidate=600` | Public JSON route handlers (e.g. `/api/search`) | CDN and browser cache identical autocomplete queries for 2 mins; serve stale up to 10 mins while revalidating in background |
+| **Tier 4: Client Server-State Caching** | `@tanstack/react-query` (`useQuery`, `QueryClient`) | Predictive search (`search-autocomplete`), user cart sync (`user-active-cart`) | In-memory query-key memoization (`staleTime: 5 mins`); completely eliminates duplicate network requests on backspace or repeat keystrokes |
+
+---
+
 ## InsForge Database Schema
 
 ### `users`

@@ -15,13 +15,13 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { useCart } from "@/components/providers/CartProvider";
 import { formatCurrency } from "@/lib/utils";
 import type { SearchResultItem } from "@/app/api/search/route";
+import { useQuery } from "@tanstack/react-query";
 
 export function Header() {
   const router = useRouter();
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchResultItem[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
 
@@ -43,40 +43,38 @@ export function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Debounced predictive search fetch
+  // Debounce the input query string
   useEffect(() => {
     const trimmed = searchQuery.trim();
-    if (!trimmed || trimmed.length < 2) {
-      setSearchResults([]);
-      setIsSearching(false);
-      setIsSearchOpen(false);
-      setSelectedIndex(-1);
-      return;
-    }
-
-    setIsSearching(true);
-    const handler = setTimeout(async () => {
-      try {
-        const res = await fetch(
-          `/api/search?q=${encodeURIComponent(trimmed)}&limit=6`
-        );
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && Array.isArray(json.data)) {
-            setSearchResults(json.data);
-            setIsSearchOpen(true);
-            setSelectedIndex(-1);
-          }
-        }
-      } catch (err) {
-        console.error("[Header/PredictiveSearch]", err);
-      } finally {
-        setIsSearching(false);
+    const handler = setTimeout(() => {
+      setDebouncedQuery(trimmed);
+      if (trimmed.length >= 2) {
+        setIsSearchOpen(true);
+      } else {
+        setIsSearchOpen(false);
+        setSelectedIndex(-1);
       }
     }, 260);
 
     return () => clearTimeout(handler);
   }, [searchQuery]);
+
+  // TanStack Query: Cached Predictive Search with 5-min staleTime
+  const { data: searchResults = [], isFetching: isSearching } = useQuery<SearchResultItem[]>({
+    queryKey: ["search-autocomplete", debouncedQuery],
+    queryFn: async () => {
+      if (!debouncedQuery || debouncedQuery.length < 2) return [];
+      const res = await fetch(
+        `/api/search?q=${encodeURIComponent(debouncedQuery)}&limit=6`
+      );
+      if (!res.ok) return [];
+      const json = await res.json();
+      return json.success && Array.isArray(json.data) ? json.data : [];
+    },
+    enabled: debouncedQuery.length >= 2,
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+    refetchOnWindowFocus: false,
+  });
 
   const executeFullSearch = useCallback(
     (queryToSearch: string) => {

@@ -7,6 +7,12 @@ import { TopPicks } from "@/components/storefront/TopPicks";
 import { BrandStrip } from "@/components/storefront/BrandStrip";
 import { NewsletterBanner } from "@/components/storefront/NewsletterBanner";
 
+/**
+ * ISR: Homepage is pre-rendered and revalidated every 30 minutes,
+ * or on-demand when marketing banners / products are mutated.
+ */
+export const revalidate = 1800;
+
 export default function HomePage() {
   return (
     <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-10 sm:space-y-14 lg:space-y-16">

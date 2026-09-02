@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath, updateTag } from "next/cache";
 import { createInsforgeServer } from "@/lib/insforge-server";
 import {
   orderPlacementPayloadSchema,
@@ -251,6 +252,22 @@ export async function createOrderAction(
       } catch {
         // non-blocking
       }
+    }
+
+    // 7. On-demand cache revalidation for updated stock, PLPs, and account
+    try {
+      revalidatePath("/account");
+      revalidatePath("/category/[slug]", "page");
+      // Granular tag-based invalidation across the app (using Next.js updateTag in Server Actions)
+      updateTag("products");
+      for (const it of items) {
+        if (it.productSlug) {
+          updateTag(`product-${it.productSlug}`);
+          revalidatePath(`/product/${it.productSlug}`, "page");
+        }
+      }
+    } catch (revalErr) {
+      console.warn("[actions/orders] Cache revalidation warning:", revalErr);
     }
 
     return {

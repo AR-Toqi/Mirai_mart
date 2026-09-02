@@ -73,10 +73,17 @@ export async function GET(req: NextRequest) {
           };
         });
 
-        return NextResponse.json({
-          success: true,
-          data: results,
-        });
+        return NextResponse.json(
+          {
+            success: true,
+            data: results,
+          },
+          {
+            headers: {
+              "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600",
+            },
+          }
+        );
       }
     } catch {
       // Fallback to local catalog
@@ -116,10 +123,17 @@ export async function GET(req: NextRequest) {
       badge: p.badge,
     }));
 
-    return NextResponse.json({
-      success: true,
-      data: results,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: results,
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600",
+        },
+      }
+    );
   } catch (error) {
     console.error("[api/search]", error);
     return NextResponse.json(

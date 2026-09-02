@@ -2,6 +2,22 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getRelatedProducts } from "@/actions/products";
 import { PDPClient } from "@/components/storefront/PDPClient";
+import { ALL_PRODUCTS } from "@/lib/mock-data";
+
+/**
+ * ISR (Incremental Static Regeneration): Revalidate PDP catalog data at most once every hour,
+ * or on-demand when orders or admin CMS update inventory via revalidatePath.
+ */
+export const revalidate = 3600;
+
+/**
+ * Pre-generate static routes for popular products at build time
+ */
+export async function generateStaticParams() {
+  return ALL_PRODUCTS.slice(0, 20).map((product) => ({
+    slug: product.slug,
+  }));
+}
 
 type Props = {
   params: Promise<{ slug: string }>;

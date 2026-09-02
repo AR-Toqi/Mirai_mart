@@ -1,5 +1,7 @@
 "use server";
 
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { createInsforgeServer } from "@/lib/insforge-server";
 import {
   productFilterSchema,
@@ -359,32 +361,54 @@ export async function getFilteredProducts(
 }
 
 /**
- * Server Action to fetch single product by slug
+ * Internal un-cached fetcher for single product by slug, wrapped in React cache()
+ * for render-lifecycle request deduplication (e.g. generateMetadata + Page)
+ */
+const fetchProductBySlugUncached = cache(
+  async (slug: string): Promise<Product | null> => {
+    try {
+      const insforge = await createInsforgeServer();
+      const { data, error } = await insforge.database
+        .from("products")
+        .select("*, category:categories(*), variants:product_variants(*)")
+        .eq("slug", slug)
+        .eq("is_active", true)
+        .single();
+
+      if (error || !data) {
+        const mockProduct = ALL_PRODUCTS.find((p) => p.slug === slug);
+        return mockProduct || null;
+      }
+
+      const record = data as ProductRecord & {
+        category?: CategoryRecord;
+        variants?: ProductVariantRecord[];
+      };
+      return mapRecordToProduct(record, record.variants || [], record.category);
+    } catch (error) {
+      console.error("[actions/products/getProductBySlug]", error);
+      return ALL_PRODUCTS.find((p) => p.slug === slug) || null;
+    }
+  }
+);
+
+/**
+ * Server Action with Multi-Tier Caching:
+ * - React cache() prevents duplicate DB hits during the same render pass
+ * - Next.js unstable_cache caches across requests with tags ['products', `product-${slug}`]
+ * - Revalidated on demand via revalidateTag('product-${slug}')
  */
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  try {
-    const insforge = await createInsforgeServer();
-    const { data, error } = await insforge.database
-      .from("products")
-      .select("*, category:categories(*), variants:product_variants(*)")
-      .eq("slug", slug)
-      .eq("is_active", true)
-      .single();
-
-    if (error || !data) {
-      const mockProduct = ALL_PRODUCTS.find((p) => p.slug === slug);
-      return mockProduct || null;
+  const getCached = unstable_cache(
+    async (s: string) => fetchProductBySlugUncached(s),
+    [`product-${slug}`],
+    {
+      tags: ["products", `product-${slug}`],
+      revalidate: 3600, // 1 hour background revalidation
     }
+  );
 
-    const record = data as ProductRecord & {
-      category?: CategoryRecord;
-      variants?: ProductVariantRecord[];
-    };
-    return mapRecordToProduct(record, record.variants || [], record.category);
-  } catch (error) {
-    console.error("[actions/products/getProductBySlug]", error);
-    return ALL_PRODUCTS.find((p) => p.slug === slug) || null;
-  }
+  return getCached(slug);
 }
 
 /**

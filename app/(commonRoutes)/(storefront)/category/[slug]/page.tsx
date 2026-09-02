@@ -4,6 +4,26 @@ import { PLPClient } from "@/components/storefront/PLPClient";
 import { getFilteredProducts } from "@/actions/products";
 import { CATEGORIES_META } from "@/lib/mock-data";
 
+/**
+ * ISR: Category catalog pages are cached at edge/server with 1-hour background revalidation,
+ * or on-demand when orders or admin CMS update inventory via revalidatePath / revalidateTag.
+ */
+export const revalidate = 3600;
+
+/**
+ * Pre-generate static routes for all primary and secondary category pages at build time
+ */
+export async function generateStaticParams() {
+  const slugs = Object.keys(CATEGORIES_META);
+  // Also include subcategory slugs
+  const subSlugs = Object.values(CATEGORIES_META).flatMap((c) =>
+    (c.subcategories || []).map((s) => s.slug)
+  );
+
+  const allSlugs = Array.from(new Set([...slugs, ...subSlugs]));
+  return allSlugs.map((slug) => ({ slug }));
+}
+
 type Props = {
   params: Promise<{
     slug: string;

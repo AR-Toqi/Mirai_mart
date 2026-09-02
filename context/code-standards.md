@@ -46,7 +46,12 @@ The AI agent on this project operates as a senior engineer. This means:
 - **Data fetching**: Data fetching happens in Server Components — never fetch initial page data in Client Components directly.
 - **Route handlers**: Route handlers live in `app/api/` — never put direct business logic or DB mutations directly in route handlers.
 - **Server Actions**: Server Actions live in `actions/` — never define Server Actions inline in components.
-- **Caching**: Dynamic by default — dynamic data operations run at request time.
+- **Caching**: 4-Tier Targeted Strategy:
+  1. **Server & ISR**: Pre-generate key static catalog routes (`generateStaticParams`) with scheduled background revalidation (`export const revalidate = 3600`).
+  2. **Tag-Based Caching & Invalidation**: Wrap database queries in `unstable_cache` with descriptive tags (e.g. `['products', 'product-${slug}']`). Every mutation MUST purge these tags using `revalidateTag(...)` for granular multi-page cache eviction, complemented by `revalidatePath(...)` for route-level view refreshes.
+  3. **HTTP Edge & CDN Headers**: Public read-only route handlers (e.g. `/api/search`) MUST return explicit CDN caching headers (`Cache-Control: public, s-maxage=120, stale-while-revalidate=600`).
+  4. **Client-Side Server State**: Interactive repetitive fetches (like predictive search autocomplete and user profile data) MUST use `@tanstack/react-query` with an appropriate `staleTime` (e.g. 5 minutes) rather than raw uncached `fetch` in `useEffect`.
+  5. **Persistence Integrity**: Browser `localStorage` only caches structural state (e.g. cart items, compare list). Dynamic pricing and stock must be re-verified on the server before mutation.
 - **Documentation first**: Always read Next.js documentation before implementing any Next.js specific feature — APIs may differ from training data.
 
 ---
