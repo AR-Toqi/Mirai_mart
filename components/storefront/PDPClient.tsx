@@ -12,14 +12,23 @@ import { PDPTabs } from "./PDPTabs";
 import { PDPFrequentlyBoughtTogether } from "./PDPFrequentlyBoughtTogether";
 import { PDPStickyBar } from "./PDPStickyBar";
 import { ProductCard } from "./ProductCard";
-import type { Product, ProductVariant } from "@/types";
+import type { Product, ProductVariant, ProductReview, ReviewEligibility } from "@/types";
 
 type Props = {
   product: Product;
   relatedProducts: Product[];
+  bundleProducts?: Product[];
+  initialReviews?: ProductReview[];
+  reviewEligibility?: ReviewEligibility;
 };
 
-export function PDPClient({ product, relatedProducts }: Props) {
+export function PDPClient({
+  product,
+  relatedProducts,
+  bundleProducts,
+  initialReviews,
+  reviewEligibility,
+}: Props) {
   const router = useRouter();
   const { addItem } = useCart();
 
@@ -202,11 +211,16 @@ export function PDPClient({ product, relatedProducts }: Props) {
         </section>
 
         {/* 2. Frequently Bought Together Bundle */}
-        {relatedProducts && relatedProducts.length > 0 && (
+        {((bundleProducts && bundleProducts.length > 0) ||
+          (relatedProducts && relatedProducts.length > 0)) && (
           <section>
             <PDPFrequentlyBoughtTogether
               mainProduct={product}
-              bundleItems={relatedProducts}
+              bundleItems={
+                bundleProducts && bundleProducts.length > 0
+                  ? bundleProducts
+                  : relatedProducts.slice(0, 2)
+              }
               onAddBundleToCart={handleAddBundleToCart}
             />
           </section>
@@ -214,7 +228,11 @@ export function PDPClient({ product, relatedProducts }: Props) {
 
         {/* 3. Comprehensive Specifications & Reviews Tabs */}
         <section>
-          <PDPTabs product={product} />
+          <PDPTabs
+            product={product}
+            reviews={initialReviews}
+            eligibility={reviewEligibility}
+          />
         </section>
 
         {/* 4. Related / Recommended Products Rail */}

@@ -1,49 +1,41 @@
-# Memory — Customer Order History Live Data Integration & Account Portal
+# Memory — PDP Live Reviews, Verification Gating & UI Consistency Imprint
 
-Last updated: September 2, 2026 20:45:40 +06:00
+Last updated: September 3, 2026 00:32:00 +06:00
 
 ## What was built
 
-- **Server-Side Customer Orders Fetcher (`actions/orders.ts` & `app/(protectedRoutes)/account/page.tsx`)**:
-  - Added `getCustomerOrdersAction(userId?, customerEmail?)` querying InsForge PostgreSQL `orders` joined with `order_items` ordered by `created_at` descending.
-  - Converted `AccountPage` into an async Server Component querying live orders via `createInsforgeServer()` and passing `initialOrders` into `AccountDashboardClient`.
-  - Zero client-side loading flashes or hydration mismatch.
-- **Relational-to-UI Order Mapper (`lib/mappers/order.mapper.ts`)**:
-  - Created `mapOrderRecordToCustomerOrder` and `formatOrderDate` translating database columns into the strongly-typed `CustomerOrder` interface.
-  - Handles bKash/Nagad/COD payment labeling, transaction ID extraction from order notes, advance vs due calculations, and address field mapping.
-  - Resolved `Property 'address' does not exist on type 'AddressRecord'` TypeScript error by prioritizing `addressLine1` with safe fallbacks.
-- **Client Account Dashboard Integration (`components/account/AccountDashboardClient.tsx`)**:
-  - Updated `AccountDashboardClientProps` to receive `initialOrders?: CustomerOrder[]`.
-  - Wired live order counts on the tab badges and recent orders list in the Dashboard overview tab.
-  - Added a responsive 0-orders empty state card with a "Start Shopping" button linking directly to the storefront catalog.
-  - Preserved fallback demo orders for non-authenticated preview modes while respecting authentic empty states for logged-in accounts.
-- **UI Registry & Progress Tracker Updates**:
-  - Imprinted `AccountDashboardClient` entry #33 into `context/ui-registry.md`.
-  - Updated `context/progress-tracker.md`.
+- **TypeScript Contract Alignment in Server Actions (`actions/reviews.ts`)**:
+  - Fixed property mismatch in `submitProductReviewAction` fallback review object: replaced database column names (`createdAt: "Today"`, `isVerifiedPurchase: true`) with the exact frontend `ProductReview` interface contract (`date: "Today"`, `verified: true`).
+- **Storefront Review Gating & Form (`components/storefront/WriteReviewForm.tsx`)**:
+  - Robust 4-state visual gating: Unauthenticated sign-in prompt card, authenticated non-buyer notice with order lookup links, already-reviewed summary card with star rating quote, and unlocked accordion review form with 1–5 star interactive picker for eligible verified buyers.
+- **Dynamic Rating & Review Feed Integration (`components/storefront/PDPTabs.tsx` & `PDPClient.tsx`)**:
+  - Real-time rating aggregation computing live average score and 1–5 star histogram from PostgreSQL records.
+  - Optimistic review list appending upon review submission without full page reload.
+  - Clean dashed empty state card with `MessageSquareQuote` for products with zero customer reviews.
+- **UI Registry Imprint (`context/ui-registry.md`)**:
+  - Imprinted and verified `WriteReviewForm` (entry #34) and updated `PDPTabs` (entry #17) with latest design tokens, padding, borders, and interactive state rules.
 
 ## Decisions made
 
-- **Server Component Initial Fetch**: Data fetching executed in `account/page.tsx` adhering to Next.js 16 App Router best practices and `context/code-standards.md`, allowing instant server-rendered HTML and seamless revalidation on checkout via `revalidatePath("/account")`.
-- **Pure Storefront Scope**: Excluded admin dashboard functionality per user request, strictly completing customer-facing order lifecycle features.
-- **Dual Empty State Handling**: Differentiated between "no orders matching search/filter" and "no orders placed yet" with distinct messaging and actions.
+- **Storefront Contract Consistency**: The frontend `ProductReview` model strictly mandates `date: string` and `verified: boolean`. Any server action returning optimistic or mapped review data must conform to this type rather than raw PostgreSQL schema fields (`created_at`, `is_verified_purchase`).
+- **Gating Architecture**: Review eligibility is computed server-side via `checkReviewEligibilityAction` joining `orders` and `order_items` for the authenticated customer ID or email, preventing unauthorized submissions.
 
 ## Problems solved
 
-- Resolved disconnect between orders placed during checkout and the customer account view: authenticated users now see their genuine PostgreSQL order records in `/account` and `/account?tab=orders`.
-- Fixed TypeScript compile error in `lib/mappers/order.mapper.ts` where `AddressRecord` expects `addressLine1` instead of `address`.
+- Resolved TypeScript compiler error: `"Object literal may only specify known properties, and 'createdAt' does not exist in type 'ProductReview'"`.
+- Ensured optimistic review submission seamlessly interfaces with `PDPTabs.tsx` without runtime errors or property loss.
 
 ## Current state
 
-- Customer Account Portal (`/account`), Order Detail Modal, Fulfillment Timeline, and Order History are fully wired to live InsForge PostgreSQL database records.
-- Imprinted in `context/ui-registry.md`.
-- Zero TypeScript errors. Dev server running cleanly.
+- Phase 1–4 are 100% complete and fully verified.
+- Product Detail Page live reviews (with verified buyer gating) and curated bundles are fully operational.
+- All TypeScript types clean, zero lint or runtime errors, dev server active.
 
 ## Next session starts with
 
-- **Product Detail Page Live Reviews & Bundles**:
-  - Connect verified customer reviews and "Frequently Bought Together" bundles on `/product/[slug]`.
-- **Product Comparison Page**:
-  - Refine `/compare` dynamic specification matrix.
+- **Phase 5 — Feature 12 (Admin Layout & Dashboard — Full UI & Real Metrics)**:
+  - Create/refine the admin layout shell (`app/(protectedRoutes)/admin/layout.tsx` and `components/layout/AdminSidebar.tsx`).
+  - Implement the Admin Dashboard (`app/(protectedRoutes)/admin/page.tsx`) with real KPI metric cards (Total Sales, Orders Count, Average Order Value, Customer Count) and Recent Orders table.
 
 ## Open questions
 

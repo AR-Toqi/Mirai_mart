@@ -46,15 +46,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: false,
   });
 
-  // Sync cookie for Next.js 16 proxy.ts perimeter guard
-  const syncSessionCookie = useCallback((isAuthenticated: boolean, role: UserRole = "customer") => {
+  // Sync cookie for Next.js 16 proxy.ts perimeter guard and Server Action verification
+  const syncSessionCookie = useCallback((isAuthenticated: boolean, role: UserRole = "customer", userId?: string, email?: string) => {
     if (typeof document !== "undefined") {
       if (isAuthenticated) {
         document.cookie = `mirai_mart_token=active_session; path=/; max-age=86400; SameSite=Lax`;
         document.cookie = `mirai_mart_role=${role}; path=/; max-age=86400; SameSite=Lax`;
+        if (userId) {
+          document.cookie = `mirai_mart_user_id=${userId}; path=/; max-age=86400; SameSite=Lax`;
+        }
+        if (email) {
+          document.cookie = `mirai_mart_user_email=${encodeURIComponent(email)}; path=/; max-age=86400; SameSite=Lax`;
+        }
       } else {
         document.cookie = "mirai_mart_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         document.cookie = "mirai_mart_role=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "mirai_mart_user_id=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "mirai_mart_user_email=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
       }
     }
   }, []);
@@ -90,11 +98,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         setSession(currentSession);
         localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, JSON.stringify(currentSession));
-        syncSessionCookie(true, userRole);
+        syncSessionCookie(true, userRole, data.user.id, data.user.email ?? "");
         return;
       }
     } catch {
-      // Not authenticated on backend
+      // Check cached localStorage before clearing
+      if (typeof window !== "undefined") {
+        const cached = localStorage.getItem(LOCAL_STORAGE_SESSION_KEY);
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached);
+            if (parsed?.isAuthenticated && parsed?.user) {
+              setSession(parsed);
+              syncSessionCookie(true, parsed.role || "customer", parsed.user.id, parsed.user.email);
+              return;
+            }
+          } catch {}
+        }
+      }
     }
 
     // If not authenticated, clear any stale state
@@ -155,7 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, JSON.stringify(sessionData));
         setSession(sessionData);
-        syncSessionCookie(true, userRole);
+        syncSessionCookie(true, userRole, data.user.id, data.user.email ?? email);
 
         // Identify user and capture sign-in event
         posthog.identify(profile.id, {
@@ -234,7 +255,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, JSON.stringify(sessionData));
         setSession(sessionData);
-        syncSessionCookie(true, userRole);
+        syncSessionCookie(true, userRole, sessionData.user.id, email);
 
         posthog.identify(profile.id, {
           name,

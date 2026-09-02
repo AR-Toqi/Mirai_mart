@@ -441,3 +441,68 @@ export async function getRelatedProducts(
   }
 }
 
+/**
+ * Server Action to fetch high-affinity complementary bundle items
+ * for the "Frequently Bought Together" bundle showcase.
+ */
+export async function getBundleProducts(
+  currentProduct: Product,
+  limit: number = 2
+): Promise<Product[]> {
+  try {
+    // 1. Check if specific bundle item IDs or slugs are designated in product specs
+    const bundleIdsOrSlugs = (currentProduct.specs?.bundle_ids ||
+      currentProduct.specs?.bundleItems) as string[] | undefined;
+
+    if (Array.isArray(bundleIdsOrSlugs) && bundleIdsOrSlugs.length > 0) {
+      const explicitBundles = ALL_PRODUCTS.filter(
+        (p) =>
+          (bundleIdsOrSlugs.includes(p.id) || bundleIdsOrSlugs.includes(p.slug)) &&
+          p.id !== currentProduct.id &&
+          !p.isOutOfStock
+      );
+      if (explicitBundles.length >= 1) {
+        return explicitBundles.slice(0, limit);
+      }
+    }
+
+    // 2. Curate intelligent category-pairing complements
+    const cat = (currentProduct.categorySlug || "").toLowerCase();
+    const otherInStock = ALL_PRODUCTS.filter(
+      (p) => p.id !== currentProduct.id && !p.isOutOfStock
+    );
+
+    let complements: Product[] = [];
+
+    if (cat.includes("toy") || cat.includes("baby") || cat.includes("kid")) {
+      // Pair toys with another creative or developmental set
+      complements = otherInStock.filter(
+        (p) =>
+          p.categorySlug?.includes("toy") ||
+          p.categorySlug?.includes("puzzles") ||
+          p.categorySlug?.includes("baby")
+      );
+    } else if (cat.includes("lamp") || cat.includes("decor") || cat.includes("gadget")) {
+      // Pair lifestyle / decor items with ambient lighting or kinetic sculptures
+      complements = otherInStock.filter(
+        (p) =>
+          p.categorySlug?.includes("decor") ||
+          p.categorySlug?.includes("gadgets") ||
+          p.categorySlug?.includes("lighting")
+      );
+    }
+
+    if (complements.length >= limit) {
+      return complements.slice(0, limit);
+    }
+
+    // 3. Fallback: Any 2 distinct available in-stock products
+    return otherInStock.slice(0, limit);
+  } catch (error) {
+    console.error("[actions/products/getBundleProducts]", error);
+    return ALL_PRODUCTS.filter(
+      (p) => p.id !== currentProduct.id && !p.isOutOfStock
+    ).slice(0, limit);
+  }
+}
+

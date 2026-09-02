@@ -87,6 +87,28 @@ export interface CartState {
   isCartDrawerOpen: boolean;
 }
 
+export interface ProductReview {
+  id: string;
+  productId?: string;
+  author: string;
+  rating: number;
+  date: string;
+  title: string;
+  comment: string;
+  verified: boolean;
+  avatarUrl?: string;
+  helpfulCount: number;
+}
+
+export interface ReviewEligibility {
+  isAuthenticated: boolean;
+  hasPurchased: boolean;
+  hasAlreadyReviewed: boolean;
+  existingReview?: ProductReview;
+  customerName?: string;
+  customerEmail?: string;
+}
+
 export * from "./auth";
 export * from "@/lib/db/types";
 

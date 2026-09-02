@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   CheckCircle2,
   Sparkles,
@@ -9,20 +9,43 @@ import {
   ThumbsUp,
   Award,
   FileText,
+  MessageSquareQuote,
 } from "lucide-react";
 import { RatingStars } from "@/components/shared/RatingStars";
-import { MOCK_REVIEWS, type ProductReview } from "@/lib/mock-data";
-import type { Product } from "@/types";
+import { WriteReviewForm } from "./WriteReviewForm";
+import { MOCK_REVIEWS } from "@/lib/mock-data";
+import type { Product, ProductReview, ReviewEligibility } from "@/types";
 
 type TabKey = "description" | "reviews";
 
 type Props = {
   product: Product;
   reviews?: ProductReview[];
+  eligibility?: ReviewEligibility;
 };
 
-export function PDPTabs({ product, reviews = MOCK_REVIEWS }: Props) {
+export function PDPTabs({
+  product,
+  reviews = MOCK_REVIEWS,
+  eligibility = {
+    isAuthenticated: false,
+    hasPurchased: false,
+    hasAlreadyReviewed: false,
+  },
+}: Props) {
   const [activeTab, setActiveTab] = useState<TabKey>("description");
+
+  useEffect(() => {
+    function handleHash() {
+      if (typeof window !== "undefined" && window.location.hash === "#reviews") {
+        setActiveTab("reviews");
+      }
+    }
+    handleHash();
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, []);
+  const [reviewList, setReviewList] = useState<ProductReview[]>(reviews);
   const [helpfulVotes, setHelpfulVotes] = useState<Record<string, number>>({});
 
   function handleVoteHelpful(reviewId: string, current: number) {
@@ -30,10 +53,19 @@ export function PDPTabs({ product, reviews = MOCK_REVIEWS }: Props) {
     setHelpfulVotes((prev) => ({ ...prev, [reviewId]: current + 1 }));
   }
 
-  // Calculate rating breakdown distribution
-  const totalReviews = reviews.length;
+  function handleReviewSubmitted(newReview: ProductReview) {
+    setReviewList((prev) => [newReview, ...prev]);
+  }
+
+  // Calculate live dynamic rating breakdown distribution
+  const totalReviews = reviewList.length;
+  const averageRating =
+    totalReviews > 0
+      ? reviewList.reduce((acc, r) => acc + r.rating, 0) / totalReviews
+      : product.rating;
+
   const ratingCounts = [5, 4, 3, 2, 1].map((stars) => {
-    const count = reviews.filter((r) => r.rating === stars).length;
+    const count = reviewList.filter((r) => r.rating === stars).length;
     const percentage = totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0;
     return { stars, count, percentage };
   });
@@ -46,7 +78,7 @@ export function PDPTabs({ product, reviews = MOCK_REVIEWS }: Props) {
           { id: "description", label: "Product Description", icon: FileText },
           {
             id: "reviews",
-            label: `Customer Reviews (${product.reviewCount})`,
+            label: `Customer Reviews (${totalReviews})`,
             icon: Star,
           },
         ].map((tab) => {
@@ -159,18 +191,27 @@ export function PDPTabs({ product, reviews = MOCK_REVIEWS }: Props) {
         {/* 2. Customer Reviews Tab */}
         {activeTab === "reviews" && (
           <div className="flex flex-col gap-8">
+            {/* Purchase Verification & Review Submission Box */}
+            <WriteReviewForm
+              productId={product.id}
+              productSlug={product.slug}
+              productTitle={product.title}
+              eligibility={eligibility}
+              onReviewSubmitted={handleReviewSubmitted}
+            />
+
             {/* Rating Summary Header */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 rounded-xl border border-neutral-border bg-neutral-bg/40 p-6">
               {/* Overall Rating Score */}
               <div className="flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-neutral-border pb-6 md:pb-0 md:pr-6 text-center">
                 <span className="font-heading text-4xl sm:text-5xl font-extrabold text-neutral-dark">
-                  {product.rating.toFixed(1)}
+                  {averageRating.toFixed(1)}
                 </span>
                 <div className="my-2">
-                  <RatingStars rating={product.rating} />
+                  <RatingStars rating={averageRating} />
                 </div>
                 <span className="text-xs font-semibold text-neutral-muted">
-                  Based on {product.reviewCount} verified reviews
+                  Based on {totalReviews} verified {totalReviews === 1 ? "review" : "reviews"}
                 </span>
               </div>
 
@@ -197,59 +238,74 @@ export function PDPTabs({ product, reviews = MOCK_REVIEWS }: Props) {
 
             {/* Individual Reviews List */}
             <div className="space-y-4">
-              <h4 className="font-heading text-base font-bold text-neutral-dark">
-                Verified Customer Testimonials
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="font-heading text-base font-bold text-neutral-dark">
+                  Verified Customer Testimonials
+                </h4>
+                <span className="text-xs font-semibold text-neutral-muted">
+                  Showing {reviewList.length} verified experiences
+                </span>
+              </div>
 
-              {reviews.map((rev) => {
-                const votedCount = helpfulVotes[rev.id] ?? rev.helpfulCount;
-                return (
-                  <div
-                    key={rev.id}
-                    className="rounded-xl border border-neutral-border bg-surface p-5 shadow-2xs transition-all hover:border-primary/30"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-sans text-sm font-bold text-neutral-dark">
-                            {rev.author}
-                          </span>
-                          {rev.verified && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-success-light px-2 py-0.5 text-[10px] font-bold text-success">
-                              <CheckCircle2 className="h-3 w-3" />
-                              Verified Buyer
+              {reviewList.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-neutral-border p-8 text-center bg-neutral-bg/30">
+                  <MessageSquareQuote className="h-8 w-8 text-neutral-muted mx-auto mb-2" />
+                  <p className="text-sm font-bold text-neutral-dark">No reviews yet</p>
+                  <p className="text-xs text-neutral-muted mt-1 max-w-sm mx-auto">
+                    Be the first verified customer to share your thoughts on {product.title}.
+                  </p>
+                </div>
+              ) : (
+                reviewList.map((rev) => {
+                  const votedCount = helpfulVotes[rev.id] ?? rev.helpfulCount;
+                  return (
+                    <div
+                      key={rev.id}
+                      className="rounded-xl border border-neutral-border bg-surface p-5 shadow-2xs transition-all hover:border-primary/30"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-sans text-sm font-bold text-neutral-dark">
+                              {rev.author}
                             </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-neutral-muted">
-                          <RatingStars rating={rev.rating} />
-                          <span>•</span>
-                          <span>{rev.date}</span>
+                            {rev.verified && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-success-light px-2 py-0.5 text-[10px] font-bold text-success">
+                                <CheckCircle2 className="h-3 w-3" />
+                                Verified Buyer
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-neutral-muted">
+                            <RatingStars rating={rev.rating} />
+                            <span>•</span>
+                            <span>{rev.date}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <h5 className="font-sans text-sm font-bold text-neutral-dark mt-3 mb-1.5">
-                      {rev.title}
-                    </h5>
-                    <p className="text-xs sm:text-sm font-sans text-neutral-dark/85 leading-relaxed">
-                      {rev.comment}
-                    </p>
+                      <h5 className="font-sans text-sm font-bold text-neutral-dark mt-3 mb-1.5">
+                        {rev.title}
+                      </h5>
+                      <p className="text-xs sm:text-sm font-sans text-neutral-dark/85 leading-relaxed">
+                        {rev.comment}
+                      </p>
 
-                    <div className="mt-4 flex items-center justify-between border-t border-neutral-border/60 pt-3 text-xs text-neutral-muted">
-                      <button
-                        type="button"
-                        onClick={() => handleVoteHelpful(rev.id, rev.helpfulCount)}
-                        className="inline-flex items-center gap-1.5 text-xs text-neutral-muted transition-colors hover:text-primary active:scale-95"
-                      >
-                        <ThumbsUp className="h-3.5 w-3.5" />
-                        <span>Helpful ({votedCount})</span>
-                      </button>
-                      <span className="text-[11px]">Mirai Mart Verified Review</span>
+                      <div className="mt-4 flex items-center justify-between border-t border-neutral-border/60 pt-3 text-xs text-neutral-muted">
+                        <button
+                          type="button"
+                          onClick={() => handleVoteHelpful(rev.id, rev.helpfulCount)}
+                          className="inline-flex items-center gap-1.5 text-xs text-neutral-muted transition-colors hover:text-primary active:scale-95"
+                        >
+                          <ThumbsUp className="h-3.5 w-3.5" />
+                          <span>Helpful ({votedCount})</span>
+                        </button>
+                        <span className="text-[11px]">Mirai Mart Verified Review</span>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
         )}

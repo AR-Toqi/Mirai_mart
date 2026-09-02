@@ -13,6 +13,7 @@ import {
   Quote,
   ChevronRight,
   Scale,
+  PenLine,
 } from "lucide-react";
 import { RatingStars } from "@/components/shared/RatingStars";
 import { formatCurrency, cn } from "@/lib/utils";
@@ -122,14 +123,38 @@ export function PDPBuyBox({
       </h1>
 
       {/* Star Rating & Review Anchor */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center flex-wrap gap-2.5">
         <RatingStars rating={product.rating} />
         <span className="text-neutral-border">•</span>
         <a
           href="#reviews"
-          className="text-xs font-medium text-neutral-muted underline underline-offset-4 hover:text-primary transition-colors"
+          onClick={() => {
+            if (typeof window !== "undefined") {
+              window.location.hash = "reviews";
+              window.dispatchEvent(new HashChangeEvent("hashchange"));
+            }
+          }}
+          className="text-xs font-medium text-neutral-muted underline underline-offset-4 hover:text-primary transition-colors cursor-pointer"
         >
           {product.reviewCount} customer reviews
+        </a>
+        <span className="text-neutral-border">•</span>
+        <a
+          href="#reviews"
+          onClick={() => {
+            if (typeof window !== "undefined") {
+              window.location.hash = "reviews";
+              window.dispatchEvent(new HashChangeEvent("hashchange"));
+              const el = document.getElementById("reviews");
+              if (el) {
+                el.scrollIntoView({ behavior: "smooth" });
+              }
+            }
+          }}
+          className="text-xs font-bold text-primary hover:text-tertiary underline underline-offset-4 transition-colors cursor-pointer flex items-center gap-1"
+        >
+          <PenLine className="h-3 w-3" />
+          <span>Write a review</span>
         </a>
       </div>
 

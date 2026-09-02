@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProductBySlug, getRelatedProducts } from "@/actions/products";
+import {
+  getProductBySlug,
+  getRelatedProducts,
+  getBundleProducts,
+} from "@/actions/products";
+import {
+  getProductReviewsAction,
+  checkReviewEligibilityAction,
+} from "@/actions/reviews";
 import { PDPClient } from "@/components/storefront/PDPClient";
 import { ALL_PRODUCTS } from "@/lib/mock-data";
 
@@ -68,11 +76,26 @@ export default async function ProductDetailPage({ params }: Props) {
     notFound();
   }
 
-  const relatedProducts = await getRelatedProducts(
-    product.categorySlug,
-    product.id,
-    4
-  );
+  // Concurrently fetch related products, smart bundles, live reviews, and user purchase verification
+  const [relatedProducts, bundleProducts, liveReviews, reviewEligibility] =
+    await Promise.all([
+      getRelatedProducts(product.categorySlug, product.id, 4),
+      getBundleProducts(product, 2),
+      getProductReviewsAction(product.id),
+      checkReviewEligibilityAction(
+        product.id,
+        product.title,
+        product.variants?.map((v) => v.id)
+      ),
+    ]);
 
-  return <PDPClient product={product} relatedProducts={relatedProducts} />;
+  return (
+    <PDPClient
+      product={product}
+      relatedProducts={relatedProducts}
+      bundleProducts={bundleProducts}
+      initialReviews={liveReviews}
+      reviewEligibility={reviewEligibility}
+    />
+  );
 }

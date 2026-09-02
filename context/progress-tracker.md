@@ -7,7 +7,7 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 4 — Customer Portal & Features (Complete) / Phase 5 — Admin Management Panel  
-**Last completed:** 10 Customer Order History & Tracking Modal, 11 Product Comparison Page (`/compare`)  
+**Last completed:** PDP Live Reviews (Verified Purchase Only) & Curated Bundles, Customer Order History & Tracking Modal, Product Comparison Page (`/compare`)  
 **Next:** Phase 5 — Feature 12 (Admin Layout & Dashboard — Full UI & Real Metrics)  
 
 ---
@@ -93,6 +93,11 @@ Update this file after every completed feature. Any AI agent reading this should
   2. Implemented `mapOrderRecordToCustomerOrder` in `lib/mappers/order.mapper.ts` transforming database records into the typed `CustomerOrder` interface with formatted timestamps and localized currency.
   3. Refactored `app/(protectedRoutes)/account/page.tsx` into an async Server Component that fetches user orders via `createInsforgeServer()` with zero client-side loading flashes.
   4. Wired `AccountDashboardClient.tsx` with live `orders` state, responsive filter counters, active/delivered/cancelled chip filtering, order search, and an encouraging 0-orders empty state with a "Start Shopping" CTA.
+- Implemented Product Detail Page Live Reviews (Verified Purchase Only) & Curated Bundles:
+  1. Strict Purchase Verification: built `checkReviewEligibilityAction` and `submitProductReviewAction` in `actions/reviews.ts` querying customer orders in `orders` and `order_items`. Gating guarantees that only genuine buyers can submit a review.
+  2. Created `WriteReviewForm.tsx` (imprinted #34 in `ui-registry.md`) with 5-star interactive picker, purchase status banners (guest prompt, non-buyer notice, already-reviewed summary, eligible active form), and PostHog telemetry.
+  3. Updated `PDPTabs.tsx` and `PDPClient.tsx` to dynamically calculate average star rating and distribution from database reviews, with immediate optimistic display on review publishing.
+  4. Added `getBundleProducts` in `actions/products.ts` providing curated complementary pairings with 10% bundle savings in `PDPFrequentlyBoughtTogether.tsx`.
 
 
 

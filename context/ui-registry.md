@@ -420,23 +420,25 @@ Last updated: August 29, 2026
 
 #### 17. `PDPTabs`
 File: `components/storefront/PDPTabs.tsx`  
-Last updated: August 30, 2026
+Last updated: September 3, 2026
 
 | Property | Class |
 | --- | --- |
-| Background | `bg-surface` (`#FFFFFF`) card, `bg-neutral-bg/60` (tab bar & spec alternating rows), `bg-neutral-bg/40` (features & ratings background) |
-| Border | `border border-neutral-border` (`#E7E8EB`), `border-b-2 border-primary` (active tab) |
+| Background | `bg-surface` (`#FFFFFF`) card, `bg-neutral-bg/60` (tab bar & spec alternating rows), `bg-neutral-bg/40` (features & ratings background), `bg-neutral-bg/30` (empty reviews card) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-b-2 border-primary` (active tab), `border-dashed border-neutral-border` (empty reviews state) |
 | Border radius | `rounded-2xl` (`16px`) container, `rounded-xl` (`12px`) review & specs cards, `rounded-lg` in-box items |
 | Text — primary | `font-heading font-bold text-lg sm:text-xl text-neutral-dark` (`#191C1E`) |
 | Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted` (`#6E797F`) |
-| Spacing | `px-6 sm:px-8 py-4` tab buttons, `p-6 sm:p-8` content padding, `gap-3.5` spec rows |
-| Hover state | `hover:text-neutral-dark hover:bg-surface/50` tab items, `hover:text-primary` helpful button |
+| Spacing | `px-6 sm:px-8 py-4` tab buttons, `p-6 sm:p-8` content padding, `gap-3.5` spec rows, `space-y-4` review list |
+| Hover state | `hover:text-neutral-dark hover:bg-surface/50` tab items, `hover:text-primary` helpful button, `hover:border-primary/30` review cards |
 | Shadow | `shadow-xs` container, `shadow-2xs` individual review cards |
-| Accent usage | `text-primary` active tab label & specs icons, `bg-secondary` 5-star rating distribution bar |
+| Accent usage | `text-primary` active tab label & specs icons, `bg-secondary` 5-star rating distribution bar, `bg-success-light text-success` Verified Buyer badge |
 
 **Pattern notes:**
 - Streamlined 2-tab layout: **Product Description** (About, Features & Highlights, In the Box, Specifications) and **Customer Reviews** (Rating Score Breakdown, Star Bars, Verified Testimonials, Helpful Votes).
-- Clean, focused PDP structure keeping the most essential product insights immediately accessible.
+- Embeds `WriteReviewForm` above the rating score breakdown with purchase gating and optimistic real-time review list updates via `handleReviewSubmitted`.
+- Computes dynamic live average rating score and 1–5 star histogram distribution from `reviewList`.
+- Features dashed empty state card with `MessageSquareQuote` when product has 0 verified customer reviews.
 
 ---
 
@@ -837,6 +839,32 @@ Last updated: September 2, 2026
 - Multi-tab unified customer control center (Dashboard KPI overview, Orders history with live tracking trigger, Wishlist, Reviews, Addresses, Payment methods, Profile & Security).
 - Integrates seamlessly with `OrderDetailModal.tsx` and database order mapping via `mapOrderRecordToCustomerOrder`.
 - Follows token conventions: `rounded-2xl` for primary card surfaces and `rounded-lg` for interactive menu items.
+
+---
+
+#### 34. `WriteReviewForm` (Customer Verified Review Gating & Submission)
+File: `components/storefront/WriteReviewForm.tsx`  
+Last updated: September 3, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-primary-surface/30` (header toggle), `bg-primary-surface/20` (sign-in prompt), `bg-warning-surface` (purchase prompt), `bg-success-light/30` (already-reviewed card) |
+| Border | `border border-primary/30` (active form card), `border border-primary/25` (sign-in prompt), `border border-warning/40` (purchase prompt), `border border-success/30` (already-reviewed card), `border border-neutral-border` (`#E7E8EB`) |
+| Border radius | `rounded-2xl` (`16px`) for gating prompt cards, `rounded-xl` (`12px`) outer form card, inputs, textarea & CTAs, `rounded-lg` secondary button, `rounded-full` pill badges & star wrappers |
+| Text — primary | `font-heading font-bold text-neutral-dark` (`#191C1E`) |
+| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted` (`#6E797F`), `text-success` (`#22C55E`) Verified Buyer badge |
+| Spacing | `p-5 sm:p-6` card padding (`p-6 sm:p-7` sign-in card), `space-y-5` form rows, `gap-3` star picker |
+| Hover state | `hover:bg-tertiary active:scale-95` (sign-in & CTAs), `hover:bg-primary-light` (publish button), `hover:scale-110` (rating stars) |
+| Shadow | `shadow-2xs` card containers, `shadow-xs` buttons & badge icons |
+| Accent usage | `text-secondary` (`#FCE35F`) for interactive rating stars, `bg-primary` for publish CTA & lock icon, `bg-success-light text-success` for Verified Buyer badge, `bg-warning text-white` for purchase prompt badge |
+
+**Pattern notes:**
+- Strict verification gating: dynamically renders 4 distinct visual states based on customer auth and order history:
+  1. **Unauthenticated**: Centered `bg-primary-surface/20` card with lock badge prompting sign-in.
+  2. **Non-buyer**: Alert `bg-warning-surface` card explaining genuine purchase requirement with "Purchase Now" and "Check My Orders" actions.
+  3. **Already Reviewed**: Celebratory `bg-success-light/30` card displaying their existing rating, title, and feedback quote.
+  4. **Eligible Verified Buyer**: Expandable accordion card (`rounded-xl border-primary/30`) with live star selector (1–5) and headline/body inputs.
+- Integrates with PostHog `review_submitted` and triggers revalidation upon submission.
 
 ---
 
