@@ -45,6 +45,7 @@ A centralized inventory of all reusable components, layouts, design tokens, and 
 - **Cards & Modals**: `16px` border-radius (`rounded-xl`), subtle drop shadow (`shadow-sm` hover: `shadow-md`), `border border-neutral-border`.
 - **Buttons & Inputs**: `8px` border-radius (`rounded-md`).
 - **Pill Badges & Chips**: Fully rounded pill shapes (`rounded-full px-3 py-1`).
+- **Storefront Desktop Container**: `1440px` max-width (`max-w-7xl` / `--container-7xl: 1440px`), centered with `mx-auto px-4 sm:px-6 lg:px-8`.
 
 ---
 
@@ -160,10 +161,35 @@ Last updated: August 25, 2026
 
 ### Storefront Components (`components/storefront/`)
 
-#### 5. `HeroCarousel.tsx`
-- **Path**: `components/storefront/HeroCarousel.tsx`
-- **Purpose**: Dynamic homepage hero slider with autoplay, manual indicator dots, Baloo 2 Display headlines, and dual CTA buttons.
-- **Visuals**: 24px radius container (`rounded-2xl`), rich gradient overlay, smooth slide transitions.
+#### 5. `HeroBanner.tsx` (Full-Width Background 3-Slide Carousel & Trust Strip)
+
+File: `components/storefront/HeroBanner.tsx`  
+Last updated: September 5, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-neutral-dark` (banner container shell), `bg-surface` (trust value strip), `bg-primary` (primary CTA button), `bg-white/95` (secondary CTA button), `bg-primary-surface` (trust icon badges), `bg-neutral-dark/40 backdrop-blur-md` (indicator pill) |
+| Border | `border border-neutral-border` (`#E7E8EB`, banner frame & trust strip), `border border-white/20` (dots pill), `border border-neutral-border` (secondary CTA button) |
+| Border radius | `rounded-3xl` (`24px`, main banner container), `rounded-2xl` (`16px`, trust value strip), `rounded-xl` (`12px`, CTA buttons & trust icon badges), `rounded-full` (dots & indicator pill) |
+| Text — primary | `font-sans font-semibold text-sm sm:text-base text-white` (primary CTA), `font-sans font-medium text-sm sm:text-base text-neutral-dark` (secondary CTA), `font-sans font-bold text-xs text-neutral-dark` (trust perk headings) |
+| Text — secondary | `text-[11px] text-neutral-muted` (`#6E797F`, trust perk descriptions) |
+| Spacing | `h-[280px] sm:h-[360px] lg:h-[420px]` (responsive banner height), `space-y-6` (vertical section stack), `px-6 sm:px-8 py-3 sm:py-3.5` (button padding), `gap-3.5` (button gap), `p-5` (trust strip padding), `gap-4` (trust grid gap) |
+| Hover state | `hover:bg-tertiary hover:shadow-xl` (primary CTA), `hover:bg-white hover:shadow-xl` (secondary CTA), `active:scale-98` (button press micro-interaction), `hover:bg-white` (inactive dot hover) |
+| Shadow | `shadow-sm` (banner container), `shadow-lg hover:shadow-xl` (CTA buttons), `shadow-2xs` (trust strip), `shadow-xs` (indicator pill) |
+| Accent usage | `bg-primary text-white` for primary CTA button & active slide dot, `bg-primary-surface text-primary` for trust perk icon badges |
+
+**Pattern notes:**
+- **Standard Height**: Standardized to `h-[280px] sm:h-[360px] lg:h-[420px]` across mobile, tablet, and desktop (1440px container) to preserve optimal above-the-fold visibility for product rails.
+- **Clean Interface**: No hover arrow navigation buttons. Autoplay runs on a 3-second interval and pauses on mouse enter (`setIsPaused(true)`). Manual navigation is driven by the 3 bottom-centered pill dots.
+- **CTA Actions**: Vertically and horizontally centered overlay (`absolute inset-0 flex items-center justify-center pointer-events-none`) with interactive buttons wrapped in `pointer-events-auto`.
+- **Integrated Trust Value Strip**: Standard 3-perk grid below banner (`Free Shipping`, `Easy Returns`, `Secure Payment`) reinforces customer confidence using `bg-primary-surface text-primary` token badges.
+
+**Props:**
+```typescript
+type Props = {
+  content?: StorefrontContentConfig["hero"];
+};
+```
 
 #### 6. `ProductCard.tsx`
 - **Path**: `components/storefront/ProductCard.tsx`
@@ -865,6 +891,94 @@ Last updated: September 3, 2026
   3. **Already Reviewed**: Celebratory `bg-success-light/30` card displaying their existing rating, title, and feedback quote.
   4. **Eligible Verified Buyer**: Expandable accordion card (`rounded-xl border-primary/30`) with live star selector (1–5) and headline/body inputs.
 - Integrates with PostHog `review_submitted` and triggers revalidation upon submission.
+
+---
+
+#### 35. `AdminSidebar` (Admin Navigation Shell & Bottom Actions)
+File: `components/layout/AdminSidebar.tsx`  
+Last updated: September 4, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-primary/10` (active link), `hover:bg-neutral-bg` (hover state) |
+| Border | `border-r border-neutral-border` (`#E7E8EB`), `border-b border-neutral-border/50` (header divider), `border-t border-neutral-border/60` (bottom action bar) |
+| Border radius | `rounded-xl` (`12px`) for navigation items, Visit Store link, and Sign Out button |
+| Text — primary | `text-primary font-semibold` (active tab), `text-neutral-dark font-medium` (links) |
+| Text — secondary | `text-neutral-muted` (inactive icons & labels), `text-error` (sign out button) |
+| Spacing | `w-64` fixed sidebar width, `h-20` brand header height, `p-4` navigation padding, `space-y-1.5` link stack |
+| Hover state | `hover:bg-neutral-bg hover:text-neutral-dark` (nav links), `hover:bg-error-surface` (sign out) |
+| Shadow | `shadow-2xs` active tab indicator |
+| Accent usage | `text-primary` active indicator & Visit Store icon, `text-error` for Sign Out action |
+
+**Pattern notes:**
+- Exact match to `Admin_Dashboard.png`: brand logo, active Dashboard pill, Products, Categories, Customers, Analytics, Promo Codes, Website Content, and Settings.
+- Replaced "Help & Support" with dedicated "Visit Store" (`/`) external link and authenticated "Sign Out" button.
+
+---
+
+#### 36. `AdminTopBar` (Admin Header & Notification Strip)
+File: `components/layout/AdminTopBar.tsx`  
+Last updated: September 4, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-surface` (dropdown flyouts) |
+| Border | `border-b border-neutral-border` (`#E7E8EB`), `border border-neutral-border` (pills & cards) |
+| Border radius | `rounded-xl` (date picker & notification trigger), `rounded-full` (admin profile pill & avatar), `rounded-2xl` (flyout modals) |
+| Text — primary | `font-heading font-bold text-2xl text-neutral-dark` (greeting) |
+| Text — secondary | `text-xs text-neutral-muted` (subtext & timestamps), `text-success` (verified badge) |
+| Spacing | `h-20` top bar height, `px-6` horizontal padding, `gap-3 sm:gap-4` right controls |
+| Hover state | `hover:bg-neutral-bg` (dropdown items & control buttons) |
+| Shadow | `shadow-2xs` interactive pills, `shadow-xl` dropdown menus |
+| Accent usage | `bg-error text-white` unread notification count badge (`3`), `text-primary` date icon |
+
+**Pattern notes:**
+- Features "Dashboard 👋" headline, interactive Date Range selector (`May 12 – May 18, 2024`), Notification Bell flyout, and Admin Avatar Profile pill.
+
+---
+
+#### 37. `AdminDashboardClient` (Storefront KPIs, Analytics Curves & Paginated Feeds)
+File: `components/admin/AdminDashboardClient.tsx`  
+Last updated: September 4, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-blue-50`, `bg-emerald-50`, `bg-purple-50`, `bg-amber-50`, `bg-sky-50` (KPI icon containers), `bg-neutral-bg` (canvas) |
+| Border | `border border-neutral-border` (`#E7E8EB`) for all cards and table rows |
+| Border radius | `rounded-2xl` (`16px`) for KPI cards, chart containers, tables, and gauges, `rounded-xl` for inner badges & inputs |
+| Text — primary | `font-sans font-bold text-2xl text-neutral-dark` (KPI figures), `font-heading font-bold text-lg text-neutral-dark` (card headers) |
+| Text — secondary | `text-xs font-medium text-neutral-muted`, `text-success font-semibold` (growth percentages) |
+| Spacing | `gap-4 sm:gap-6` card grids, `p-5 to p-6` card padding, `py-3` table rows |
+| Hover state | `hover:shadow-md transition-shadow` (cards), `hover:bg-neutral-bg/60` (table rows) |
+| Shadow | `shadow-xs hover:shadow-md` cards, `shadow-2xs` quick actions |
+| Accent usage | `#0A98C3` (This Week curve & Website channel), `#22C55E` (Facebook channel & Delivered status), `#A855F7` (Instagram channel), `#F59E0B` (Others channel & In Transit) |
+
+**Pattern notes:**
+- Exact layout matching `Admin_Dashboard.png`: 5 top KPI cards (Total Sales, Orders, Customers, Products, Total Revenue), Sales Overview SVG curve with interactive hover tooltip, Top Selling Products, Sales by Channel donut chart, Recent Orders table with pagination, New Customers list with pagination, Inventory Summary donut gauge (68% In Stock), and Website Content quick card.
+
+---
+
+#### 38. `WebsiteContentManager` (Storefront Hero Banner & Top Announcement CMS)
+File: `components/admin/WebsiteContentManager.tsx`  
+Last updated: September 4, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-secondary` (announcement preview), `bg-neutral-dark` (hero preview container) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border border-primary/50` (selected preset) |
+| Border radius | `rounded-2xl` (`16px`) section containers & preview cards, `rounded-xl` (`12px`) inputs & action buttons, `rounded-full` active toggle |
+| Text — primary | `font-heading font-bold text-2xl text-neutral-dark`, `font-heading font-bold text-2xl sm:text-3xl text-white` (hero preview headline) |
+| Text — secondary | `text-xs text-neutral-muted`, `text-white/80` (hero preview subtext) |
+| Spacing | `space-y-6 sm:space-y-8` sections, `p-6` panel padding, `gap-4` form grids |
+| Hover state | `hover:bg-tertiary` (save CTA), `hover:bg-neutral-bg` (preview CTA) |
+| Shadow | `shadow-xs` containers, `shadow-inner` announcement preview |
+| Accent usage | `bg-secondary text-neutral-dark` for announcement bar, `bg-primary text-white` for Publish CTA & primary hero button |
+
+**Pattern notes:**
+- Dedicated tab requested by developer to control storefront hero banner image/headlines, custom image design uploads, button visibility toggles, and the top announcement promotional bar.
+- Includes a dedicated drag-and-drop custom image upload dropzone specifying recommended dimensions (`1200 × 800 px` or 16:9 / 4:3) and maximum file size (`up to 5 MB`) with client-side & server-side validation.
+- Features tactile iOS-style switchbars (`Active` vs `Disabled`) for both Primary and Secondary Hero CTA buttons, instantly updating the live preview and storefront.
+- Supports 4 curated preset image selectors plus custom image URL inputs, file-backed persistence (`data/storefront-content.json`), and triggers Next.js path cache revalidation on save.
 
 ---
 

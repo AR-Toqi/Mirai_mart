@@ -260,12 +260,8 @@ const { data, error } = await insforge.storage
 
 if (error) throw error;
 
-// Retrieve public image URL
-const { data: publicData } = insforge.storage
-  .from("products")
-  .getPublicUrl(data.path);
-
-const imageUrl = publicData.publicUrl;
+// Retrieve public image URL (or use data.url directly returned by .upload())
+const imageUrl = data.url || insforge.storage.from("products").getPublicUrl(data.key).data?.publicUrl;
 ```
 
 **Rules:**

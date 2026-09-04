@@ -116,6 +116,9 @@ className="bg-purple-500 text-gray-600"
   --spacing-8: 32px;
   --spacing-12: 48px;
   --spacing-16: 64px;
+
+  /* Container Max Width for Storefront Desktop */
+  --container-7xl: 1440px;
 }
 ```
 

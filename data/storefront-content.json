@@ -1,0 +1,52 @@
+{
+  "hero": {
+    "slides": [
+      {
+        "id": "slide-1",
+        "imageUrl": "/images/hero-showcase.svg",
+        "ctaPrimaryActive": true,
+        "ctaPrimaryText": "Shop New Arrivals",
+        "ctaPrimaryLink": "/category/new-arrivals",
+        "ctaSecondaryActive": true,
+        "ctaSecondaryText": "Explore Collections",
+        "ctaSecondaryLink": "/category/all"
+      },
+      {
+        "id": "slide-2",
+        "imageUrl": "https://images.unsplash.com/photo-1535378917042-10a22c95931a?w=1600&auto=format&fit=crop&q=80",
+        "ctaPrimaryActive": true,
+        "ctaPrimaryText": "Discover Tech Gadgets",
+        "ctaPrimaryLink": "/category/digital-gadgets",
+        "ctaSecondaryActive": false,
+        "ctaSecondaryText": "Learn More",
+        "ctaSecondaryLink": "/category/digital-gadgets"
+      },
+      {
+        "id": "slide-3",
+        "imageUrl": "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=1600&auto=format&fit=crop&q=80",
+        "ctaPrimaryActive": true,
+        "ctaPrimaryText": "Explore Gift Combos",
+        "ctaPrimaryLink": "/category/gift-combos",
+        "ctaSecondaryActive": false,
+        "ctaSecondaryText": "Browse All",
+        "ctaSecondaryLink": "/category/all"
+      }
+    ],
+    "badge": "New Collection",
+    "title": "Play More. Discover Tomorrow.",
+    "subtitle": "Curated toys, smart gadgets & lifestyle essentials designed to spark joy and imagination.",
+    "ctaPrimaryActive": true,
+    "ctaPrimaryText": "Shop New Arrivals",
+    "ctaPrimaryLink": "/category/new-arrivals",
+    "ctaSecondaryActive": true,
+    "ctaSecondaryText": "Explore Collections",
+    "ctaSecondaryLink": "/category/all",
+    "imageUrl": "/images/hero-showcase.svg"
+  },
+  "announcement": {
+    "isActive": true,
+    "text": "Free shipping on orders over ৳ 3,000",
+    "promoCode": "MIRAI10",
+    "highlightText": "Use code MIRAI10 for 10% off"
+  }
+}

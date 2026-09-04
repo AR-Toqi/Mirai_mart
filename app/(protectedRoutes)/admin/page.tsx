@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "Live store overview, sales metrics, and inventory health for Mirai Mart.",
 };
 
-export default async function AdminDashboardPage() {
+export default async function AdminRootPage() {
   const metricsResult = await getAdminDashboardMetricsAction();
 
   return <AdminDashboardClient initialMetrics={metricsResult.data} />;

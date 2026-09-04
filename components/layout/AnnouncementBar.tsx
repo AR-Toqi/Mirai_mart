@@ -2,22 +2,38 @@
 
 import { useState } from "react";
 import { TruckIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/Icons";
+import type { StorefrontContentConfig } from "@/actions/admin";
 
-const ANNOUNCEMENTS = [
-  "Free shipping on orders over ৳3,000 • Use code MIRAI10 for 10% off",
-  "Special Gift Combos available for Newborns & Birthdays!",
-  "30-Day Hassle-Free Returns on all items",
-];
+type Props = {
+  announcement?: StorefrontContentConfig["announcement"];
+};
 
-export function AnnouncementBar() {
+export function AnnouncementBar({ announcement }: Props) {
+  // If toggled off in CMS, hide bar completely
+  if (announcement && announcement.isActive === false) {
+    return null;
+  }
+
+  const primaryMessage = announcement?.text
+    ? announcement.highlightText
+      ? `${announcement.text} • ${announcement.highlightText}`
+      : announcement.text
+    : "Free shipping on orders over ৳ 3,000 • Use code MIRAI10 for 10% off";
+
+  const announcementsList = [
+    primaryMessage,
+    "Special Gift Combos available for Newborns & Birthdays!",
+    "30-Day Hassle-Free Returns on all items",
+  ];
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
   function prevSlide() {
-    setCurrentIndex((prev) => (prev === 0 ? ANNOUNCEMENTS.length - 1 : prev - 1));
+    setCurrentIndex((prev) => (prev === 0 ? announcementsList.length - 1 : prev - 1));
   }
 
   function nextSlide() {
-    setCurrentIndex((prev) => (prev === ANNOUNCEMENTS.length - 1 ? 0 : prev + 1));
+    setCurrentIndex((prev) => (prev === announcementsList.length - 1 ? 0 : prev + 1));
   }
 
   return (
@@ -34,7 +50,7 @@ export function AnnouncementBar() {
 
         <div className="flex items-center justify-center gap-2 font-medium tracking-tight overflow-hidden">
           <TruckIcon size={15} className="w-3.5 h-3.5 text-neutral-dark shrink-0" />
-          <span className="truncate">{ANNOUNCEMENTS[currentIndex]}</span>
+          <span className="truncate">{announcementsList[currentIndex]}</span>
         </div>
 
         <button

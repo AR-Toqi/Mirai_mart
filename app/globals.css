@@ -75,6 +75,14 @@
   --spacing-8: 32px;
   --spacing-12: 48px;
   --spacing-16: 64px;
+
+  /* Container Max Width for Storefront Desktop */
+  --container-7xl: 1440px;
+}
+
+/* Storefront 1440px Desktop Container */
+.max-w-7xl {
+  max-width: 1440px;
 }
 
 body {

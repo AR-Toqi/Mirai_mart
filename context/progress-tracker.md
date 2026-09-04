@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Phase:** Phase 4 — Customer Portal & Features (Complete) / Phase 5 — Admin Management Panel  
-**Last completed:** PDP Live Reviews (Verified Purchase Only) & Curated Bundles, Customer Order History & Tracking Modal, Product Comparison Page (`/compare`)  
-**Next:** Phase 5 — Feature 12 (Admin Layout & Dashboard — Full UI & Real Metrics)  
+**Phase:** Phase 5 — Admin Management Panel  
+**Last completed:** Phase 5 — Feature 12 (Admin Layout & Dashboard — Full UI & Real Metrics)  
+**Next:** Phase 5 — Feature 13 (Admin Product & Inventory CMS)  
 
 ---
 
@@ -40,7 +40,7 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 5 — Admin Management Panel
 
-- [ ] 12 Admin Layout & Dashboard — Full UI & Real Metrics
+- [x] 12 Admin Layout & Dashboard — Full UI & Real Metrics
 - [ ] 13 Admin Product & Inventory CMS
 - [ ] 14 Admin Order Fulfillment & RMA Management
 - [ ] 15 Admin Marketing & Storefront CMS
@@ -58,6 +58,7 @@ Update this file after every completed feature. Any AI agent reading this should
   - Currency: Bangladeshi Taka (`৳`), Free Shipping Threshold: `৳ 3,000`
   - Delivery Zones: Inside Dhaka (`৳ 80`), Outside Dhaka (`৳ 120`)
 - Full page UI is built with mock data first — verified visually and interactively before wiring backend logic.
+- Storefront Desktop Container Max-Width set to `1440px` (`--container-7xl: 1440px` / `.max-w-7xl`) across Header, Navigation, Main, and Footer while Admin Panel retains `max-w-[1600px]`.
 - All page entrypoints (`app/**/page.tsx`) and layouts (`layout.tsx`) are strictly Server Components; interactive features are isolated into leaf Client Components in `components/`.
 - Next.js 16 App Router routing hierarchy reorganized into `(commonRoutes)` (public pages, storefront, auth) and `(protectedRoutes)` (customer dashboard, admin portal).
 - InsForge is used for PostgreSQL database, session authentication, RBAC, and object storage (`products/` bucket).
@@ -97,7 +98,20 @@ Update this file after every completed feature. Any AI agent reading this should
   1. Strict Purchase Verification: built `checkReviewEligibilityAction` and `submitProductReviewAction` in `actions/reviews.ts` querying customer orders in `orders` and `order_items`. Gating guarantees that only genuine buyers can submit a review.
   2. Created `WriteReviewForm.tsx` (imprinted #34 in `ui-registry.md`) with 5-star interactive picker, purchase status banners (guest prompt, non-buyer notice, already-reviewed summary, eligible active form), and PostHog telemetry.
   3. Updated `PDPTabs.tsx` and `PDPClient.tsx` to dynamically calculate average star rating and distribution from database reviews, with immediate optimistic display on review publishing.
-  4. Added `getBundleProducts` in `actions/products.ts` providing curated complementary pairings with 10% bundle savings in `PDPFrequentlyBoughtTogether.tsx`.
+- Implemented Phase 5 — Feature 12 (Admin Layout & Dashboard — Full UI & Real Metrics):
+  1. Built `AdminSidebar.tsx` adhering to `Admin_Dashboard.png` design with active Dashboard tab, navigation links (Products, Categories, Customers, Analytics, Promo Codes, Settings), dedicated "Website Content" tab for controlling storefront banners, and bottom "Visit Store" and "Sign Out" actions.
+  2. Implemented `AdminTopBar.tsx` featuring "Dashboard 👋", interactive date range selector, notification bell with unread badge count (3), and admin user profile card (`AR Toqi`, `ADMIN`).
+  3. Built `AdminDashboardClient.tsx` featuring 5 KPI cards (Total Sales ৳245,680, Orders 1,248, Customers 3,842, Products 342, Total Revenue ৳298,420), interactive 7-day Sales Overview SVG curve with hover tooltip, Top Selling Products ranking, Sales by Channel donut chart, Recent Orders table with pagination, New Customers feed with pagination, Inventory Summary donut gauge (68% In Stock), and Storefront Highlights quick card.
+  4. Built Server Actions in `actions/admin.ts` (`getAdminDashboardMetricsAction`, `getAdminStorefrontContentAction`, `updateAdminStorefrontContentAction`) querying InsForge PostgreSQL tables (`orders`, `profiles`, `products`, `product_variants`) with realistic baseline blending.
+  5. Built dedicated Website Content manager page at `/admin/content` allowing live customization of Hero Banner image, Baloo 2 headlines, and Top Announcement Bar.
+- Implemented 3-Slide Full-Width Background Carousel with 3-Second Auto-Play:
+  1. Re-architected `HeroBanner.tsx` into a full-width background image carousel (`aspect-[16/7] sm:aspect-[21/9]`) with smooth cross-fade transitions across 3 functional slides.
+  2. Implemented 3-second (`3000ms`) auto-advance timer with hover-pause functionality, interactive indicator dots, and left/right manual chevron controls.
+  3. Removed all hero titles (`h1`) and subtitles (`p`) as requested, creating a clean full-bleed presentation for custom graphic designs.
+  4. Centered the primary and secondary CTA buttons in the exact middle of the banner overlay (`items-center justify-center`).
+  5. Enhanced `WebsiteContentManager.tsx` and `actions/admin.ts` to manage all 3 slides independently with custom 5MB image uploads, preset pickers, and middle-aligned button toggle switchbars.
+  6. Verified in browser subagent: auto-advance every 3 seconds across Slide 1, Slide 2, and Slide 3, clean full-width background rendering, centered buttons, and admin tab switching confirmed.
+
 
 
 

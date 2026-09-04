@@ -29,6 +29,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "**.insforge.app",
       },
+      {
+        protocol: "https",
+        hostname: "**",
+      },
     ],
   },
 };
