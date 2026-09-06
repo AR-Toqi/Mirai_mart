@@ -803,7 +803,27 @@ Last updated: September 1, 2026
 
 ---
 
-#### 31. `CompareClient` (Side-by-Side Product Comparison Matrix)
+#### 31. `MiraiMartLogo` (Brand Logo & Monogram Vector Mark)
+File: `components/shared/MiraiMartLogo.tsx`  
+Last updated: September 6, 2026
+
+| Property | Class / Value |
+| --- | --- |
+| Fill — primary monogram | `#0A98C3` (`--color-primary`) |
+| Fill — highlight facets | `#71D7F6` (`--color-primary-light`), `#BEE9FF` (`--color-primary-surface`) |
+| Fill — shadow facets | `#087A9C` (deep primary) |
+| Fill — brand accent dot | `#FCE35F` (`--color-secondary`), `#FFE680` border stroke |
+| Typography (`variant="full"`) | `font-heading font-bold text-xl tracking-tight text-neutral-dark`, `text-primary` ("Mart") |
+| Sizing | `size` prop (default `28`), `h-7 w-auto aspect-square` |
+| Variants | `mark` (isometric 3D M vector + yellow dot), `full` (vector + typography), `image` (`/mirai-mart_logo.png`) |
+
+**Pattern notes:**
+- Official reusable vector logo mark matching `architecture.md` specification.
+- Used in Admin screens, Navigation headers, and Brand identity lockups.
+
+---
+
+#### 32. `CompareClient` (Side-by-Side Product Comparison Matrix)
 File: `components/storefront/CompareClient.tsx`  
 Last updated: September 1, 2026
 
@@ -979,6 +999,65 @@ Last updated: September 4, 2026
 - Includes a dedicated drag-and-drop custom image upload dropzone specifying recommended dimensions (`1200 × 800 px` or 16:9 / 4:3) and maximum file size (`up to 5 MB`) with client-side & server-side validation.
 - Features tactile iOS-style switchbars (`Active` vs `Disabled`) for both Primary and Secondary Hero CTA buttons, instantly updating the live preview and storefront.
 - Supports 4 curated preset image selectors plus custom image URL inputs, file-backed persistence (`data/storefront-content.json`), and triggers Next.js path cache revalidation on save.
+
+---
+
+#### 39. `AdminProductsClient`, `AdminProductFilters` & `AdminProductTable` (Product Catalog CMS & Data Grid)
+File: `components/admin/AdminProductsClient.tsx`, `components/admin/AdminProductFilters.tsx`, `components/admin/AdminProductTable.tsx`  
+Last updated: September 6, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (canvas & table hover) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-b border-neutral-border/80` (rows) |
+| Border radius | `rounded-2xl` (`16px`) table container & search box, `rounded-xl` (`12px`) action buttons & inputs, `rounded-full` status badges |
+| Text — primary | `font-heading font-bold text-2xl sm:text-3xl text-neutral-dark`, `font-sans font-bold text-sm sm:text-base` (pricing) |
+| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted`, `font-mono text-xs` (SKU badges) |
+| Status badges | `bg-success-light text-success` (Active), `bg-neutral-muted/15 text-neutral-muted` (Draft) |
+| Stock indicators | `text-error font-bold` (0 Out of Stock), `text-warning font-bold` (1-5 Low Stock), `text-neutral-dark font-bold` (In Stock) |
+| Action buttons | `bg-primary hover:opacity-95 text-white` (+ Add New Product), `hover:text-primary` (Edit pencil), `hover:bg-error-surface text-error` (Delete) |
+| Props | `filters`, `onFilterChange`, `onResetFilters`, `products`, `onToggleStatus`, `onDeleteClick` |
+
+**Pattern notes:**
+- Modeled directly after `Product_screen.jpeg` with responsive search bar, category dropdown, filter drawer toggle, and stock/badge/price filters.
+- Supports optimistic Active/Draft status toggling, optimistic deletion with confirmation modal, and client-side pagination.
+- Currency formatted with Bangladeshi Taka symbol (`৳ [amount]`).
+
+---
+
+#### 40. `ProductForm` (Add New & Edit Product Form with Sticky Live Preview)
+File: `components/admin/ProductForm.tsx`  
+Last updated: September 7, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (canvas), `bg-primary-surface/40` (preview badges & info callouts), `bg-primary-surface/30` (active dropzone drag-over) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-2 border-dashed border-neutral-border/80` (dropzone idle), `border-primary` (dropzone active drag), `border-primary/40` (active section anchors) |
+| Border radius | `rounded-2xl` (`16px`) form section cards, dropzone, and sticky preview card, `rounded-xl` (`12px`) inputs & action buttons, `rounded-full` badge pills & age chips |
+| Text — primary | `font-heading font-bold text-2xl text-neutral-dark` (title), `font-heading font-bold text-lg` (section headers) |
+| Text — secondary | `font-sans text-xs text-neutral-muted`, `font-mono text-xs text-neutral-muted` (SKU preview) |
+| Spacing | 2-column layout (approx 68% form left, 32% sticky preview right), `p-5 sm:p-6` card padding, `space-y-5 to space-y-6` |
+| Hover state | `hover:opacity-95` (Publish Product), `hover:bg-neutral-bg` (Save Draft & presets), `hover:border-primary/50` (dropzone idle hover) |
+| Shadow | `shadow-xs` (cards), `shadow-sm` (sticky preview), `shadow-2xs` (buttons & badges) |
+| Accent usage | `bg-primary text-white` (Publish CTA, active tab indicator, primary image badge), `bg-secondary` (curator sparkles icon), `text-primary` (live preview price & titles) |
+
+**Pattern notes:**
+- Exact match to `add-new_screen.png`: Section anchor bar (`Basic Info`, `Media`, `Pricing`, `Inventory`, `Variants`, `SEO & Additional`), dynamic category attributes (Age Range for Toys, Tech Specs for Gadgets), sample photo presets, and variant matrix.
+- Native drag-and-drop file upload dropzone wired to InsForge Storage `products/` bucket (`uploadProductMediaAction`) with client-side loading indicators and local filesystem fallback.
+- Dual mode (`mode="create"` vs `mode="edit"`) seamlessly editing InsForge PostgreSQL records and baseline catalog items with full sub-variant synchronization and `revalidateTag` cache invalidation.
+
+---
+
+#### 41. `MiraiMartLogo` (Official Reusable Brand Logo Component)
+File: `components/shared/MiraiMartLogo.tsx`  
+Last updated: September 6, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | Transparent SVG / Next.js Image wrapper |
+| Colors | Primary `#0A98C3`, Primary Light `#71D7F6`, Primary Shadow `#087A9C`, Sunny Yellow Dot `#FCE35F` |
+| Variants | `"mark"` (Isometric 3D "M" monogram with yellow dot), `"full"` (Mark + "MiraiMart" typographic lockup), `"image"` (Raster PNG `/mirai-mart_logo.png`) |
+| Props | `variant?: "mark" | "full" | "image"`, `className?: string`, `size?: number`, `priority?: boolean` |
 
 ---
 

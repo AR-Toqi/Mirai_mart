@@ -4,10 +4,10 @@
       {
         "id": "slide-1",
         "imageUrl": "/images/hero-showcase.svg",
-        "ctaPrimaryActive": true,
+        "ctaPrimaryActive": false,
         "ctaPrimaryText": "Shop New Arrivals",
         "ctaPrimaryLink": "/category/new-arrivals",
-        "ctaSecondaryActive": true,
+        "ctaSecondaryActive": false,
         "ctaSecondaryText": "Explore Collections",
         "ctaSecondaryLink": "/category/all"
       },
@@ -35,10 +35,10 @@
     "badge": "New Collection",
     "title": "Play More. Discover Tomorrow.",
     "subtitle": "Curated toys, smart gadgets & lifestyle essentials designed to spark joy and imagination.",
-    "ctaPrimaryActive": true,
+    "ctaPrimaryActive": false,
     "ctaPrimaryText": "Shop New Arrivals",
     "ctaPrimaryLink": "/category/new-arrivals",
-    "ctaSecondaryActive": true,
+    "ctaSecondaryActive": false,
     "ctaSecondaryText": "Explore Collections",
     "ctaSecondaryLink": "/category/all",
     "imageUrl": "/images/hero-showcase.svg"

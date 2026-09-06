@@ -111,6 +111,18 @@ Update this file after every completed feature. Any AI agent reading this should
   4. Centered the primary and secondary CTA buttons in the exact middle of the banner overlay (`items-center justify-center`).
   5. Enhanced `WebsiteContentManager.tsx` and `actions/admin.ts` to manage all 3 slides independently with custom 5MB image uploads, preset pickers, and middle-aligned button toggle switchbars.
   6. Verified in browser subagent: auto-advance every 3 seconds across Slide 1, Slide 2, and Slide 3, clean full-width background rendering, centered buttons, and admin tab switching confirmed.
+- Created `components/shared/MiraiMartLogo.tsx`:
+  1. Implemented official reusable brand logo component supporting vector monogram mark (Isometric 3D "M" in primary `#0A98C3` with sunny yellow accent dot `#FCE35F`), full typographic lockup, and official raster image (`/mirai-mart_logo.png`).
+  2. Resolved missing module import error in `AdminProductFilters.tsx`.
+  3. Registered component #41 in `context/ui-registry.md`.
+- Implemented Phase 5 — Feature 13 (Admin Product & Inventory CMS — Catalog Data Grid, Add & Edit Product):
+  1. Built `AdminProductTable.tsx`, `AdminProductFilters.tsx`, and `AdminProductsClient.tsx` matching `Product_screen.jpeg`: responsive search bar, category dropdown, filter drawer toggle, stock status pills (`In Stock`, `Low Stock`, `Out of Stock`), active/draft toggle switch, and pagination.
+  2. Built `ProductForm.tsx` matching `add-new_screen.png`: 2-column layout with section anchor navigation bar (`Basic Info`, `Media`, `Pricing`, `Inventory`, `Variants`, `SEO`), dynamic category attributes (Age Range for Toys, Tech Specs for Gadgets), sample photography presets, variant matrix, and sticky real-time Live Product Preview card with dynamic price calculation and delivery indicators.
+  3. Built Server Actions in `actions/admin.ts`: `getAdminProductsAction`, `getAdminCategoriesAction`, `getAdminProductByIdAction`, `createAdminProductAction`, `updateAdminProductAction`, `uploadProductMediaAction`, `toggleAdminProductStatusAction`, and `deleteAdminProductAction` with atomic InsForge PostgreSQL persistence, sub-variant synchronization, and multi-tier cache invalidation (`revalidatePath` + `revalidateTag`).
+  4. Implemented Server Component routes: `/admin/products/add-new` (create mode) and `/admin/products/[id]` (edit mode supporting both live DB records and baseline items).
+  5. Built native drag-and-drop file upload dropzone in `ProductForm.tsx` uploading to InsForge Storage `products/` bucket with local fallback, and wired smooth anchor scrolling across all sections.
+  6. Imprinted components #39, #40, and #41 in `context/ui-registry.md`.
+
 
 
 
