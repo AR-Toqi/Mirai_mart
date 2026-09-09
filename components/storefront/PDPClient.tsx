@@ -192,6 +192,7 @@ export function PDPClient({
               images={activeImages}
               title={product.title}
               badge={product.badge}
+              videoUrl={product.videoUrl}
             />
           </div>
 

@@ -35,8 +35,9 @@ function mapRecordToProduct(
 
   const primaryImage =
     defaultVariant?.images?.[0] ||
+    (Array.isArray(p.specs?.images) && p.specs.images[0]) ||
     matchingMock?.imageUrl ||
-    "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&q=80&w=800";
+    "/images/hero-showcase.svg";
 
   const specsImages = Array.isArray(p.specs?.images) ? (p.specs.images as string[]) : [];
   const mockImages = matchingMock?.images || [];
@@ -105,6 +106,7 @@ function mapRecordToProduct(
     safetyCertifications,
     inBoxItems,
     variants: mappedVariants.length > 0 ? mappedVariants : undefined,
+    videoUrl: (p.specs?.videoUrl as string) || matchingMock?.videoUrl || undefined,
   };
 }
 

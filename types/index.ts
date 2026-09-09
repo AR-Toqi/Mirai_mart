@@ -37,6 +37,7 @@ export type Product = {
   inBoxItems?: string[];
   variants?: ProductVariant[];
   sku?: string;
+  videoUrl?: string;
 };
 
 export type CategoryCircleItem = {

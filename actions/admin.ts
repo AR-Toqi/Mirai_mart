@@ -1,5 +1,7 @@
 "use server";
 
+import fs from "fs/promises";
+import path from "path";
 import { revalidatePath, revalidateTag, updateTag } from "next/cache";
 import { createInsforgeServer } from "@/lib/insforge-server";
 import type { OrderRecord, ProductRecord, ProfileRecord } from "@/lib/db/types";
@@ -88,35 +90,35 @@ const BASELINE_METRICS: AdminDashboardMetrics = {
       title: "RoboCode Companion",
       soldCount: 1250,
       revenue: 48750,
-      imageUrl: "https://images.unsplash.com/photo-1535378917042-10a22c95931a?w=150&auto=format&fit=crop&q=80",
+      imageUrl: "/images/prod-robocode.svg",
     },
     {
       rank: 2,
       title: "Montessori Pastel Blocks",
       soldCount: 890,
       revenue: 32450,
-      imageUrl: "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=150&auto=format&fit=crop&q=80",
+      imageUrl: "/images/prod-montessori-blocks.svg",
     },
     {
       rank: 3,
       title: "Mirai Smartwatch Kids",
       soldCount: 645,
       revenue: 28350,
-      imageUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=150&auto=format&fit=crop&q=80",
+      imageUrl: "/images/prod-smartwatch.svg",
     },
     {
       rank: 4,
       title: "Interactive Learner Pad",
       soldCount: 520,
       revenue: 22640,
-      imageUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=150&auto=format&fit=crop&q=80",
+      imageUrl: "/images/prod-learner-pad.svg",
     },
     {
       rank: 5,
       title: "Brainy Puzzle Set",
       soldCount: 410,
       revenue: 18900,
-      imageUrl: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=150&auto=format&fit=crop&q=80",
+      imageUrl: "/images/prod-smart-globe.svg",
     },
   ],
   salesByChannel: [
@@ -301,14 +303,16 @@ export async function getAdminDashboardMetricsAction(): Promise<{
     let inStockCount = 0;
     let lowStockCount = 0;
     let outOfStockCount = 0;
+    let realDbProducts: any[] = [];
 
     try {
       const { data: productsData } = await insforge.database
         .from("products")
-        .select("id, title, variants:product_variants(stock_quantity)");
+        .select("id, title, specs, variants:product_variants(price, stock_quantity, images)");
 
       if (productsData && Array.isArray(productsData)) {
         totalDbProducts = productsData.length;
+        realDbProducts = productsData;
         productsData.forEach((p: { variants?: { stock_quantity?: number }[] }) => {
           const variants = p.variants || [];
           const totalStock = variants.reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
@@ -408,6 +412,28 @@ export async function getAdminDashboardMetricsAction(): Promise<{
       ...BASELINE_METRICS.newCustomers.filter((c) => !existingEmails.has(c.email)),
     ];
 
+    // Build top selling products from real database records if available
+    const mappedTopSelling: AdminDashboardMetrics["topSellingProducts"] =
+      realDbProducts.length > 0
+        ? realDbProducts.slice(0, 5).map((p, idx) => {
+            const pVariant = p.variants?.[0];
+            const realCover =
+              pVariant?.images?.[0] ||
+              (Array.isArray(p.specs?.images) && p.specs.images[0]) ||
+              BASELINE_METRICS.topSellingProducts[idx % BASELINE_METRICS.topSellingProducts.length]?.imageUrl ||
+              "/images/prod-robocode.svg";
+            const soldCount = Number(p.specs?.initialSold) || 120 - idx * 15;
+            const price = Number(pVariant?.price) || 1250;
+            return {
+              rank: idx + 1,
+              title: p.title,
+              soldCount,
+              revenue: soldCount * price,
+              imageUrl: realCover,
+            };
+          })
+        : BASELINE_METRICS.topSellingProducts;
+
     const resultMetrics: AdminDashboardMetrics = {
       ...BASELINE_METRICS,
       kpis: {
@@ -422,6 +448,7 @@ export async function getAdminDashboardMetricsAction(): Promise<{
         totalRevenue: Math.round(combinedTotalSales * 1.21),
         revenueGrowthPct: 20.1,
       },
+      topSellingProducts: mappedTopSelling,
       recentOrders: mergedOrders,
       newCustomers: mergedCustomers,
       inventorySummary:
@@ -448,9 +475,6 @@ export async function getAdminDashboardMetricsAction(): Promise<{
     };
   }
 }
-
-import fs from "fs/promises";
-import path from "path";
 
 // -------------------------------------------------------------
 // Website Content (Storefront CMS) Management Types and Actions
@@ -690,12 +714,12 @@ export async function uploadBannerImageAction(formData: FormData): Promise<{
       return { success: false, error: "No file provided." };
     }
 
-    // Max 5 MB validation
-    const MAX_SIZE_BYTES = 5 * 1024 * 1024;
+    // Max 8 MB validation (within 10 MB server action body limit)
+    const MAX_SIZE_BYTES = 8 * 1024 * 1024;
     if (file.size > MAX_SIZE_BYTES) {
       return {
         success: false,
-        error: `File size exceeds 5 MB limit (file is ${(file.size / (1024 * 1024)).toFixed(2)} MB). Please select an image under 5 MB.`,
+        error: `File size exceeds 8 MB limit (file is ${(file.size / (1024 * 1024)).toFixed(2)} MB). Please select an image under 8 MB.`,
       };
     }
 
@@ -773,11 +797,12 @@ export async function uploadProductMediaAction(formData: FormData): Promise<{
       return { success: false, error: "No image file provided." };
     }
 
-    const MAX_SIZE_BYTES = 5 * 1024 * 1024;
+    // Max 8 MB validation (within 10 MB server action body limit)
+    const MAX_SIZE_BYTES = 8 * 1024 * 1024;
     if (file.size > MAX_SIZE_BYTES) {
       return {
         success: false,
-        error: `File size exceeds 5 MB limit (${(file.size / (1024 * 1024)).toFixed(2)} MB). Please select an image under 5 MB.`,
+        error: `File size exceeds 8 MB limit (${(file.size / (1024 * 1024)).toFixed(2)} MB). Please select an image under 8 MB.`,
       };
     }
 
@@ -830,11 +855,78 @@ export async function uploadProductMediaAction(formData: FormData): Promise<{
       success: true,
       url: publicUrl,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[uploadProductMediaAction] Error:", error);
+    const message = error instanceof Error ? error.message : "Failed to upload product photo.";
     return {
       success: false,
-      error: error.message || "Failed to upload product photo.",
+      error: message,
+    };
+  }
+}
+
+/**
+ * Server Action to delete product photos from InsForge Storage 'products' bucket
+ * and remove persistent local public files in public/uploads/products/
+ */
+export async function deleteProductMediaAction(
+  urls: string[]
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!urls || urls.length === 0) return { success: true };
+    const insforge = await createInsforgeServer();
+
+    for (const rawUrl of urls) {
+      if (!rawUrl || typeof rawUrl !== "string") continue;
+
+      // 1. Check if this is an InsForge Storage URL (e.g. contains '/products/catalog/' or /storage/v1/object/public/products/)
+      if (
+        rawUrl.includes(".insforge.app") ||
+        rawUrl.includes("/storage/v1/object/public/products/") ||
+        rawUrl.includes("/products/catalog/")
+      ) {
+        try {
+          // Extract the object key in the 'products' bucket
+          const marker = "/products/";
+          const markerIdx = rawUrl.indexOf(marker);
+          if (markerIdx !== -1) {
+            const objectKey = rawUrl.slice(markerIdx + marker.length).split("?")[0];
+            if (objectKey) {
+              const { error: remErr } = await insforge.storage.from("products").remove(objectKey);
+              if (remErr) {
+                console.warn(`[deleteProductMediaAction] Storage remove warning for ${objectKey}:`, remErr);
+              }
+            }
+          }
+        } catch (storageErr) {
+          console.warn("[deleteProductMediaAction] InsForge storage error:", storageErr);
+        }
+      }
+
+      // 2. Check if this is a persistent local fallback file in public/uploads/products/
+      if (rawUrl.startsWith("/uploads/products/")) {
+        try {
+          const relativePath = rawUrl.replace(/^\//, "");
+          const localPath = path.join(process.cwd(), "public", relativePath);
+          await fs.unlink(localPath);
+        } catch (fsErr: unknown) {
+          const errCode = (fsErr as { code?: string })?.code;
+          if (errCode !== "ENOENT") {
+            console.warn(`[deleteProductMediaAction] Local file delete notice for ${rawUrl}:`, fsErr);
+          }
+        }
+      }
+
+      // External CDN/Unsplash URLs or YouTube URLs are skipped
+    }
+
+    return { success: true };
+  } catch (error: unknown) {
+    console.error("[deleteProductMediaAction] Error:", error);
+    const message = error instanceof Error ? error.message : "Failed to delete product media";
+    return {
+      success: false,
+      error: message,
     };
   }
 }
@@ -1089,7 +1181,7 @@ export async function getAdminProductsAction(): Promise<{
       const primaryImage =
         primaryVariant?.images?.[0] ||
         (Array.isArray(p.specs?.images) ? p.specs.images[0] : null) ||
-        "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=300&auto=format&fit=crop&q=80";
+        "/images/hero-showcase.svg";
 
       return {
         id: p.id,
@@ -1153,13 +1245,47 @@ export async function toggleAdminProductStatusAction(
 }
 
 /**
- * Deletes or archives a product
+ * Deletes or archives a product, automatically pruning associated images from InsForge Storage
  */
 export async function deleteAdminProductAction(
   productId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const insforge = await createInsforgeServer();
+
+    // 1. Fetch existing product to find associated media assets to delete from storage
+    try {
+      const { data: prodData } = await insforge.database
+        .from("products")
+        .select("specs, product_variants (images)")
+        .eq("id", productId)
+        .maybeSingle();
+
+      if (prodData) {
+        const imagesToDelete = new Set<string>();
+        if (Array.isArray(prodData.specs?.images)) {
+          prodData.specs.images.forEach((img: string) => {
+            if (img) imagesToDelete.add(img);
+          });
+        }
+        if (Array.isArray(prodData.product_variants)) {
+          prodData.product_variants.forEach((v: { images?: string[] }) => {
+            if (Array.isArray(v.images)) {
+              v.images.forEach((img: string) => {
+                if (img) imagesToDelete.add(img);
+              });
+            }
+          });
+        }
+        if (imagesToDelete.size > 0) {
+          await deleteProductMediaAction(Array.from(imagesToDelete));
+        }
+      }
+    } catch (cleanupErr) {
+      console.warn("[deleteAdminProductAction] Media cleanup warning:", cleanupErr);
+    }
+
+    // 2. Delete product record from database
     await insforge.database
       .from("products")
       .delete()
@@ -1208,6 +1334,7 @@ export interface ProductFormData {
   initialSold?: number;
   images: string[];
   videoUrl?: string;
+  deletedImages?: string[];
   status: "active" | "draft";
   variants?: AdminVariantInput[];
   techSpecs?: Record<string, string>;
@@ -1307,7 +1434,7 @@ export async function getAdminProductByIdAction(productId: string): Promise<{
           ? primaryVariant.images
           : Array.isArray(dbProduct.specs?.images) && dbProduct.specs.images.length > 0
           ? dbProduct.specs.images
-          : ["https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=600&auto=format&fit=crop&q=80"];
+          : [];
 
       const mappedVariants: AdminVariantInput[] = variants.map((v: any) => ({
         id: v.id,
@@ -1542,6 +1669,11 @@ export async function createAdminProductAction(payload: ProductFormData): Promis
     updateTag("products");
     updateTag(`product-${finalSlug}`);
 
+    // Purge removed temporary images from InsForge Storage & local disk
+    if (payload.deletedImages && payload.deletedImages.length > 0) {
+      await deleteProductMediaAction(payload.deletedImages);
+    }
+
     return {
       success: true,
       productId: newProductId,
@@ -1751,12 +1883,18 @@ export async function updateAdminProductAction(
       updateTag(`product-${payload.slug}`);
     }
 
+    // Purge removed images from InsForge Storage & local disk
+    if (payload.deletedImages && payload.deletedImages.length > 0) {
+      await deleteProductMediaAction(payload.deletedImages);
+    }
+
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[updateAdminProductAction] Error:", error);
+    const message = error instanceof Error ? error.message : "Failed to update product details";
     return {
       success: false,
-      error: error.message || "Failed to update product details",
+      error: message,
     };
   }
 }

@@ -187,6 +187,13 @@ export function WebsiteContentManager({
       return;
     }
 
+    if (file.size > 8 * 1024 * 1024) {
+      setUploadError(
+        `"${file.name}" is ${(file.size / (1024 * 1024)).toFixed(1)} MB, exceeding the 8 MB upload limit. Please select an image under 8 MB.`
+      );
+      return;
+    }
+
     setUploading(true);
     try {
       const formData = new FormData();
@@ -202,9 +209,14 @@ export function WebsiteContentManager({
       } else {
         setUploadError(res.error || "Failed to upload image. Please try again.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("[WebsiteContentManager] Upload error:", err);
-      setUploadError("An unexpected error occurred during file upload.");
+      const msg = String(err?.message || "");
+      if (msg.includes("413") || msg.toLowerCase().includes("body exceeded") || msg.toLowerCase().includes("limit")) {
+        setUploadError(`"${file.name}" exceeds the server upload limit. Please choose an image under 8 MB.`);
+      } else {
+        setUploadError(msg || "An unexpected error occurred during file upload.");
+      }
     } finally {
       setUploading(false);
     }

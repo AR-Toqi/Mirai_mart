@@ -31,6 +31,8 @@ import {
   Tag,
   X,
   RefreshCw,
+  Play,
+  Video,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type {
@@ -42,6 +44,7 @@ import {
   createAdminProductAction,
   updateAdminProductAction,
   uploadProductMediaAction,
+  deleteProductMediaAction,
 } from "@/actions/admin";
 
 type Props = {
@@ -109,17 +112,20 @@ export function ProductForm({ mode, initialData, categories }: Props) {
   );
   const [tagInput, setTagInput] = useState("");
 
-  // Media
+  // Media: strict 1 to 4 images
   const [images, setImages] = useState<string[]>(
-    initialData?.images?.length
-      ? initialData.images
-      : [PRESET_PRODUCT_IMAGES[0].url]
+    initialData?.images?.length ? initialData.images.slice(0, 4) : []
   );
   const [newImageUrl, setNewImageUrl] = useState("");
   const [videoUrl, setVideoUrl] = useState(initialData?.videoUrl || "");
+  const [showVideoPreview, setShowVideoPreview] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // Storage cleanup tracking
+  const [pendingDeletions, setPendingDeletions] = useState<string[]>([]);
+  const [newlyUploadedUrls, setNewlyUploadedUrls] = useState<Set<string>>(new Set());
 
   // Pricing
   const [sellPrice, setSellPrice] = useState<string>(
@@ -173,6 +179,51 @@ export function ProductForm({ mode, initialData, categories }: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
+  // Real-time video source detection
+  const parsedVideo = useMemo(() => {
+    const trimmed = videoUrl.trim();
+    if (!trimmed) return null;
+
+    // YouTube regex (supports standard watch, share URLs, embeds, and /shorts/)
+    const ytMatch = trimmed.match(
+      /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/
+    );
+    if (ytMatch && ytMatch[1]) {
+      return {
+        type: "youtube" as const,
+        id: ytMatch[1],
+        embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}`,
+        label: "YouTube Video",
+      };
+    }
+
+    // Vimeo regex
+    const vimeoMatch = trimmed.match(/(?:vimeo\.com\/)(\d+)/);
+    if (vimeoMatch && vimeoMatch[1]) {
+      return {
+        type: "vimeo" as const,
+        id: vimeoMatch[1],
+        embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}`,
+        label: "Vimeo Video",
+      };
+    }
+
+    // Direct MP4 / WebM
+    if (trimmed.match(/\.(mp4|webm|ogg)($|\?)/i) || trimmed.startsWith("http")) {
+      return {
+        type: "mp4" as const,
+        embedUrl: trimmed,
+        label: "Direct Video Link",
+      };
+    }
+
+    return {
+      type: "unknown" as const,
+      embedUrl: trimmed,
+      label: "External Video Link",
+    };
+  }, [videoUrl]);
+
   // Derive active category object
   const currentCategory = useMemo(() => {
     return (
@@ -206,43 +257,82 @@ export function ProductForm({ mode, initialData, categories }: Props) {
     setSku(`MM-${prefix || "PRD"}-${rand}`);
   }
 
-  // Handle adding image URL
+  // Handle adding image URL (strictly up to 4 images)
   function handleAddImageUrl() {
     if (!newImageUrl.trim()) return;
-    if (!images.includes(newImageUrl.trim())) {
-      setImages((prev) => [...prev, newImageUrl.trim()]);
+    if (images.length >= 4) {
+      setUploadError("Maximum 4 photos allowed. Please remove a photo before adding another.");
+      return;
+    }
+    const clean = newImageUrl.trim();
+    if (!images.includes(clean)) {
+      setImages((prev) => [...prev, clean].slice(0, 4));
     }
     setNewImageUrl("");
+    setUploadError(null);
   }
 
-  // Handle removing image
-  function handleRemoveImage(index: number) {
-    if (images.length <= 1) return;
+  // Handle removing image and staging/executing InsForge Storage cleanup
+  async function handleRemoveImage(index: number) {
+    const targetUrl = images[index];
     setImages((prev) => prev.filter((_, i) => i !== index));
+    setUploadError(null);
+
+    // If this image was uploaded in this session and not yet saved, purge immediately from storage
+    if (newlyUploadedUrls.has(targetUrl)) {
+      try {
+        await deleteProductMediaAction([targetUrl]);
+        setNewlyUploadedUrls((prev) => {
+          const next = new Set(prev);
+          next.delete(targetUrl);
+          return next;
+        });
+      } catch (err) {
+        console.warn("[ProductForm] Immediate storage prune warning:", err);
+      }
+    } else {
+      // Stage for deletion when user clicks Save Draft or Publish Product
+      setPendingDeletions((prev) => (prev.includes(targetUrl) ? prev : [...prev, targetUrl]));
+    }
   }
 
-  // Handle setting primary image (moves to index 0)
+  // Handle setting primary cover image (moves to slot 0)
   function handleSetPrimaryImage(index: number) {
     if (index === 0) return;
     const selected = images[index];
-    const filtered = images.filter((_, i) => i !== index);
-    setImages([selected, ...filtered]);
+    const remaining = images.filter((_, i) => i !== index);
+    setImages([selected, ...remaining]);
   }
 
-  // Handle local file upload (drag & drop or file picker)
+  // Handle local file upload (strictly up to 4 images)
   async function handleFileUpload(files: FileList | File[]) {
     if (!files || files.length === 0) return;
-    setIsUploading(true);
     setUploadError(null);
 
     const fileArray = Array.from(files);
-    for (const file of fileArray) {
+    const availableSlots = 4 - images.length;
+    if (availableSlots <= 0) {
+      setUploadError("Maximum 4 photos reached. Please delete a photo before uploading a new one.");
+      return;
+    }
+
+    const filesToUpload = fileArray.slice(0, availableSlots);
+    if (fileArray.length > availableSlots) {
+      setUploadError(`Only ${availableSlots} slot(s) remaining (max 4). Additional files were skipped.`);
+    }
+
+    setIsUploading(true);
+    for (const file of filesToUpload) {
       if (!file.type.startsWith("image/")) {
-        setUploadError("Please select valid image files (PNG, JPG, WebP).");
+        setUploadError(`"${file.name}" is not a supported image. Please select PNG, JPG, or WebP.`);
         continue;
       }
-      if (file.size > 5 * 1024 * 1024) {
-        setUploadError(`"${file.name}" exceeds 5 MB limit.`);
+
+      // 8 MB client-side check (safely within Next.js 10 MB limit)
+      const MAX_FILE_BYTES = 8 * 1024 * 1024;
+      if (file.size > MAX_FILE_BYTES) {
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+        setUploadError(`"${file.name}" is ${sizeMb} MB, exceeding the 8 MB upload limit. Please compress or select an image under 8 MB.`);
         continue;
       }
 
@@ -252,12 +342,26 @@ export function ProductForm({ mode, initialData, categories }: Props) {
       try {
         const res = await uploadProductMediaAction(fd);
         if (res.success && res.url) {
-          setImages((prev) => [...prev, res.url!]);
+          const uploadedUrl = res.url;
+          setImages((prev) => {
+            if (prev.length >= 4) return prev;
+            return [...prev, uploadedUrl];
+          });
+          setNewlyUploadedUrls((prev) => new Set(prev).add(uploadedUrl));
         } else {
-          setUploadError(res.error || `Failed to upload ${file.name}`);
+          setUploadError(res.error || `Failed to upload "${file.name}". Please try again.`);
         }
       } catch (err: any) {
-        setUploadError(err.message || "Failed to upload file");
+        const msg = String(err?.message || "");
+        if (msg.includes("413") || msg.toLowerCase().includes("body exceeded") || msg.toLowerCase().includes("limit")) {
+          setUploadError(
+            `"${file.name}" exceeds the server body size limit. Please choose an image under 8 MB or compress the file.`
+          );
+        } else if (msg.includes("fetch") || msg.includes("NetworkError")) {
+          setUploadError(`Network error while uploading "${file.name}". Please check your internet connection.`);
+        } else {
+          setUploadError(msg || `Failed to upload "${file.name}". Please retry with another file.`);
+        }
       }
     }
     setIsUploading(false);
@@ -320,6 +424,11 @@ export function ProductForm({ mode, initialData, categories }: Props) {
       return;
     }
 
+    if (targetStatus === "active" && images.length === 0) {
+      setSubmitError("Please add at least one product photo (Cover slot) before publishing to the catalog.");
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitError(null);
     setSubmitSuccess(null);
@@ -344,8 +453,9 @@ export function ProductForm({ mode, initialData, categories }: Props) {
       unitName: unitName,
       stock: Number(stock) || 0,
       initialSold: Number(initialSold) || 0,
-      images: images.length > 0 ? images : [PRESET_PRODUCT_IMAGES[0].url],
+      images: images.slice(0, 4),
       videoUrl: videoUrl.trim() || undefined,
+      deletedImages: pendingDeletions,
       status: targetStatus,
       variants: variants,
       techSpecs: techSpecs,
@@ -357,6 +467,7 @@ export function ProductForm({ mode, initialData, categories }: Props) {
         if (!res.success) {
           throw new Error(res.error || "Failed to create product");
         }
+        setPendingDeletions([]);
         setSubmitSuccess("Product created successfully! Redirecting to catalog...");
         setTimeout(() => {
           router.push("/admin/products");
@@ -368,6 +479,7 @@ export function ProductForm({ mode, initialData, categories }: Props) {
         if (!res.success) {
           throw new Error(res.error || "Failed to update product");
         }
+        setPendingDeletions([]);
         setSubmitSuccess("Product updated successfully! Redirecting to catalog...");
         setTimeout(() => {
           router.push("/admin/products");
@@ -787,49 +899,198 @@ export function ProductForm({ mode, initialData, categories }: Props) {
             </div>
           </div>
 
-          {/* Card 3: Product Media */}
+          {/* Card 3: Product Media (Strict 4 Images & Video URL) */}
           <div
             id="section-media"
             className="bg-surface border border-neutral-border rounded-2xl p-5 sm:p-6 shadow-xs space-y-5"
           >
-            <div className="flex items-center justify-between pb-2 border-b border-neutral-border/60">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-neutral-border/60">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-primary-surface text-primary flex items-center justify-center">
                   <ImageIcon className="w-4 h-4" />
                 </div>
-                <h2 className="font-heading font-bold text-lg text-neutral-dark">
-                  Product Media
-                </h2>
+                <div>
+                  <h2 className="font-heading font-bold text-lg text-neutral-dark">
+                    Product Media
+                  </h2>
+                  <p className="font-sans text-xs text-neutral-muted">
+                    Upload up to 4 high-resolution photos and 1 showcase video URL.
+                  </p>
+                </div>
               </div>
-              <span className="text-xs text-neutral-muted">
-                {images.length} image{images.length !== 1 ? "s" : ""} added
-              </span>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                    images.length === 4
+                      ? "bg-success-light text-success border border-success/30"
+                      : "bg-primary-surface text-primary border border-primary/20"
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                  {images.length} / 4 Photos {images.length === 4 ? "(Max Limit)" : `(${4 - images.length} open)`}
+                </span>
+              </div>
             </div>
 
-            {/* Drag & Drop Dropzone to InsForge Storage */}
-            <div
-              onDragOver={(e) => {
-                e.preventDefault();
-                setIsDragging(true);
-              }}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setIsDragging(false);
-                if (e.dataTransfer.files) {
-                  handleFileUpload(e.dataTransfer.files);
-                }
-              }}
-              className={`p-6 border-2 border-dashed rounded-2xl text-center transition-all ${
-                isDragging
-                  ? "border-primary bg-primary-surface/30 scale-[1.01]"
-                  : "border-neutral-border/80 hover:border-primary/50 bg-neutral-bg/30"
-              }`}
-            >
+            {/* Media Specifications Guidelines Callout */}
+            <div className="bg-primary-surface/40 border border-primary/20 rounded-xl p-3.5 text-xs text-neutral-dark space-y-1.5">
+              <div className="flex items-center gap-1.5 font-bold text-primary">
+                <Info className="w-4 h-4 flex-shrink-0" />
+                <span>Media & Upload Guidelines</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11.5px] text-neutral-dark/80 pt-0.5">
+                <div className="space-y-0.5">
+                  <p className="font-semibold text-neutral-dark flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                    Photos: Up to 4 Images (1:1 Square)
+                  </p>
+                  <p className="text-neutral-muted pl-2.5">
+                    1200 × 1200 px recommended (min 800×800 px). WebP, JPG, PNG up to 8 MB each. Slot 1 serves as the primary catalog cover.
+                  </p>
+                </div>
+                <div className="space-y-0.5">
+                  <p className="font-semibold text-neutral-dark flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+                    Video: 1 Showcase URL
+                  </p>
+                  <p className="text-neutral-muted pl-2.5">
+                    YouTube, Vimeo, or direct MP4 link. Storefront visitors can click the video thumbnail to launch an immersive full-screen player.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {uploadError && (
+              <div className="p-4 bg-error-surface border border-error/30 text-error rounded-2xl flex items-start justify-between gap-3 shadow-xs animate-in fade-in duration-150">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-error/10 text-error flex items-center justify-center shrink-0 mt-0.5">
+                    <AlertCircle className="w-4 h-4" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="font-heading font-semibold text-xs text-error">
+                      Image Upload Notice
+                    </p>
+                    <p className="text-xs text-neutral-dark/80 font-sans leading-relaxed">
+                      {uploadError}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setUploadError(null)}
+                  className="p-1.5 hover:bg-error/10 text-neutral-muted hover:text-error rounded-lg cursor-pointer transition-colors shrink-0"
+                  aria-label="Dismiss error"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {/* Structured 4-Slot Photo Gallery Grid */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="block font-sans font-semibold text-xs text-neutral-dark">
+                  Photo Gallery Slots (1 to 4)
+                </label>
+                <span className="text-[11px] text-neutral-muted">
+                  Slot 1 is your store cover photo. Hover any photo to reorder or delete.
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                {[0, 1, 2, 3].map((slotIdx) => {
+                  const img = images[slotIdx];
+                  const isPrimary = slotIdx === 0;
+
+                  if (img) {
+                    return (
+                      <div
+                        key={img + slotIdx}
+                        className={`group relative aspect-square rounded-2xl overflow-hidden border-2 transition-all ${
+                          isPrimary
+                            ? "border-primary ring-3 ring-primary/20 shadow-xs"
+                            : "border-neutral-border hover:border-neutral-dark/40 bg-surface shadow-2xs"
+                        }`}
+                      >
+                        <Image
+                          src={img}
+                          alt={`Product photo slot ${slotIdx + 1}`}
+                          fill
+                          sizes="200px"
+                          className="object-cover"
+                          unoptimized={img.startsWith("http")}
+                        />
+
+                        {/* Slot Badge */}
+                        <div className="absolute top-2 left-2 flex items-center gap-1 z-10">
+                          {isPrimary ? (
+                            <span className="px-2 py-0.5 rounded-md bg-primary text-white text-[10px] font-bold shadow-xs flex items-center gap-1">
+                              <Star className="w-2.5 h-2.5 fill-white text-white" />
+                              Cover (Slot 1)
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded-md bg-neutral-dark/80 backdrop-blur-xs text-white text-[10px] font-semibold shadow-xs">
+                              Slot {slotIdx + 1}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Action Buttons Overlay */}
+                        <div className="absolute inset-0 bg-neutral-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 p-3 z-20">
+                          {!isPrimary && (
+                            <button
+                              type="button"
+                              onClick={() => handleSetPrimaryImage(slotIdx)}
+                              className="w-full py-1.5 px-2 rounded-lg bg-surface text-neutral-dark hover:text-primary text-[11px] font-bold shadow-xs transition-colors cursor-pointer"
+                            >
+                              Make Cover
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(slotIdx)}
+                            className="w-full py-1.5 px-2 rounded-lg bg-error text-white hover:bg-error/90 text-[11px] font-bold shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Delete Photo</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Empty Slot Tile
+                  return (
+                    <div
+                      key={`empty-slot-${slotIdx}`}
+                      onClick={() => {
+                        const input = document.getElementById("product-image-upload") as HTMLInputElement;
+                        if (input) input.click();
+                      }}
+                      className="group aspect-square rounded-2xl border-2 border-dashed border-neutral-border hover:border-primary/70 bg-neutral-bg/30 hover:bg-primary-surface/20 transition-all flex flex-col items-center justify-center p-3 text-center cursor-pointer"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-surface border border-neutral-border/80 group-hover:border-primary/40 group-hover:scale-105 flex items-center justify-center text-neutral-muted group-hover:text-primary transition-all shadow-2xs mb-2">
+                        <Plus className="w-5 h-5" />
+                      </div>
+                      <span className="font-heading font-semibold text-xs text-neutral-dark group-hover:text-primary transition-colors">
+                        {isPrimary ? "Add Cover Photo" : `Add Photo ${slotIdx + 1}`}
+                      </span>
+                      <span className="text-[10px] text-neutral-muted mt-0.5">
+                        Slot {slotIdx + 1} of 4
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Drag & Drop Dropzone (Disabled when 4 images reached) */}
+            <div className="space-y-2 pt-1">
               <input
                 type="file"
                 id="product-image-upload"
                 multiple
+                disabled={images.length >= 4}
                 accept="image/png,image/jpeg,image/webp"
                 className="hidden"
                 onChange={(e) => {
@@ -838,156 +1099,209 @@ export function ProductForm({ mode, initialData, categories }: Props) {
                   }
                 }}
               />
-              <label
-                htmlFor="product-image-upload"
-                className="cursor-pointer flex flex-col items-center justify-center space-y-2"
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary-surface text-primary flex items-center justify-center shadow-2xs">
-                  {isUploading ? (
-                    <RefreshCw className="w-6 h-6 animate-spin" />
-                  ) : (
-                    <Upload className="w-6 h-6" />
-                  )}
+
+              {images.length < 4 ? (
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    if (e.dataTransfer.files) {
+                      handleFileUpload(e.dataTransfer.files);
+                    }
+                  }}
+                  className={`p-6 border-2 border-dashed rounded-2xl text-center transition-all ${
+                    isDragging
+                      ? "border-primary bg-primary-surface/30 scale-[1.01]"
+                      : "border-neutral-border/80 hover:border-primary/50 bg-neutral-bg/30"
+                  }`}
+                >
+                  <label
+                    htmlFor="product-image-upload"
+                    className="cursor-pointer flex flex-col items-center justify-center space-y-2"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-primary-surface text-primary flex items-center justify-center shadow-2xs">
+                      {isUploading ? (
+                        <RefreshCw className="w-6 h-6 animate-spin" />
+                      ) : (
+                        <Upload className="w-6 h-6" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-heading font-semibold text-sm text-neutral-dark">
+                        {isUploading
+                          ? "Uploading photo to storage..."
+                          : "Drag & drop photos here, or click to browse"}
+                      </p>
+                      <p className="font-sans text-xs text-neutral-muted">
+                        Supports PNG, JPG, WebP up to 8 MB per file ({4 - images.length} slots available)
+                      </p>
+                    </div>
+                  </label>
                 </div>
-                <div>
-                  <p className="font-heading font-semibold text-sm text-neutral-dark">
-                    {isUploading
-                      ? "Uploading photos to storage..."
-                      : "Drag & drop photos here, or click to browse"}
-                  </p>
-                  <p className="font-sans text-xs text-neutral-muted">
-                    Supports PNG, JPG, WebP up to 5 MB per file
-                  </p>
+              ) : (
+                <div className="p-4 border border-success/30 bg-success-surface/40 rounded-xl text-center text-xs text-success flex items-center justify-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0" />
+                  <span className="font-medium">
+                    All 4 image slots are filled. To upload a different photo, please delete one of the existing slots above.
+                  </span>
                 </div>
-              </label>
+              )}
             </div>
 
-            {uploadError && (
-              <div className="p-3 bg-error-surface border border-error/30 text-error rounded-xl text-xs flex items-center justify-between">
-                <span>{uploadError}</span>
-                <button
-                  type="button"
-                  onClick={() => setUploadError(null)}
-                  className="p-1 hover:bg-error-surface/60 rounded cursor-pointer"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+            {/* Add Image by URL or Quick Presets (Only when slots are available) */}
+            {images.length < 4 && (
+              <div className="space-y-3 pt-1 border-t border-neutral-border/60">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="url"
+                    value={newImageUrl}
+                    onChange={(e) => setNewImageUrl(e.target.value)}
+                    placeholder="Or paste image URL (https://...)"
+                    className="flex-1 bg-neutral-bg/40 border border-neutral-border rounded-xl px-3.5 py-2 text-sm text-neutral-dark placeholder:text-neutral-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddImageUrl}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:opacity-95 transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add to Slot {images.length + 1}</span>
+                  </button>
+                </div>
+
+                {/* Quick Presets for Demo / Testing */}
+                <div className="space-y-1.5">
+                  <span className="text-[11px] font-semibold text-neutral-muted uppercase tracking-wider">
+                    Quick Testing Presets:
+                  </span>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {PRESET_PRODUCT_IMAGES.map((preset) => {
+                      const isAlreadyAdded = images.includes(preset.url);
+                      return (
+                        <button
+                          key={preset.label}
+                          type="button"
+                          disabled={isAlreadyAdded || images.length >= 4}
+                          onClick={() => {
+                            if (!isAlreadyAdded && images.length < 4) {
+                              setImages((prev) => [...prev, preset.url].slice(0, 4));
+                            }
+                          }}
+                          className={`text-xs font-medium px-2.5 py-1 rounded-lg border transition-colors ${
+                            isAlreadyAdded
+                              ? "bg-neutral-border/40 text-neutral-muted border-transparent cursor-not-allowed"
+                              : "bg-neutral-bg border-neutral-border/80 text-neutral-dark hover:border-primary hover:text-primary cursor-pointer"
+                          }`}
+                        >
+                          {isAlreadyAdded ? "✓ " : "+ "}
+                          {preset.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             )}
 
-            {/* Add Image by URL or Presets */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <input
-                  type="url"
-                  value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
-                  placeholder="Paste image URL (https://...)"
-                  className="flex-1 bg-neutral-bg/40 border border-neutral-border rounded-xl px-3.5 py-2 text-sm text-neutral-dark placeholder:text-neutral-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddImageUrl}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:opacity-95 transition-colors cursor-pointer shadow-2xs"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add URL</span>
-                </button>
+            {/* Video URL Section with format detection & live preview */}
+            <div className="space-y-3 pt-4 border-t border-neutral-border/60">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-secondary/15 text-secondary flex items-center justify-center">
+                    <Video className="w-3.5 h-3.5 text-neutral-dark" />
+                  </div>
+                  <div>
+                    <label className="block font-sans font-semibold text-xs text-neutral-dark">
+                      Product Showcase Video URL (Optional)
+                    </label>
+                    <p className="font-sans text-[11px] text-neutral-muted">
+                      Customers can watch this full-screen by clicking the video thumbnail on the storefront.
+                    </p>
+                  </div>
+                </div>
+
+                {parsedVideo && (
+                  <span
+                    className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                      parsedVideo.type === "youtube"
+                        ? "bg-red-50 text-red-600 border-red-200"
+                        : parsedVideo.type === "vimeo"
+                        ? "bg-sky-50 text-sky-600 border-sky-200"
+                        : "bg-purple-50 text-purple-600 border-purple-200"
+                    }`}
+                  >
+                    <Play className="w-2.5 h-2.5 fill-current" />
+                    {parsedVideo.label}
+                  </span>
+                )}
               </div>
 
-              {/* Sample Preset Buttons for Instant Testing */}
-              <div className="space-y-1.5">
-                <span className="text-[11px] font-semibold text-neutral-muted uppercase tracking-wider">
-                  Quick Presets:
-                </span>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {PRESET_PRODUCT_IMAGES.map((preset) => (
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type="url"
+                    value={videoUrl}
+                    onChange={(e) => {
+                      setVideoUrl(e.target.value);
+                      setShowVideoPreview(false);
+                    }}
+                    placeholder="Paste YouTube, Vimeo, or direct MP4 URL (e.g. https://www.youtube.com/watch?v=...)"
+                    className="w-full bg-neutral-bg/40 border border-neutral-border rounded-xl px-3.5 py-2 text-sm text-neutral-dark placeholder:text-neutral-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary pr-8"
+                  />
+                  {videoUrl && (
                     <button
-                      key={preset.label}
                       type="button"
                       onClick={() => {
-                        if (!images.includes(preset.url)) {
-                          setImages((prev) => [...prev, preset.url]);
-                        }
+                        setVideoUrl("");
+                        setShowVideoPreview(false);
                       }}
-                      className="text-xs font-medium px-2.5 py-1 rounded-lg bg-neutral-bg border border-neutral-border/80 text-neutral-dark hover:border-primary hover:text-primary transition-colors cursor-pointer"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-muted hover:text-error cursor-pointer p-0.5"
+                      title="Clear video URL"
                     >
-                      + {preset.label}
+                      <X className="w-3.5 h-3.5" />
                     </button>
-                  ))}
+                  )}
                 </div>
+
+                {parsedVideo && (
+                  <button
+                    type="button"
+                    onClick={() => setShowVideoPreview(!showVideoPreview)}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutral-border bg-surface text-neutral-dark hover:bg-neutral-bg text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+                  >
+                    <Play className="w-3.5 h-3.5 text-primary" />
+                    <span>{showVideoPreview ? "Hide Preview" : "Test Playback"}</span>
+                  </button>
+                )}
               </div>
 
-              {/* Image Preview Grid */}
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 pt-2">
-                {images.map((img, idx) => {
-                  const isPrimary = idx === 0;
-                  return (
-                    <div
-                      key={img + idx}
-                      className={`group relative aspect-square rounded-xl overflow-hidden border transition-all ${
-                        isPrimary
-                          ? "border-primary ring-2 ring-primary/20 shadow-xs"
-                          : "border-neutral-border/80 hover:border-neutral-dark/40"
-                      }`}
-                    >
-                      <Image
-                        src={img}
-                        alt="Product preview"
-                        fill
-                        sizes="120px"
-                        className="object-cover"
-                        unoptimized={img.startsWith("http")}
-                      />
-
-                      {/* Primary Badge */}
-                      {isPrimary && (
-                        <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-primary text-white text-[10px] font-bold shadow-xs">
-                          Primary
-                        </div>
-                      )}
-
-                      {/* Hover Overlay Controls */}
-                      <div className="absolute inset-0 bg-neutral-dark/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
-                        {!isPrimary && (
-                          <button
-                            type="button"
-                            onClick={() => handleSetPrimaryImage(idx)}
-                            className="p-1.5 rounded-lg bg-surface text-neutral-dark hover:text-primary text-[10px] font-bold cursor-pointer"
-                            title="Make primary image"
-                          >
-                            Set Main
-                          </button>
-                        )}
-                        {images.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveImage(idx)}
-                            className="p-1.5 rounded-lg bg-error text-white hover:bg-error/90 cursor-pointer"
-                            title="Remove image"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Video URL */}
-              <div className="space-y-1 pt-2">
-                <label className="block font-sans font-semibold text-xs text-neutral-dark">
-                  Product Showcase Video URL (Optional)
-                </label>
-                <input
-                  type="url"
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                  placeholder="https://... (MP4 or YouTube embed)"
-                  className="w-full bg-neutral-bg/40 border border-neutral-border rounded-xl px-3.5 py-2 text-sm text-neutral-dark placeholder:text-neutral-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
-              </div>
+              {/* Inline Video Player Preview */}
+              {showVideoPreview && parsedVideo && (
+                <div className="rounded-2xl overflow-hidden border border-neutral-border bg-neutral-dark aspect-video max-w-xl mx-auto shadow-md animate-in fade-in">
+                  {parsedVideo.type === "youtube" || parsedVideo.type === "vimeo" ? (
+                    <iframe
+                      src={parsedVideo.embedUrl}
+                      title="Product Video Preview"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full border-0"
+                    />
+                  ) : (
+                    <video
+                      src={parsedVideo.embedUrl}
+                      controls
+                      autoPlay
+                      muted
+                      className="w-full h-full object-contain"
+                    />
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -1346,6 +1660,21 @@ export function ProductForm({ mode, initialData, categories }: Props) {
                   }`}
                 >
                   {badge}
+                </div>
+              )}
+
+              {/* Video Included Indicator */}
+              {videoUrl.trim() && (
+                <div className="absolute bottom-2.5 left-2.5 text-[10px] font-bold px-2 py-0.5 rounded-md bg-neutral-dark/85 text-white backdrop-blur-xs flex items-center gap-1 shadow-xs z-10">
+                  <Play className="w-2.5 h-2.5 fill-white text-white" />
+                  <span>Video Available</span>
+                </div>
+              )}
+
+              {/* Photo Count Indicator */}
+              {images.length > 0 && (
+                <div className="absolute bottom-2.5 right-2.5 text-[10px] font-bold px-2 py-0.5 rounded-md bg-surface/90 text-neutral-dark backdrop-blur-xs border border-neutral-border/60 shadow-xs z-10">
+                  1 of {images.length} Photo{images.length > 1 ? "s" : ""}
                 </div>
               )}
             </div>

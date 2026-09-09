@@ -398,26 +398,26 @@ Last updated: August 24, 2026
 
 #### 15. `PDPImageGallery`
 File: `components/storefront/PDPImageGallery.tsx`  
-Last updated: August 30, 2026
+Last updated: September 8, 2026
 
 | Property | Class |
 | --- | --- |
-| Background | `bg-surface` (`#FFFFFF`), `bg-surface/90 backdrop-blur-md` (floating controls), `bg-neutral-dark/70` (image counter badge) |
-| Border | `border border-neutral-border` (`#E7E8EB`), `border-primary` (active thumbnail) |
-| Border radius | `rounded-2xl` (`16px`) main container, `rounded-xl` (`12px`) thumbnail buttons, `rounded-full` controls |
-| Text — primary | `font-sans text-xs text-white` (zoom indicator), `text-[11px] font-bold text-white` (image counter badge) |
+| Background | `bg-surface` (`#FFFFFF`), `bg-surface/90 backdrop-blur-md` (floating controls), `bg-neutral-dark/85 backdrop-blur-md` (watch video button), `bg-neutral-dark/90 backdrop-blur-md` (video modal backdrop), `bg-neutral-dark` (video player frame) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-primary` (active thumbnail), `border-white/20` (video pill badge), `border-white/10` (lightbox modal) |
+| Border radius | `rounded-2xl` (`16px`) main container & video modal, `rounded-xl` (`12px`) thumbnail buttons & video tile, `rounded-full` controls & watch video badge |
+| Text — primary | `font-sans text-xs text-white` (zoom & watch video), `text-[11px] font-bold text-white` (image counter badge) |
 | Text — secondary | `text-neutral-muted` (`#6E797F`), `text-error` (wishlisted) |
-| Spacing | `aspect-square w-full` stage, `h-20 w-20` thumbnail size, `gap-3` thumbnail rail |
-| Hover state | `scale-160` pan zoom on hover, `hover:scale-110` floating buttons & arrow navigators |
-| Shadow | `shadow-xs` container & active thumbnail |
-| Accent usage | `border-primary ring-2 ring-primary/20` for active thumbnail, `bg-primary-surface text-primary` badge |
+| Spacing | `aspect-square w-full` stage, `h-20 w-20` thumbnail size, `gap-3` thumbnail rail, `max-w-4xl aspect-video` modal player |
+| Hover state | `scale-160` pan zoom on hover, `hover:scale-110` floating buttons & arrow navigators, `hover:scale-105 active:scale-95` watch video trigger |
+| Shadow | `shadow-xs` container & active thumbnail, `shadow-2xl` video lightbox modal |
+| Accent usage | `border-primary ring-2 ring-primary/20` for active thumbnail, `bg-primary text-white` play icon on video thumbnail, `bg-primary-surface text-primary` badge |
 
 **Pattern notes:**
 - Main viewport includes cursor-following pan zoom magnifier without layout shift.
-- Floating quick buttons provide instant Wishlist heart state and Share URL copy action.
-- Left/Right arrow controls and floating `X / Y` photo counter badge for seamless multi-image browsing.
-- Multi-image gallery with thumbnail navigation displaying all available product and variant images.
-- Auto-advances active image every 3 seconds (`3000ms`) with smooth transitions; automatically pauses when hovering or zooming.
+- Floating quick buttons provide instant Wishlist heart state, Share URL copy action, and full-screen "Watch Video" trigger button.
+- Thumbnails rail seamlessly incorporates a dedicated video thumbnail tile (with play badge) whenever `videoUrl` is provided.
+- Full-screen Video Lightbox Modal opens on click with smooth entrance animation (`animate-in fade-in duration-200`), ESC key listener, outside click to close, and responsive 16:9 iframe/video embeds (supporting YouTube, YouTube Shorts, Vimeo, and direct MP4).
+- Auto-advances active image every 3 seconds (`3000ms`); automatically pauses when hovering or zooming.
 
 ---
 
@@ -1027,24 +1027,27 @@ Last updated: September 6, 2026
 
 #### 40. `ProductForm` (Add New & Edit Product Form with Sticky Live Preview)
 File: `components/admin/ProductForm.tsx`  
-Last updated: September 7, 2026
+Last updated: September 8, 2026
 
 | Property | Class |
 | --- | --- |
-| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (canvas), `bg-primary-surface/40` (preview badges & info callouts), `bg-primary-surface/30` (active dropzone drag-over) |
-| Border | `border border-neutral-border` (`#E7E8EB`), `border-2 border-dashed border-neutral-border/80` (dropzone idle), `border-primary` (dropzone active drag), `border-primary/40` (active section anchors) |
-| Border radius | `rounded-2xl` (`16px`) form section cards, dropzone, and sticky preview card, `rounded-xl` (`12px`) inputs & action buttons, `rounded-full` badge pills & age chips |
-| Text — primary | `font-heading font-bold text-2xl text-neutral-dark` (title), `font-heading font-bold text-lg` (section headers) |
-| Text — secondary | `font-sans text-xs text-neutral-muted`, `font-mono text-xs text-neutral-muted` (SKU preview) |
-| Spacing | 2-column layout (approx 68% form left, 32% sticky preview right), `p-5 sm:p-6` card padding, `space-y-5 to space-y-6` |
-| Hover state | `hover:opacity-95` (Publish Product), `hover:bg-neutral-bg` (Save Draft & presets), `hover:border-primary/50` (dropzone idle hover) |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (canvas), `bg-primary-surface/40` (preview badges & info callouts), `bg-primary-surface/30` (active dropzone drag-over), `bg-error-surface` (error notices), `bg-neutral-dark` (video preview box) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-2 border-dashed border-neutral-border/80` (dropzone & empty photo slots), `border-primary` (dropzone active drag & Slot 1 Cover ring), `border-error/30` (upload error banner) |
+| Border radius | `rounded-2xl` (`16px`) form section cards, dropzone, structured photo slots, sticky preview card & video preview box, `rounded-xl` (`12px`) inputs & action buttons, `rounded-full` badge pills & format badges |
+| Text — primary | `font-heading font-bold text-2xl text-neutral-dark` (title), `font-heading font-bold text-lg` (section headers), `font-heading font-semibold text-xs text-error` (upload error title) |
+| Text — secondary | `font-sans text-xs text-neutral-muted`, `font-mono text-xs text-neutral-muted` (SKU preview), `font-sans text-xs text-neutral-dark/80` (error message body) |
+| Spacing | 2-column layout (approx 68% form left, 32% sticky preview right), `p-5 sm:p-6` card padding, `space-y-5 to space-y-6`, `grid-cols-2 sm:grid-cols-4 gap-3.5` (4-slot photo gallery grid) |
+| Hover state | `hover:opacity-95` (Publish Product), `hover:bg-neutral-bg` (Save Draft & presets), `hover:border-primary/50` (dropzone idle hover), `hover:border-primary/70` (empty photo slot hover) |
 | Shadow | `shadow-xs` (cards), `shadow-sm` (sticky preview), `shadow-2xs` (buttons & badges) |
-| Accent usage | `bg-primary text-white` (Publish CTA, active tab indicator, primary image badge), `bg-secondary` (curator sparkles icon), `text-primary` (live preview price & titles) |
+| Accent usage | `bg-primary text-white` (Publish CTA, active tab indicator, Cover Slot 1 badge), `bg-secondary` (curator sparkles & video icon container), `text-primary` (live preview price & titles) |
 
 **Pattern notes:**
-- Exact match to `add-new_screen.png`: Section anchor bar (`Basic Info`, `Media`, `Pricing`, `Inventory`, `Variants`, `SEO & Additional`), dynamic category attributes (Age Range for Toys, Tech Specs for Gadgets), sample photo presets, and variant matrix.
-- Native drag-and-drop file upload dropzone wired to InsForge Storage `products/` bucket (`uploadProductMediaAction`) with client-side loading indicators and local filesystem fallback.
-- Dual mode (`mode="create"` vs `mode="edit"`) seamlessly editing InsForge PostgreSQL records and baseline catalog items with full sub-variant synchronization and `revalidateTag` cache invalidation.
+- Exact match to `add-new_screen.png`: Section anchor bar (`Basic Info`, `Media`, `Pricing`, `Inventory`, `Variants`, `SEO & Additional`), dynamic category attributes, and variant matrix.
+- Structured 4-Slot Photo Gallery Grid: Slot 1 serves as the primary catalog cover image. Hovering populated slots provides "Make Cover" and "Delete Photo" action buttons. Empty slots show interactive dashed tiles (`+ Add Cover Photo` / `+ Add Photo 2..4`).
+- Real-time client-side pre-flight size check (max 8 MB per file) aligning with Next.js 10 MB Server Actions body size limit, with prominent `Image Upload Notice` card and inline dismiss button.
+- Video Showcase Section: Accepts YouTube (including Shorts), Vimeo, and direct MP4 URLs. Automatically detects video provider, displays colored badge pill, and features expandable `Test Playback` inline player.
+- Storage Management: Immediate deletion of temporary uncommitted photos from InsForge Storage/local disk on remove, and complete garbage collection of deleted images on product save or archival.
+- Dual mode (`mode="create"` vs `mode="edit"`) with full sub-variant synchronization and `revalidateTag` cache invalidation.
 
 ---
 

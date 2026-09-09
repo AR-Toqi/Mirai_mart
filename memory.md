@@ -1,62 +1,65 @@
-# Memory — Admin Product & Inventory CMS (Add/Edit Product, Live Preview & InsForge BaaS Integration)
+# Memory — Admin Product Media Management, Video Showcase, Upload Size Configuration & Storefront PDP Lightbox
 
-Last updated: September 7, 2026 01:44:00 +06:00
+Last updated: September 8, 2026, 01:34:00 +06:00
 
 ## What was built
 
-- **Product Catalog Management Suite (`components/admin/`)**:
-  - `AdminProductFilters.tsx`: Responsive search bar with clear button, category dropdown, filter drawer toggle, and direct navigation links to `/admin/products/add-new`.
-  - `AdminProductTable.tsx`: Multi-column catalog grid matching `Product_screen.jpeg` with thumbnail preview, title/badge, SKU, category, stock color-coding (`text-error`, `text-warning`, `text-neutral-dark`), formatted price in `৳`, interactive Active/Draft status toggle pills, edit button linking to `/admin/products/[id]`, and delete trigger.
-  - `AdminProductsClient.tsx`: Client coordinator with optimistic Active/Draft toggling, optimistic deletion with confirmation modal, multi-criteria filtering (query, category, status, stock levels, price bounds, badge), and client-side pagination.
-  - `ProductForm.tsx`: Comprehensive 2-column product editor matching `add-new_screen.png`:
-    - Left column (approx. 68%): Section anchor navigation bar (`Basic Info`, `Media`, `Pricing`, `Inventory`, `Variants`, `SEO & Additional`), title with auto-slug generation, short description character counter (`0/160`), rich text description formatting toolbar, curator editorial notes ("Why We Love It"), dynamic category attributes (Age Range for Toys, Tech Specs for Gadgets), native drag-and-drop file upload dropzone with progress spinner and 4 testing photo presets, pricing with compare-at and cost price, inventory with SKU auto-generator, and variant matrix builder.
-    - Right column (approx. 32% sticky): Real-time Live Product Preview card with dynamic photo display, active badge overlay, formatted `৳` pricing with strikethrough and savings pill, star rating preview, stock indicators, and delivery perks.
-- **Server Component Admin Pages**:
-  - `app/(protectedRoutes)/admin/products/page.tsx`: Server Component entrypoint querying products via `getAdminProductsAction` and rendering `AdminProductsClient`.
-  - `app/(protectedRoutes)/admin/products/add-new/page.tsx`: Dedicated create route rendering `ProductForm` in `mode="create"` with active categories from InsForge DB.
-  - `app/(protectedRoutes)/admin/products/[id]/page.tsx`: Dedicated edit route fetching product by ID and rendering `ProductForm` in `mode="edit"` with full pre-population and not-found fallback.
-- **InsForge Server Actions (`actions/admin.ts`)**:
-  - `getAdminProductsAction`: Fetches products joining `categories` and `product_variants`, merging with baseline catalog items.
-  - `getAdminCategoriesAction`: Queries active categories from InsForge DB with fallback defaults.
-  - `getAdminProductByIdAction`: Retrieves single product, specs, and variants from DB or baseline catalog.
-  - `createAdminProductAction`: Validates and atomically inserts records into `products` and `product_variants`.
-  - `updateAdminProductAction`: Atomically updates product details, primary variant, and synchronizes sub-variants.
-  - `uploadProductMediaAction`: Uploads image files to InsForge Storage `products/` bucket with public URL extraction and persistent local filesystem fallback in `public/uploads/products/`.
-  - `toggleAdminProductStatusAction` & `deleteAdminProductAction`: Performs atomic status updates and deletions.
-- **Brand Identity Asset**:
-  - `components/shared/MiraiMartLogo.tsx`: Reusable official logo supporting vector monogram mark (Isometric 3D "M" in primary `#0A98C3` with sunny yellow accent dot `#FCE35F`), full typographic lockup, and raster PNG.
-- **Documentation & Consistency Artifacts**:
-  - Imprinted components #39 (`AdminProductsClient`/`Table`/`Filters`), #40 (`ProductForm`), and #41 (`MiraiMartLogo`) in `context/ui-registry.md`.
-  - Updated `context/progress-tracker.md` marking Phase 5 — Feature 13 complete.
+- **Structured 4-Slot Photo Gallery Grid in `components/admin/ProductForm.tsx`**:
+  - Slot 1 explicitly serves as the primary catalog cover image with dedicated "Cover (Slot 1)" star badge.
+  - Slots 2–4 allow up to 4 square (1:1) product photos with dynamic action overlays: "Make Cover" (swaps photo into Slot 1) and "Delete Photo".
+  - Empty slots display interactive dashed tiles (`+ Add Cover Photo` / `+ Add Photo 2..4`) that trigger file browsing or drag-and-drop.
+  - Replaced hardcoded preset default with clean empty initial state `[]` so admins can test real uploads from scratch.
+  - Instant storage garbage collection: Deleting an uncommitted photo immediately removes it from InsForge Storage `products/` bucket or local disk (`public/uploads/products/`).
+- **Product Showcase Video Feature (Admin & Storefront)**:
+  - `components/admin/ProductForm.tsx`: Added Video URL input with automatic real-time provider detection (YouTube, YouTube Shorts, Vimeo, direct MP4), colored format badge, and expandable `Test Playback` preview player.
+  - `types/index.ts` & `actions/admin.ts`: Extended `Product`, `ProductFormData`, `specs` JSON, and database mutations (`createAdminProductAction`, `updateAdminProductAction`) to store and persist `videoUrl`.
+  - `components/storefront/PDPClient.tsx` & `components/storefront/PDPImageGallery.tsx`: Connected video showcase to the PDP with:
+    - Floating "Watch Video" pill badge on the main product image.
+    - Dedicated video thumbnail tile in the thumbnails rail.
+    - Full-screen Video Lightbox Modal with 16:9 responsive embed, ESC key listener, and outside-click-to-close handler.
+- **Server Action Body Size Limit & Client-Side Validation**:
+  - `next.config.ts`: Configured `experimental.serverActions.bodySizeLimit: "10mb"` to resolve Next.js 1 MB limit (HTTP 413 error).
+  - `actions/admin.ts`: Increased `MAX_SIZE_BYTES` to 8 MB in `uploadProductMediaAction` and `uploadBannerImageAction`.
+  - `components/admin/ProductForm.tsx` & `components/admin/WebsiteContentManager.tsx`: Added client-side pre-flight file size checks (8 MB cap), error handling for 413/network failures, and an `Image Upload Notice` card with dismiss button.
+- **Storefront & Metric Fallback Cleanups**:
+  - `actions/admin.ts`: Replaced external dummy Unsplash fallback URLs with local project SVG assets (`/images/prod-robocode.svg`, etc.) and updated `getAdminDashboardMetricsAction` to dynamically query real products and uploaded covers for Top Selling Products.
+  - `actions/products.ts`: Prioritized `specs.images[0]` (real uploaded cover photo) before mock data fallbacks on the storefront.
+- **Recovery & Design System Token Alignments**:
+  - Replaced raw `bg-black/90` with token `bg-neutral-dark/90 backdrop-blur-md` in `PDPImageGallery.tsx`.
+  - Removed artificial `images.length <= 1` lock in `handleRemoveImage`, and added publish validation in `handleSubmit` requiring at least 1 cover photo for `active` products (allowing 0 images for drafts).
+  - Replaced TypeScript `any` annotations with `unknown` and type guards in `actions/admin.ts`.
+- **Registry & Progress Tracking**:
+  - Imprinted updated patterns for `ProductForm` (#40) and `PDPImageGallery` (#15) in `context/ui-registry.md`.
+  - Updated `context/progress-tracker.md`.
 
 ## Decisions made
 
-- **PostgREST Nested Join Type Defense**: Always defensively extract relation objects using `Array.isArray(rel) ? rel[0] : rel` when querying relations like `categories (id, name, slug)` to prevent TypeScript array inference errors and ensure runtime resilience.
-- **Multi-Tier Tag & Path Invalidation**: All admin mutation actions call both `revalidatePath(...)` and `revalidateTag("products")` (plus item-specific `revalidateTag("product-[slug]")`) so that Next.js `unstable_cache` catalog queries across the storefront are immediately purged.
-- **Dual-Mode Baseline Transition**: If an admin edits a baseline mock product (`prod-001` through `prod-012`), `updateAdminProductAction` automatically converts and persists it into InsForge PostgreSQL so it permanently becomes a live database entity.
-- **Sub-Variant Sync Isolation**: When updating a multi-variant product, the primary variant (`is_default = true`) is updated specifically, while non-default variants are synchronized with `payload.variants` to prevent variant flattening.
+- **8 MB File Cap within 10 MB Next.js Envelope**: Kept client-side and action-level image validation at 8 MB to provide a safe 2 MB buffer beneath the 10 MB Server Actions body parser limit, avoiding unexpected 413 rejections caused by multipart payload overhead.
+- **Cover Image Priority Chain**: Storefront resolution in `actions/products.ts` strictly prioritizes `defaultVariant.images[0]` $\rightarrow$ `specs.images[0]` (real uploaded cover) $\rightarrow$ mock image fallback $\rightarrow$ local SVG placeholder. Real admin uploads will never be overshadowed by mock data.
+- **Active vs Draft Image Requirements**: Draft products (`status === "draft"`) can be saved with 0 images, but published catalog items (`status === "active"`) strictly require at least 1 cover photo to protect storefront catalog presentation.
+- **Shorts & Mobile Video Standardization**: All YouTube URL variations (including `shorts/`, `youtu.be/`, `watch?v=`, and `embed/`) are normalized to `https://www.youtube-nocookie.com/embed/<id>?autoplay=1&rel=0` for privacy and cross-browser embed stability.
 
 ## Problems solved
 
-- Resolved TypeScript error `Property 'name' does not exist on type '{ id: any; name: any; slug: any; }[]'` in `actions/admin.ts:L1214`.
-- Added missing native drag-and-drop file upload dropzone in `ProductForm.tsx` communicating with InsForge Storage `products/` bucket.
-- Wired missing anchor scroll target `id="section-additional"` on the Category & Dynamic Attributes card in `ProductForm.tsx`.
-- Ensured tag-based cache eviction (`revalidateTag("products")`) across all admin product mutations.
-- Resolved sub-variant overwriting in `updateAdminProductAction`.
+- Resolved `Duplicate identifier 'path'` and `Duplicate identifier 'fs'` error in `actions/admin.ts:L4` caused by duplicate mid-file imports.
+- Fixed Next.js runtime crash `Error: Body exceeded 1 MB limit (statusCode: 413)` during image upload by configuring `experimental.serverActions.bodySizeLimit: "10mb"` in `next.config.ts`.
+- Replaced the pre-filled dummy Unsplash Toy Train Set cover photo with a clean empty initial state, enabling real-world upload testing.
+- Fixed `handleRemoveImage` blocking users from removing uploaded photos when only 1 photo was present.
+- Fixed YouTube Shorts URLs failing to embed in the video showcase player.
 
 ## Current state
 
-- Phase 5 — Feature 13 (Admin Product & Inventory CMS) is 100% complete, reviewed, recovered, imprinted, and verified.
-- Dev server running smoothly with zero compiler or lint errors.
-- Table filtering, search, pagination, status toggling, deletion, product creation, product editing, media uploads, and real-time live preview are fully functional.
+- Admin product creation, editing, 4-slot image management, video showcase, and InsForge Storage integration are 100% complete and verified.
+- Storefront PDP image gallery with zoom, video thumbnail, and full-screen lightbox modal is fully functional.
+- Zero TypeScript or lint errors.
 
 ## Next session starts with
 
-- **Phase 5 — Feature 14 (Admin Order Fulfillment & RMA Management)**:
-  - Build Order Management data grid in `/admin/orders` with multi-criteria filtering: Status (`Pending`, `Packed`, `Shipped`, `Delivered`, `Refunded`), Date Range, and Payment Status.
-  - Build Order Fulfillment Detail Drawer / Page (`/admin/orders/[id]`) with customer profile, items, tracking number input, carrier dropdown (FedEx, DHL, RedX, Pathao), and printable packing slip / invoice.
-  - Implement Returns & RMA processing actions (`actions/admin.ts`).
+- **Product Variants System**:
+  - Developer note: *"for product variant more works to do. i will do it tomorrow."*
+  - Expand and refine the Product Variant matrix in `components/admin/ProductForm.tsx`: multi-attribute variant options (e.g. Size, Color, Edition, Age Group), variant-specific image attachments, batch SKU generation, and stock management.
 
 ## Open questions
 
-- None.
+- Confirm variant attribute structure (fixed attributes like Color/Size vs arbitrary key-value pairs).
+- Verify if variant-specific photo uploads should hook into the same InsForge Storage `products/catalog/` bucket.
