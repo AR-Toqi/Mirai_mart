@@ -91,6 +91,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
   return (
     <PDPClient
+      key={product.id}
       product={product}
       relatedProducts={relatedProducts}
       bundleProducts={bundleProducts}

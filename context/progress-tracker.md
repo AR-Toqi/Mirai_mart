@@ -122,12 +122,12 @@ Update this file after every completed feature. Any AI agent reading this should
   4. Implemented Server Component routes: `/admin/products/add-new` (create mode) and `/admin/products/[id]` (edit mode supporting both live DB records and baseline items).
   5. Built native drag-and-drop file upload dropzone in `ProductForm.tsx` uploading to InsForge Storage `products/` bucket with local fallback, and wired smooth anchor scrolling across all sections.
   6. Imprinted components #39, #40, and #41 in `context/ui-registry.md`.
-- Implemented Admin Product Media Management, Video Showcase, and Upload Size Upgrades:
-  1. Structured 4-Slot Photo Gallery Grid in `ProductForm.tsx`: Slot 1 serves as the primary catalog cover image with interactive "Make Cover" and "Delete Photo" action buttons on hover, interactive dashed tiles for empty slots (`+ Add Cover Photo` / `+ Add Photo 2..4`), and immediate InsForge Storage / local file deletion when removing uncommitted photos.
-  2. Resolved Next.js Server Actions 1 MB Limit: Added `experimental.serverActions.bodySizeLimit: "10mb"` to `next.config.ts`, upgraded `uploadProductMediaAction` & `uploadBannerImageAction` to 8 MB caps, and added client-side pre-flight file validation with prominent `Image Upload Notice` error cards in `ProductForm.tsx` and `WebsiteContentManager.tsx`.
-  3. Real Cover Image Testing: Defaulted product form to 0 images (`[]`), removed dummy Unsplash fallback URLs in `actions/admin.ts` (using local `/images/` assets), and prioritized `specs.images[0]` on the storefront in `actions/products.ts`.
-  4. Full-Featured Video Showcase: Connected YouTube (including Shorts), Vimeo, and direct MP4 URL inputs with format detection badges and live test preview player in `ProductForm.tsx` through to `PDPImageGallery.tsx` with "Watch Video" floating pill button, rail video tile, and full-screen responsive 16:9 lightbox modal.
-  5. Imprinted updated patterns for `ProductForm` (#40) and `PDPImageGallery` (#15) in `context/ui-registry.md`.
+- Implemented Admin Multi-Variant Management System & Storefront Swatch Selectors:
+  1. Automated Attribute Option Builder: Built Cartesian matrix generator in `ProductForm.tsx` supporting Color, Size, and Weight axes with presets, chip toggles, and price/stock inheritance.
+  2. Standalone Custom Variants: Built inline drawer in `ProductForm.tsx` enabling manual creation of one-off editions (e.g. Gift Packs, Deluxe Editions) and asymmetrical inventory with dedicated SKUs, prices, stock, and photos.
+  3. Storefront Dynamic Swatches: Built interactive color swatches (with photo or hex preview), size chips, and weight chips in `PDPBuyBox.tsx` with intelligent fallback matching, real-time stock indicators, and price updates.
+  4. Gallery Photo Binding: Connected variant selection in `PDPClient.tsx` to `PDPImageGallery.tsx`, immediately jumping the main image stage to the chosen variant photo while keeping all catalog images accessible.
+  5. Recovery & System Integrity: Unified `getColorHex` in `lib/utils.ts`, added non-destructive variant reconciliation in `updateAdminProductAction` to preserve historic order foreign keys, resolved client-side route state staling via `key={product.id}`, and decoupled gallery auto-slide from default variant selection.
 
 
 

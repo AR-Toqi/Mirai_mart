@@ -7,7 +7,12 @@ export interface ProductVariant {
   price: number;
   compareAtPrice?: number | null;
   stockQuantity: number;
-  attributes?: Record<string, string>; // e.g. { "Color": "Natural Beechwood", "Edition": "Deluxe" }
+  attributes?: {
+    color?: string;
+    size?: string;
+    weight?: string;
+    [key: string]: string | undefined;
+  };
   images?: string[];
   isDefault?: boolean;
 }

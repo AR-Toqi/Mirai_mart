@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import {
   Heart,
@@ -21,9 +21,18 @@ type Props = {
   title: string;
   badge?: ProductBadgeVariant;
   videoUrl?: string;
+  selectedImage?: string | null;
+  disableAutoSlide?: boolean;
 };
 
-export function PDPImageGallery({ images, title, badge, videoUrl }: Props) {
+export function PDPImageGallery({
+  images,
+  title,
+  badge,
+  videoUrl,
+  selectedImage,
+  disableAutoSlide = false,
+}: Props) {
   const fallbackPerspectiveAngles = [
     "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=1200&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=1200&auto=format&fit=crop",
@@ -31,18 +40,13 @@ export function PDPImageGallery({ images, title, badge, videoUrl }: Props) {
     "https://images.unsplash.com/photo-1560859251-d563a49c5e4a?q=80&w=1200&auto=format&fit=crop",
   ];
 
-  const imageList = (() => {
-    if (Array.isArray(images) && images.length > 1) {
-      return images;
+  const imageList = useMemo(() => {
+    const validImages = Array.isArray(images) ? images.filter(Boolean) : [];
+    if (validImages.length > 0) {
+      return validImages;
     }
-    if (Array.isArray(images) && images.length === 1) {
-      return [
-        images[0],
-        ...fallbackPerspectiveAngles.filter((img) => img !== images[0]).slice(0, 3),
-      ];
-    }
-    return fallbackPerspectiveAngles;
-  })();
+    return fallbackPerspectiveAngles.slice(0, 1);
+  }, [images]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
@@ -93,16 +97,35 @@ export function PDPImageGallery({ images, title, badge, videoUrl }: Props) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isVideoModalOpen]);
 
-  // Auto-cycle through thumbnail images every 3 seconds (pauses on hover or zoom)
+  // Reset activeIndex when viewing a different product
   useEffect(() => {
-    if (imageList.length <= 1 || isHovered || isZoomed) return;
+    setActiveIndex(0);
+  }, [title]);
+
+  // Track previous selectedImage so we ONLY jump when a new variant is actively picked
+  const prevSelectedImageRef = useRef<string | null>(null);
+
+  // When selected variant image changes, switch directly over to that variant image
+  useEffect(() => {
+    if (selectedImage && selectedImage !== prevSelectedImageRef.current) {
+      prevSelectedImageRef.current = selectedImage;
+      const targetIndex = imageList.findIndex((img) => img === selectedImage);
+      if (targetIndex !== -1) {
+        setActiveIndex(targetIndex);
+      }
+    }
+  }, [selectedImage, imageList]);
+
+  // Auto-cycle through thumbnail images every 3 seconds (pauses on hover, zoom, or when auto-slide is disabled)
+  useEffect(() => {
+    if (disableAutoSlide || imageList.length <= 1 || isHovered || isZoomed) return;
 
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % imageList.length);
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [imageList.length, isHovered, isZoomed]);
+  }, [disableAutoSlide, imageList.length, isHovered, isZoomed]);
 
   const safeIndex = activeIndex >= imageList.length ? 0 : activeIndex;
   const activeImage = imageList[safeIndex] || imageList[0];
@@ -134,12 +157,12 @@ export function PDPImageGallery({ images, title, badge, videoUrl }: Props) {
 
   return (
     <div
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-3.5 w-full max-w-[580px] mx-auto lg:mx-0"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Main Image Stage */}
-      <div className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-neutral-border bg-surface shadow-xs">
+      <div className="group relative aspect-square w-full max-h-[540px] overflow-hidden rounded-2xl border border-neutral-border bg-surface shadow-xs">
         {/* Floating Badges */}
         <div className="absolute left-4 top-4 z-10 flex flex-col items-start gap-2">
           {badge && <ProductBadge badge={badge} className="shadow-xs" />}
@@ -267,8 +290,8 @@ export function PDPImageGallery({ images, title, badge, videoUrl }: Props) {
       </div>
 
       {/* Thumbnails Rail with Smooth Navigation & Video Tile */}
-      {(imageList.length > 1 || parsedVideo) && (
-        <div className="flex items-center gap-3 overflow-x-auto pb-1.5 scrollbar-thin">
+      {(imageList.length > 0 || parsedVideo) && (
+        <div className="flex items-center gap-2.5 sm:gap-3 overflow-x-auto pb-1 scrollbar-thin">
           {imageList.map((imgUrl, index) => {
             const isActive = index === safeIndex;
             return (
@@ -277,17 +300,17 @@ export function PDPImageGallery({ images, title, badge, videoUrl }: Props) {
                 type="button"
                 onClick={() => setActiveIndex(index)}
                 aria-label={`View image ${index + 1}`}
-                className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border-2 transition-all hover:opacity-100 ${
+                className={`relative h-13 w-13 sm:h-14 sm:w-14 flex-shrink-0 overflow-hidden rounded-xl border-2 transition-all hover:opacity-100 cursor-pointer ${
                   isActive
-                    ? "border-primary shadow-xs ring-2 ring-primary/20 scale-102 opacity-100"
-                    : "border-neutral-border opacity-70 hover:border-primary/50"
+                    ? "border-primary shadow-xs ring-2 ring-primary/25 scale-102 opacity-100 z-1"
+                    : "border-neutral-border opacity-70 hover:border-primary/50 hover:opacity-95"
                 }`}
               >
                 <Image
                   src={imgUrl}
                   alt={`${title} thumbnail ${index + 1}`}
                   fill
-                  sizes="80px"
+                  sizes="56px"
                   className="object-cover"
                 />
               </button>
@@ -300,19 +323,19 @@ export function PDPImageGallery({ images, title, badge, videoUrl }: Props) {
               type="button"
               onClick={() => setIsVideoModalOpen(true)}
               aria-label="Play product showcase video in full screen"
-              className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border-2 border-neutral-border hover:border-primary transition-all bg-neutral-dark flex flex-col items-center justify-center group cursor-pointer shadow-xs"
+              className="relative h-13 w-13 sm:h-14 sm:w-14 flex-shrink-0 overflow-hidden rounded-xl border-2 border-neutral-border hover:border-primary transition-all bg-neutral-dark flex flex-col items-center justify-center group cursor-pointer shadow-xs"
             >
               <Image
                 src={activeImage}
                 alt="Product video preview"
                 fill
-                sizes="80px"
+                sizes="56px"
                 className="object-cover opacity-50 group-hover:opacity-40 group-hover:scale-105 transition-all"
               />
-              <div className="relative z-10 w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" />
+              <div className="relative z-10 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                <Play className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-white text-white ml-0.5" />
               </div>
-              <span className="relative z-10 text-[10px] font-bold text-white mt-1 drop-shadow-md">
+              <span className="relative z-10 text-[9px] font-bold text-white mt-0.5 drop-shadow-md leading-none">
                 Video
               </span>
             </button>

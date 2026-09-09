@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   ShoppingBag,
   Zap,
@@ -14,9 +15,12 @@ import {
   ChevronRight,
   Scale,
   PenLine,
+  Palette,
+  Ruler,
+  Camera,
 } from "lucide-react";
 import { RatingStars } from "@/components/shared/RatingStars";
-import { formatCurrency, cn } from "@/lib/utils";
+import { formatCurrency, cn, getColorHex } from "@/lib/utils";
 import { FREE_SHIPPING_THRESHOLD, generateWhatsAppOrderLink } from "@/lib/constants";
 import { useCompare } from "@/lib/context/CompareContext";
 import type { Product, ProductVariant } from "@/types";
@@ -71,6 +75,87 @@ export function PDPBuyBox({
 
   const { toggleCompare, isInCompare } = useCompare();
   const isCompared = isInCompare(product.id);
+
+  // Variant attributes configured by admin
+  const variants = product.variants || [];
+  const hasColor = variants.some((v) => Boolean(v.attributes?.color));
+  const hasSize = variants.some((v) => Boolean(v.attributes?.size));
+  const hasWeight = variants.some((v) => Boolean(v.attributes?.weight));
+  const hasStructuredAttributes = hasColor || hasSize || hasWeight;
+
+  // Extract distinct ordered values
+  const distinctColors = hasColor
+    ? Array.from(new Set(variants.map((v) => v.attributes?.color).filter(Boolean) as string[]))
+    : [];
+
+  const distinctSizes = hasSize
+    ? Array.from(new Set(variants.map((v) => v.attributes?.size).filter(Boolean) as string[]))
+    : [];
+
+  const distinctWeights = hasWeight
+    ? Array.from(new Set(variants.map((v) => v.attributes?.weight).filter(Boolean) as string[]))
+    : [];
+
+  // Intelligent attribute-based variant resolver
+  const handleSelectColor = (color: string) => {
+    const matched =
+      variants.find(
+        (v) =>
+          v.attributes?.color === color &&
+          (!hasSize || v.attributes?.size === selectedVariant?.attributes?.size) &&
+          (!hasWeight || v.attributes?.weight === selectedVariant?.attributes?.weight)
+      ) ||
+      variants.find(
+        (v) =>
+          v.attributes?.color === color &&
+          (!hasSize || v.attributes?.size === selectedVariant?.attributes?.size)
+      ) ||
+      variants.find((v) => v.attributes?.color === color);
+
+    if (matched) {
+      onSelectVariant(matched);
+    }
+  };
+
+  const handleSelectSize = (size: string) => {
+    const matched =
+      variants.find(
+        (v) =>
+          v.attributes?.size === size &&
+          (!hasColor || v.attributes?.color === selectedVariant?.attributes?.color) &&
+          (!hasWeight || v.attributes?.weight === selectedVariant?.attributes?.weight)
+      ) ||
+      variants.find(
+        (v) =>
+          v.attributes?.size === size &&
+          (!hasColor || v.attributes?.color === selectedVariant?.attributes?.color)
+      ) ||
+      variants.find((v) => v.attributes?.size === size);
+
+    if (matched) {
+      onSelectVariant(matched);
+    }
+  };
+
+  const handleSelectWeight = (weight: string) => {
+    const matched =
+      variants.find(
+        (v) =>
+          v.attributes?.weight === weight &&
+          (!hasColor || v.attributes?.color === selectedVariant?.attributes?.color) &&
+          (!hasSize || v.attributes?.size === selectedVariant?.attributes?.size)
+      ) ||
+      variants.find(
+        (v) =>
+          v.attributes?.weight === weight &&
+          (!hasColor || v.attributes?.color === selectedVariant?.attributes?.color)
+      ) ||
+      variants.find((v) => v.attributes?.weight === weight);
+
+    if (matched) {
+      onSelectVariant(matched);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -198,8 +283,203 @@ export function PDPBuyBox({
         </div>
       </div>
 
-      {/* Variant Selectors (If multiple variants exist) */}
-      {product.variants && product.variants.length > 1 && (
+      {/* Variant Selectors: ONLY show what the admin configured (Color, Size, Weight) */}
+      {hasStructuredAttributes ? (
+        <div className="space-y-4 rounded-2xl border border-neutral-border bg-surface p-4 sm:p-5 shadow-xs">
+          {/* 1. Color Selector (rendered ONLY if admin configured color) */}
+          {hasColor && distinctColors.length > 0 && (
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 font-sans text-xs font-bold uppercase tracking-wider text-neutral-dark">
+                  <Palette className="w-3.5 h-3.5 text-primary" />
+                  <span>Color:</span>
+                  <span className="font-semibold text-primary capitalize">
+                    {selectedVariant?.attributes?.color || distinctColors[0]}
+                  </span>
+                </span>
+                {distinctColors.length >= 5 && (
+                  <span className="text-[11px] text-neutral-muted">
+                    {distinctColors.length} options
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-wrap gap-2.5">
+                {distinctColors.map((color) => {
+                  const isSelected = selectedVariant?.attributes?.color === color;
+                  // Representative variant for this color to get photo or check stock
+                  const repVariant =
+                    variants.find(
+                      (v) =>
+                        v.attributes?.color === color &&
+                        (!hasSize || v.attributes?.size === selectedVariant?.attributes?.size) &&
+                        (!hasWeight || v.attributes?.weight === selectedVariant?.attributes?.weight)
+                    ) ||
+                    variants.find(
+                      (v) =>
+                        v.attributes?.color === color &&
+                        (!hasSize || v.attributes?.size === selectedVariant?.attributes?.size)
+                    ) ||
+                    variants.find((v) => v.attributes?.color === color);
+
+                  const colorHex = getColorHex(color);
+                  const variantImage = repVariant?.images?.[0];
+                  const isColorOutOfStock = variants
+                    .filter((v) => v.attributes?.color === color)
+                    .every((v) => (v.stockQuantity ?? 0) <= 0);
+
+                  return (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => handleSelectColor(color)}
+                      className={cn(
+                        "group relative flex items-center gap-2 rounded-xl border px-3 py-2 text-xs transition-all cursor-pointer",
+                        isSelected
+                          ? "border-primary bg-primary-surface/40 font-bold text-primary ring-2 ring-primary/20 shadow-xs"
+                          : "border-neutral-border bg-surface text-neutral-dark hover:border-primary/40 hover:bg-neutral-bg/50",
+                        isColorOutOfStock && "opacity-50"
+                      )}
+                    >
+                      {variantImage ? (
+                        <div className="relative h-6 w-6 overflow-hidden rounded-md border border-neutral-border/80 shrink-0">
+                          <Image
+                            src={variantImage}
+                            alt={color}
+                            fill
+                            sizes="24px"
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <span
+                          className="h-4 w-4 rounded-full border border-black/15 shrink-0 shadow-2xs"
+                          style={{ backgroundColor: colorHex }}
+                        />
+                      )}
+                      <span className="capitalize">{color}</span>
+                      {isColorOutOfStock && (
+                        <span className="text-[10px] text-error font-normal">(Sold out)</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* 2. Size Selector (rendered ONLY if admin configured size) */}
+          {hasSize && distinctSizes.length > 0 && (
+            <div className="space-y-2.5 pt-1">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 font-sans text-xs font-bold uppercase tracking-wider text-neutral-dark">
+                  <Ruler className="w-3.5 h-3.5 text-primary" />
+                  <span>Size:</span>
+                  <span className="font-semibold text-primary">
+                    {selectedVariant?.attributes?.size || distinctSizes[0]}
+                  </span>
+                </span>
+                {distinctSizes.length >= 5 && (
+                  <span className="text-[11px] text-neutral-muted">
+                    {distinctSizes.length} sizes
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {distinctSizes.map((size) => {
+                  const isSelected = selectedVariant?.attributes?.size === size;
+                  const matchingVariant = variants.find(
+                    (v) =>
+                      v.attributes?.size === size &&
+                      (!hasColor || v.attributes?.color === selectedVariant?.attributes?.color) &&
+                      (!hasWeight || v.attributes?.weight === selectedVariant?.attributes?.weight)
+                  );
+                  const isOutOfStock = matchingVariant ? matchingVariant.stockQuantity <= 0 : false;
+
+                  return (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => handleSelectSize(size)}
+                      className={cn(
+                        "min-w-[44px] h-10 px-3.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center cursor-pointer",
+                        isSelected
+                          ? "bg-neutral-dark text-white border-neutral-dark shadow-xs"
+                          : "bg-surface border-neutral-border text-neutral-dark hover:border-primary/50 hover:bg-neutral-bg",
+                        isOutOfStock && "opacity-45 line-through decoration-error"
+                      )}
+                    >
+                      {size}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* 3. Weight Selector (rendered ONLY if admin configured weight) */}
+          {hasWeight && distinctWeights.length > 0 && (
+            <div className="space-y-2.5 pt-1">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 font-sans text-xs font-bold uppercase tracking-wider text-neutral-dark">
+                  <Scale className="w-3.5 h-3.5 text-primary" />
+                  <span>Weight / Pack:</span>
+                  <span className="font-semibold text-primary">
+                    {selectedVariant?.attributes?.weight || distinctWeights[0]}
+                  </span>
+                </span>
+                {distinctWeights.length >= 5 && (
+                  <span className="text-[11px] text-neutral-muted">
+                    {distinctWeights.length} options
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {distinctWeights.map((weight) => {
+                  const isSelected = selectedVariant?.attributes?.weight === weight;
+                  const matchingVariant = variants.find(
+                    (v) =>
+                      v.attributes?.weight === weight &&
+                      (!hasColor || v.attributes?.color === selectedVariant?.attributes?.color) &&
+                      (!hasSize || v.attributes?.size === selectedVariant?.attributes?.size)
+                  );
+                  const isOutOfStock = matchingVariant ? matchingVariant.stockQuantity <= 0 : false;
+
+                  return (
+                    <button
+                      key={weight}
+                      type="button"
+                      onClick={() => handleSelectWeight(weight)}
+                      className={cn(
+                        "h-10 px-3.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer",
+                        isSelected
+                          ? "bg-primary text-white border-primary shadow-xs"
+                          : "bg-surface border-neutral-border text-neutral-dark hover:border-primary/50 hover:bg-neutral-bg",
+                        isOutOfStock && "opacity-45 line-through decoration-error"
+                      )}
+                    >
+                      <span>{weight}</span>
+                      {matchingVariant && matchingVariant.price !== product.price && (
+                        <span
+                          className={cn(
+                            "text-[10px] font-normal",
+                            isSelected ? "text-white/80" : "text-neutral-muted"
+                          )}
+                        >
+                          ({formatCurrency(matchingVariant.price)})
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      ) : product.variants && product.variants.length > 1 ? (
+        /* Fallback for legacy / generic variants without explicit color/size/weight */
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="font-sans text-xs font-bold uppercase tracking-wider text-neutral-dark">
@@ -254,7 +534,7 @@ export function PDPBuyBox({
             })}
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* Quantity Selector & Action Buttons */}
       <div className="space-y-3 pt-2">

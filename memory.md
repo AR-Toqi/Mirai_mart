@@ -1,65 +1,66 @@
-# Memory — Admin Product Media Management, Video Showcase, Upload Size Configuration & Storefront PDP Lightbox
+# Memory — Admin Multi-Variant Matrix, Custom Variants & Storefront PDP Dynamic Swatches
 
-Last updated: September 8, 2026, 01:34:00 +06:00
+Last updated: September 10, 2026, 01:58:00 +06:00
 
 ## What was built
 
-- **Structured 4-Slot Photo Gallery Grid in `components/admin/ProductForm.tsx`**:
-  - Slot 1 explicitly serves as the primary catalog cover image with dedicated "Cover (Slot 1)" star badge.
-  - Slots 2–4 allow up to 4 square (1:1) product photos with dynamic action overlays: "Make Cover" (swaps photo into Slot 1) and "Delete Photo".
-  - Empty slots display interactive dashed tiles (`+ Add Cover Photo` / `+ Add Photo 2..4`) that trigger file browsing or drag-and-drop.
-  - Replaced hardcoded preset default with clean empty initial state `[]` so admins can test real uploads from scratch.
-  - Instant storage garbage collection: Deleting an uncommitted photo immediately removes it from InsForge Storage `products/` bucket or local disk (`public/uploads/products/`).
-- **Product Showcase Video Feature (Admin & Storefront)**:
-  - `components/admin/ProductForm.tsx`: Added Video URL input with automatic real-time provider detection (YouTube, YouTube Shorts, Vimeo, direct MP4), colored format badge, and expandable `Test Playback` preview player.
-  - `types/index.ts` & `actions/admin.ts`: Extended `Product`, `ProductFormData`, `specs` JSON, and database mutations (`createAdminProductAction`, `updateAdminProductAction`) to store and persist `videoUrl`.
-  - `components/storefront/PDPClient.tsx` & `components/storefront/PDPImageGallery.tsx`: Connected video showcase to the PDP with:
-    - Floating "Watch Video" pill badge on the main product image.
-    - Dedicated video thumbnail tile in the thumbnails rail.
-    - Full-screen Video Lightbox Modal with 16:9 responsive embed, ESC key listener, and outside-click-to-close handler.
-- **Server Action Body Size Limit & Client-Side Validation**:
-  - `next.config.ts`: Configured `experimental.serverActions.bodySizeLimit: "10mb"` to resolve Next.js 1 MB limit (HTTP 413 error).
-  - `actions/admin.ts`: Increased `MAX_SIZE_BYTES` to 8 MB in `uploadProductMediaAction` and `uploadBannerImageAction`.
-  - `components/admin/ProductForm.tsx` & `components/admin/WebsiteContentManager.tsx`: Added client-side pre-flight file size checks (8 MB cap), error handling for 413/network failures, and an `Image Upload Notice` card with dismiss button.
-- **Storefront & Metric Fallback Cleanups**:
-  - `actions/admin.ts`: Replaced external dummy Unsplash fallback URLs with local project SVG assets (`/images/prod-robocode.svg`, etc.) and updated `getAdminDashboardMetricsAction` to dynamically query real products and uploaded covers for Top Selling Products.
-  - `actions/products.ts`: Prioritized `specs.images[0]` (real uploaded cover photo) before mock data fallbacks on the storefront.
-- **Recovery & Design System Token Alignments**:
-  - Replaced raw `bg-black/90` with token `bg-neutral-dark/90 backdrop-blur-md` in `PDPImageGallery.tsx`.
-  - Removed artificial `images.length <= 1` lock in `handleRemoveImage`, and added publish validation in `handleSubmit` requiring at least 1 cover photo for `active` products (allowing 0 images for drafts).
-  - Replaced TypeScript `any` annotations with `unknown` and type guards in `actions/admin.ts`.
-- **Registry & Progress Tracking**:
-  - Imprinted updated patterns for `ProductForm` (#40) and `PDPImageGallery` (#15) in `context/ui-registry.md`.
-  - Updated `context/progress-tracker.md`.
+- **Attribute Option Builder & Cartesian Matrix in `components/admin/ProductForm.tsx`**:
+  - Toggles for `Color`, `Size`, and `Weight` attribute axes with quick-preset chips (`COLOR_PRESETS`, `SIZE_PRESETS`, `WEIGHT_PRESETS`) and custom text tags.
+  - One-click Cartesian matrix generator (`handleGenerateCombinations`) that produces all combinations while preserving existing variant prices, stock, and custom titles.
+  - Bulk actions toolbar for mass price updates, mass stock updates, batch SKU generation, and clear-all with confirmation.
+- **Standalone Custom Variant Builder in `components/admin/ProductForm.tsx`**:
+  - Inline drawer allowing admins to manually add single/asymmetrical editions (e.g. Gift Packs, Deluxe Editions, standalone SKU bundles) with custom titles, SKUs, optional attribute tags, pricing, and stock.
+  - Variant media assignment: Direct image upload (to InsForge Storage) or 1-click assignment from the product's 4 catalog photos.
+- **Dynamic Storefront Swatch Selectors in `components/storefront/PDPBuyBox.tsx`**:
+  - Interactive color chips with thumbnail photo preview or dynamic hex circle using canonical `getColorHex`.
+  - Size buttons and Weight pills with real-time stock decoration (`line-through decoration-error` + `(Sold out)` badge) and dynamic price differential indicators.
+  - 3-tier intelligent fallback matching to gracefully handle asymmetrical stock without locking user selections.
+  - Fallback generic edition selector for non-structured/custom title variants.
+- **Storefront PDP Gallery Synchronization in `components/storefront/PDPClient.tsx` & `components/storefront/PDPImageGallery.tsx`**:
+  - Selecting a variant immediately swaps the active hero view to that variant's photo.
+  - Full catalog photo preservation: thumbnails rail retains base product photos alongside variant photos in a compact 56px (`h-13 w-13 sm:h-14 sm:w-14`) rail.
+  - Decoupled auto-slide: 3-second carousel runs smoothly on arrival and pauses once the customer actively clicks a variant swatch (`hasUserSelectedVariant`).
+- **Database Non-Destructive Variant Persistence in `actions/admin.ts`**:
+  - Replaced destructive variant delete-and-recreate logic with an atomic 3-way reconciliation: updates existing variants by ID in-place, inserts new variants, and deletes only explicitly removed variants.
+  - Safeguarded `order_items(product_variant_id)` foreign keys and review purchase verification from being broken during product edits.
+- **Shared Color Utilities in `lib/utils.ts`**:
+  - Extracted unified `getColorHex` to eliminate code duplication across storefront and admin.
+- **Client Route State Hygiene in `app/(commonRoutes)/(storefront)/product/[slug]/page.tsx`**:
+  - Added `key={product.id}` to `<PDPClient>` and defensive state synchronization effect to prevent variant state staling across client-side product navigation.
+- **Documentation & Design System Integrity**:
+  - Registered `PDPVariantSelectors` as component #42 in `context/ui-registry.md` and updated `ProductForm` (#40) and `PDPImageGallery` (#15).
+  - Updated `context/progress-tracker.md` with Multi-Variant System and Recovery milestones.
 
 ## Decisions made
 
-- **8 MB File Cap within 10 MB Next.js Envelope**: Kept client-side and action-level image validation at 8 MB to provide a safe 2 MB buffer beneath the 10 MB Server Actions body parser limit, avoiding unexpected 413 rejections caused by multipart payload overhead.
-- **Cover Image Priority Chain**: Storefront resolution in `actions/products.ts` strictly prioritizes `defaultVariant.images[0]` $\rightarrow$ `specs.images[0]` (real uploaded cover) $\rightarrow$ mock image fallback $\rightarrow$ local SVG placeholder. Real admin uploads will never be overshadowed by mock data.
-- **Active vs Draft Image Requirements**: Draft products (`status === "draft"`) can be saved with 0 images, but published catalog items (`status === "active"`) strictly require at least 1 cover photo to protect storefront catalog presentation.
-- **Shorts & Mobile Video Standardization**: All YouTube URL variations (including `shorts/`, `youtu.be/`, `watch?v=`, and `embed/`) are normalized to `https://www.youtube-nocookie.com/embed/<id>?autoplay=1&rel=0` for privacy and cross-browser embed stability.
+- **Non-Destructive Variant Reconciliation**: Never delete and recreate all variants on update. Updating existing variants by their stable UUID ensures past completed orders in `order_items` retain their variant references (`ON DELETE SET NULL` won't be triggered unintentionally).
+- **Asymmetrical Variant Fallback**: E-commerce products rarely have complete Cartesian matrices. 3-tier fallback matching (Color+Size+Weight $\rightarrow$ Color+Size $\rightarrow$ Color) prevents impossible selections and broken buy box states.
+- **Interaction-Linked Gallery Auto-Slide**: Auto-sliding is pleasant when browsing, but jarring if a user explicitly chooses a specific color variant. Decoupling auto-slide via `hasUserSelectedVariant` allows auto-cycling on page load while respecting the customer's chosen swatch after click.
+- **Unified Color Palette**: Maintained a centralized 40+ color-to-hex dictionary in `lib/utils.ts` to guarantee swatch color consistency between admin inputs and storefront displays.
 
 ## Problems solved
 
-- Resolved `Duplicate identifier 'path'` and `Duplicate identifier 'fs'` error in `actions/admin.ts:L4` caused by duplicate mid-file imports.
-- Fixed Next.js runtime crash `Error: Body exceeded 1 MB limit (statusCode: 413)` during image upload by configuring `experimental.serverActions.bodySizeLimit: "10mb"` in `next.config.ts`.
-- Replaced the pre-filled dummy Unsplash Toy Train Set cover photo with a clean empty initial state, enabling real-world upload testing.
-- Fixed `handleRemoveImage` blocking users from removing uploaded photos when only 1 photo was present.
-- Fixed YouTube Shorts URLs failing to embed in the video showcase player.
+- Resolved sub-variants erroneously inheriting all cover photos by defaulting unassigned variants to `images: []`.
+- Fixed `order_items` foreign key nullification during product edits by switching from blind `delete` to atomic upsert/reconciliation in `actions/admin.ts`.
+- Fixed route state staling where navigating between products preserved the previous product's `selectedVariant` by mounting `<PDPClient key={product.id}>` and adding defensive state reset in `useEffect`.
+- Fixed premature pausing of gallery auto-slide for all products with variants.
+- Fixed DRY violation by consolidating duplicated `getColorHex` functions into `lib/utils.ts`.
 
 ## Current state
 
-- Admin product creation, editing, 4-slot image management, video showcase, and InsForge Storage integration are 100% complete and verified.
-- Storefront PDP image gallery with zoom, video thumbnail, and full-screen lightbox modal is fully functional.
-- Zero TypeScript or lint errors.
+- Admin Multi-Variant Matrix, Custom Variant Drawer, and Bulk Tools are 100% complete and operational.
+- Storefront Multi-Attribute Swatches (Color/Size/Weight) and Gallery Photo Binding are fully functional and responsive.
+- Review passes with 0 issues across Plan Alignment, System Integrity, and Production Readiness.
+- Dev server is running cleanly with 0 TypeScript errors.
 
 ## Next session starts with
 
-- **Product Variants System**:
-  - Developer note: *"for product variant more works to do. i will do it tomorrow."*
-  - Expand and refine the Product Variant matrix in `components/admin/ProductForm.tsx`: multi-attribute variant options (e.g. Size, Color, Edition, Age Group), variant-specific image attachments, batch SKU generation, and stock management.
+- **Phase 5 — Feature 14: Admin Order Fulfillment & RMA Management**:
+  - Admin Order List with status tabs (`All`, `Pending`, `Processing`, `Shipped`, `Delivered`, `Cancelled`, `Refunded`).
+  - Order details modal/page with shipping label generation, bKash/Nagad MFS transaction ID verification, and tracking number assignment.
+  - Return / Replacement request processing (RMA workflow).
 
 ## Open questions
 
-- Confirm variant attribute structure (fixed attributes like Color/Size vs arbitrary key-value pairs).
-- Verify if variant-specific photo uploads should hook into the same InsForge Storage `products/catalog/` bucket.
+- Confirm courier API integration details (e.g. Steadfast, Pathao, or RedX) for automatic delivery parcel booking.
+- Confirm automated customer SMS/WhatsApp notification triggers upon order status changes.

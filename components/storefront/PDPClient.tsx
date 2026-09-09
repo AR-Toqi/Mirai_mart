@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import posthog from "posthog-js";
 import { CheckCircle2, Sparkles, ArrowRight } from "lucide-react";
@@ -40,18 +40,55 @@ export function PDPClient({
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(
     defaultVariant
   );
+  const [hasUserSelectedVariant, setHasUserSelectedVariant] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Gallery images: prioritized from selected variant combined with full product image gallery
-  const activeImages = Array.from(
-    new Set([
-      ...(selectedVariant?.images || []),
-      ...(product.images || []),
-      product.imageUrl,
-    ])
-  ).filter(Boolean);
+  // Synchronize state cleanly if product changes across navigation
+  useEffect(() => {
+    const freshDefault =
+      product.variants?.find((v) => v.isDefault) || product.variants?.[0];
+    setSelectedVariant(freshDefault);
+    setHasUserSelectedVariant(false);
+    setQuantity(1);
+  }, [product.id, product.variants]);
+
+  const handleSelectVariant = (variant: ProductVariant) => {
+    setSelectedVariant(variant);
+    setHasUserSelectedVariant(true);
+  };
+
+  // Full image gallery: preserves base catalog images and variant images so no photos are hidden
+  const allImages = useMemo(() => {
+    const list: string[] = [];
+
+    // Base product images
+    if (Array.isArray(product.images)) {
+      list.push(...product.images);
+    }
+    if (product.imageUrl) {
+      list.push(product.imageUrl);
+    }
+
+    // Include images from all variants so all photo swatches are present
+    if (product.variants) {
+      for (const v of product.variants) {
+        if (Array.isArray(v.images)) {
+          list.push(...v.images);
+        }
+      }
+    }
+
+    // Ensure selectedVariant images are present
+    if (Array.isArray(selectedVariant?.images)) {
+      list.push(...selectedVariant.images);
+    }
+
+    return Array.from(new Set(list)).filter(Boolean);
+  }, [product.images, product.imageUrl, product.variants, selectedVariant?.images]);
+
+  const selectedVariantImage = selectedVariant?.images?.[0] || null;
 
   // Track product_viewed event on mount
   useEffect(() => {
@@ -90,7 +127,7 @@ export function PDPClient({
         sku: selectedVariant?.sku || product.sku,
         price: selectedVariant?.price ?? product.price,
         compareAtPrice: selectedVariant?.compareAtPrice ?? product.compareAtPrice,
-        imageUrl: activeImages[0] || product.imageUrl,
+        imageUrl: selectedVariantImage || allImages[0] || product.imageUrl,
         quantity,
         maxStock: selectedVariant?.stockQuantity,
       },
@@ -114,7 +151,7 @@ export function PDPClient({
         sku: selectedVariant?.sku || product.sku,
         price: selectedVariant?.price ?? product.price,
         compareAtPrice: selectedVariant?.compareAtPrice ?? product.compareAtPrice,
-        imageUrl: activeImages[0] || product.imageUrl,
+        imageUrl: selectedVariantImage || allImages[0] || product.imageUrl,
         quantity,
         maxStock: selectedVariant?.stockQuantity,
       },
@@ -135,7 +172,7 @@ export function PDPClient({
         sku: selectedVariant?.sku || product.sku,
         price: Math.round((selectedVariant?.price ?? product.price) * 0.9), // 10% bundle discount
         compareAtPrice: selectedVariant?.price ?? product.price,
-        imageUrl: activeImages[0] || product.imageUrl,
+        imageUrl: selectedVariantImage || allImages[0] || product.imageUrl,
         quantity: 1,
       },
       { openDrawer: false }
@@ -184,25 +221,27 @@ export function PDPClient({
       )}
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-10 sm:space-y-14">
-        {/* 1. Top Section: 60/40 Split Showcase */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-          {/* Left Column (60%): High-Resolution Image Gallery */}
-          <div className="lg:col-span-7">
+        {/* 1. Top Section: 50/50 Balanced Split Showcase */}
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+          {/* Left Column (50%): Medium High-Resolution Image Gallery */}
+          <div className="lg:col-span-6">
             <PDPImageGallery
-              images={activeImages}
+              images={allImages}
               title={product.title}
               badge={product.badge}
               videoUrl={product.videoUrl}
+              selectedImage={selectedVariantImage}
+              disableAutoSlide={hasUserSelectedVariant}
             />
           </div>
 
-          {/* Right Column (40%): Purchasing Buy Box */}
-          <div className="lg:col-span-5">
+          {/* Right Column (50%): Purchasing Buy Box */}
+          <div className="lg:col-span-6">
             <PDPBuyBox
               product={product}
               selectedVariant={selectedVariant}
               quantity={quantity}
-              onSelectVariant={setSelectedVariant}
+              onSelectVariant={handleSelectVariant}
               onQuantityChange={setQuantity}
               onAddToCart={handleAddToCart}
               onBuyNow={handleBuyNow}

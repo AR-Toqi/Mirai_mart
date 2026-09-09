@@ -398,26 +398,28 @@ Last updated: August 24, 2026
 
 #### 15. `PDPImageGallery`
 File: `components/storefront/PDPImageGallery.tsx`  
-Last updated: September 8, 2026
+Last updated: September 10, 2026
 
 | Property | Class |
 | --- | --- |
 | Background | `bg-surface` (`#FFFFFF`), `bg-surface/90 backdrop-blur-md` (floating controls), `bg-neutral-dark/85 backdrop-blur-md` (watch video button), `bg-neutral-dark/90 backdrop-blur-md` (video modal backdrop), `bg-neutral-dark` (video player frame) |
-| Border | `border border-neutral-border` (`#E7E8EB`), `border-primary` (active thumbnail), `border-white/20` (video pill badge), `border-white/10` (lightbox modal) |
-| Border radius | `rounded-2xl` (`16px`) main container & video modal, `rounded-xl` (`12px`) thumbnail buttons & video tile, `rounded-full` controls & watch video badge |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-primary` (active thumbnail ring), `border-white/20` (video pill badge), `border-white/10` (lightbox modal) |
+| Border radius | `rounded-2xl` (`16px`) main stage container & video modal, `rounded-xl` (`12px`) thumbnail buttons & video tile, `rounded-full` controls & watch video badge |
 | Text — primary | `font-sans text-xs text-white` (zoom & watch video), `text-[11px] font-bold text-white` (image counter badge) |
 | Text — secondary | `text-neutral-muted` (`#6E797F`), `text-error` (wishlisted) |
-| Spacing | `aspect-square w-full` stage, `h-20 w-20` thumbnail size, `gap-3` thumbnail rail, `max-w-4xl aspect-video` modal player |
+| Spacing | `aspect-square w-full max-h-[540px] max-w-[580px]` stage, `h-13 w-13 sm:h-14 sm:w-14` (56px) compact thumbnail rail, `gap-2.5 sm:gap-3` thumbnail gap, `max-w-4xl aspect-video` modal player |
 | Hover state | `scale-160` pan zoom on hover, `hover:scale-110` floating buttons & arrow navigators, `hover:scale-105 active:scale-95` watch video trigger |
 | Shadow | `shadow-xs` container & active thumbnail, `shadow-2xl` video lightbox modal |
-| Accent usage | `border-primary ring-2 ring-primary/20` for active thumbnail, `bg-primary text-white` play icon on video thumbnail, `bg-primary-surface text-primary` badge |
+| Accent usage | `border-primary ring-2 ring-primary/25 scale-102` for active thumbnail, `bg-primary text-white` play icon on video thumbnail, `bg-primary-surface text-primary` badge |
 
 **Pattern notes:**
 - Main viewport includes cursor-following pan zoom magnifier without layout shift.
 - Floating quick buttons provide instant Wishlist heart state, Share URL copy action, and full-screen "Watch Video" trigger button.
+- Thumbnails rail features compact 56px (`h-13 w-13 sm:h-14 sm:w-14`) tiles with smooth horizontal overflow scrolling, preserving base product photos alongside variant photos.
 - Thumbnails rail seamlessly incorporates a dedicated video thumbnail tile (with play badge) whenever `videoUrl` is provided.
 - Full-screen Video Lightbox Modal opens on click with smooth entrance animation (`animate-in fade-in duration-200`), ESC key listener, outside click to close, and responsive 16:9 iframe/video embeds (supporting YouTube, YouTube Shorts, Vimeo, and direct MP4).
-- Auto-advances active image every 3 seconds (`3000ms`); automatically pauses when hovering or zooming.
+- Variant Synchronization: Instantly switches the active main viewport to the chosen variant's photo upon selection.
+- Decoupled Auto-Slide: Auto-advances active image every 3 seconds (`3000ms`); seamlessly pauses on hover, zoom, or when a user interactively selects a variant.
 
 ---
 
@@ -1027,13 +1029,13 @@ Last updated: September 6, 2026
 
 #### 40. `ProductForm` (Add New & Edit Product Form with Sticky Live Preview)
 File: `components/admin/ProductForm.tsx`  
-Last updated: September 8, 2026
+Last updated: September 10, 2026
 
 | Property | Class |
 | --- | --- |
-| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (canvas), `bg-primary-surface/40` (preview badges & info callouts), `bg-primary-surface/30` (active dropzone drag-over), `bg-error-surface` (error notices), `bg-neutral-dark` (video preview box) |
-| Border | `border border-neutral-border` (`#E7E8EB`), `border-2 border-dashed border-neutral-border/80` (dropzone & empty photo slots), `border-primary` (dropzone active drag & Slot 1 Cover ring), `border-error/30` (upload error banner) |
-| Border radius | `rounded-2xl` (`16px`) form section cards, dropzone, structured photo slots, sticky preview card & video preview box, `rounded-xl` (`12px`) inputs & action buttons, `rounded-full` badge pills & format badges |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (canvas), `bg-primary-surface/40` (preview badges & info callouts), `bg-primary-surface/30` (active dropzone drag-over), `bg-primary-surface/15` (option builder drawer), `bg-primary-surface/20` (custom variant drawer), `bg-error-surface` (error notices), `bg-neutral-dark` (video preview box) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-2 border-dashed border-neutral-border/80` (dropzone & empty photo slots), `border-primary` (dropzone active drag & Slot 1 Cover ring), `border-primary/30` (variant drawer panels), `border-error/30` (upload error banner) |
+| Border radius | `rounded-2xl` (`16px`) form section cards, option builder, dropzone, structured photo slots, sticky preview card & video preview box, `rounded-xl` (`12px`) inputs & action buttons, `rounded-full` badge pills & format badges |
 | Text — primary | `font-heading font-bold text-2xl text-neutral-dark` (title), `font-heading font-bold text-lg` (section headers), `font-heading font-semibold text-xs text-error` (upload error title) |
 | Text — secondary | `font-sans text-xs text-neutral-muted`, `font-mono text-xs text-neutral-muted` (SKU preview), `font-sans text-xs text-neutral-dark/80` (error message body) |
 | Spacing | 2-column layout (approx 68% form left, 32% sticky preview right), `p-5 sm:p-6` card padding, `space-y-5 to space-y-6`, `grid-cols-2 sm:grid-cols-4 gap-3.5` (4-slot photo gallery grid) |
@@ -1044,10 +1046,13 @@ Last updated: September 8, 2026
 **Pattern notes:**
 - Exact match to `add-new_screen.png`: Section anchor bar (`Basic Info`, `Media`, `Pricing`, `Inventory`, `Variants`, `SEO & Additional`), dynamic category attributes, and variant matrix.
 - Structured 4-Slot Photo Gallery Grid: Slot 1 serves as the primary catalog cover image. Hovering populated slots provides "Make Cover" and "Delete Photo" action buttons. Empty slots show interactive dashed tiles (`+ Add Cover Photo` / `+ Add Photo 2..4`).
-- Real-time client-side pre-flight size check (max 8 MB per file) aligning with Next.js 10 MB Server Actions body size limit, with prominent `Image Upload Notice` card and inline dismiss button.
+- Attribute Option Builder: Expandable drawer with interactive toggles for `Color`, `Size`, and `Weight` axes, preset value chips, and custom text inputs. Generates a complete Cartesian matrix combinations list while preserving existing variant prices, stock, and custom titles.
+- Bulk Variant Toolbar: 1-click bulk price setting, bulk stock setting, bulk auto-SKU generation, and clear all with confirmation.
+- Standalone Custom Variant Drawer: Inline form allowing manual addition of single/asymmetrical editions (Title, SKU, optional Color/Size/Weight tags, Price, Stock) without regenerating the matrix.
+- Variant Media Assignment: Per-variant media support with direct InsForge upload or 1-click assignment from the 4 primary product catalog photos.
 - Video Showcase Section: Accepts YouTube (including Shorts), Vimeo, and direct MP4 URLs. Automatically detects video provider, displays colored badge pill, and features expandable `Test Playback` inline player.
 - Storage Management: Immediate deletion of temporary uncommitted photos from InsForge Storage/local disk on remove, and complete garbage collection of deleted images on product save or archival.
-- Dual mode (`mode="create"` vs `mode="edit"`) with full sub-variant synchronization and `revalidateTag` cache invalidation.
+- Dual mode (`mode="create"` vs `mode="edit"`) with non-destructive atomic variant reconciliation preserving foreign key linkages in historical order items.
 
 ---
 
@@ -1061,6 +1066,28 @@ Last updated: September 6, 2026
 | Colors | Primary `#0A98C3`, Primary Light `#71D7F6`, Primary Shadow `#087A9C`, Sunny Yellow Dot `#FCE35F` |
 | Variants | `"mark"` (Isometric 3D "M" monogram with yellow dot), `"full"` (Mark + "MiraiMart" typographic lockup), `"image"` (Raster PNG `/mirai-mart_logo.png`) |
 | Props | `variant?: "mark" | "full" | "image"`, `className?: string`, `size?: number`, `priority?: boolean` |
+
+---
+
+#### 42. `PDPVariantSelectors` (Interactive Storefront Multi-Attribute Swatches)
+File: `components/storefront/PDPBuyBox.tsx` & `lib/utils.ts`  
+Last updated: September 10, 2026
+
+| Property | Class |
+| --- | --- |
+| Color Swatch Chips | `rounded-xl border px-3 py-2 text-xs flex items-center gap-2`, active: `border-primary bg-primary-surface/40 font-bold text-primary ring-2 ring-primary/20 shadow-xs`, idle: `border-neutral-border bg-surface text-neutral-dark hover:border-primary/40 hover:bg-neutral-bg/50` |
+| Swatch Color Circle | `h-4 w-4 rounded-full border border-black/15 shadow-2xs` dynamically filled via unified `getColorHex` in `lib/utils.ts` |
+| Swatch Thumbnail Image | `h-6 w-6 overflow-hidden rounded-md border border-neutral-border/80 relative` (Next.js Image `fill`, `sizes="24px"`) |
+| Size Buttons | `min-w-[44px] h-10 px-3.5 rounded-xl border text-xs font-bold`, active: `bg-neutral-dark text-white border-neutral-dark shadow-xs`, idle: `bg-surface border-neutral-border text-neutral-dark hover:border-primary/50 hover:bg-neutral-bg` |
+| Weight Buttons | `h-10 px-3.5 rounded-xl border text-xs font-bold`, active: `bg-primary text-white border-primary shadow-xs`, idle: `bg-surface border-neutral-border text-neutral-dark hover:border-primary/50 hover:bg-neutral-bg` |
+| Out of Stock State | `opacity-50 line-through decoration-error`, with red `(Sold out)` helper badge |
+
+**Pattern notes:**
+- Automatically identifies active attribute axes (`color`, `size`, `weight`) and renders corresponding distinct selectors.
+- Employs 3-tier intelligent fallback matching to gracefully handle asymmetrical stock without locking user selections.
+- Seamlessly falls back to generic edition button pills if custom non-attribute variants are passed.
+- Single source of truth for color palette hex mapping maintained in `lib/utils.ts`.
+- Gallery interaction decoupled from initial page load via `hasUserSelectedVariant` flag.
 
 ---
 

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CompareClient } from "@/components/storefront/CompareClient";
-import { mockProducts } from "@/lib/mock-data";
+import { ALL_PRODUCTS as mockProducts } from "@/lib/mock-data";
 import { createInsforgeServer } from "@/lib/insforge-server";
 import type { Product } from "@/types";
 
@@ -15,7 +15,7 @@ export default async function ComparePage() {
 
   try {
     const insforge = await createInsforgeServer();
-    const { data, error } = await insforge
+    const { data, error } = await insforge.database
       .from("products")
       .select(`
         id,

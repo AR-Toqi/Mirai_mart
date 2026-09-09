@@ -31,9 +31,6 @@ export default function AdminLayout({
         {/* Admin Clean Footer */}
         <footer className="px-8 py-5 border-t border-neutral-border bg-surface text-xs text-neutral-muted flex flex-col sm:flex-row items-center justify-between gap-3">
           <p>© 2024 Mirai Mart Admin. All rights reserved.</p>
-          <p className="flex items-center gap-1">
-            Made with <span className="text-rose-500">❤️</span> for your business
-          </p>
         </footer>
       </div>
     </div>

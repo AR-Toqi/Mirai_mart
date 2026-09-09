@@ -1308,7 +1308,12 @@ export interface AdminVariantInput {
   price: number;
   compareAtPrice?: number | null;
   stock: number;
-  attributes?: Record<string, string>;
+  attributes?: {
+    color?: string;
+    size?: string;
+    weight?: string;
+    [key: string]: string | undefined;
+  };
   images?: string[];
 }
 
@@ -1422,7 +1427,7 @@ export async function getAdminProductByIdAction(productId: string): Promise<{
 
     if (!error && dbProduct) {
       const variants = dbProduct.product_variants || [];
-      const primaryVariant = variants[0] || {};
+      const primaryVariant = variants.find((v: any) => v.is_default) || variants[0] || {};
       const rawCat = dbProduct.categories as any;
       const categoryObj = Array.isArray(rawCat) ? rawCat[0] : rawCat;
       const categoryName = categoryObj?.name || "Toys, Educational";
@@ -1436,16 +1441,18 @@ export async function getAdminProductByIdAction(productId: string): Promise<{
           ? dbProduct.specs.images
           : [];
 
-      const mappedVariants: AdminVariantInput[] = variants.map((v: any) => ({
-        id: v.id,
-        sku: v.sku || "",
-        title: v.attributes?.title || v.sku || "Standard Edition",
-        price: v.price || 0,
-        compareAtPrice: v.compare_at_price || null,
-        stock: v.stock_quantity || 0,
-        attributes: v.attributes || {},
-        images: v.images || [],
-      }));
+      const mappedVariants: AdminVariantInput[] = variants
+        .filter((v: any) => (primaryVariant.id ? v.id !== primaryVariant.id : !v.is_default))
+        .map((v: any) => ({
+          id: v.id,
+          sku: v.sku || "",
+          title: v.title || v.attributes?.title || v.sku || "Standard Edition",
+          price: v.price || 0,
+          compareAtPrice: v.compare_at_price || null,
+          stock: v.stock_quantity || 0,
+          attributes: v.attributes || {},
+          images: v.images || [],
+        }));
 
       const productData: ProductFormData = {
         id: dbProduct.id,
@@ -1654,7 +1661,7 @@ export async function createAdminProductAction(payload: ProductFormData): Promis
         cost_price: payload.buyingPrice || null,
         stock_quantity: v.stock || 0,
         attributes: v.attributes || {},
-        images: v.images?.length ? v.images : payload.images || [],
+        images: v.images?.length ? v.images : [],
         is_default: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -1773,7 +1780,7 @@ export async function updateAdminProductAction(
           cost_price: payload.buyingPrice || null,
           stock_quantity: v.stock || 0,
           attributes: v.attributes || {},
-          images: v.images?.length ? v.images : payload.images || [],
+          images: v.images?.length ? v.images : [],
           is_default: false,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -1798,7 +1805,7 @@ export async function updateAdminProductAction(
         })
         .eq("id", productId);
 
-      // Fetch existing variants to identify default/primary variant
+      // Fetch existing variants to identify default/primary variant and existing sub-variant IDs
       const { data: existingVariants } = await insforge.database
         .from("product_variants")
         .select("id, is_default")
@@ -1824,13 +1831,6 @@ export async function updateAdminProductAction(
             updated_at: new Date().toISOString(),
           })
           .eq("id", primaryVar.id);
-
-        // Delete non-default variants to cleanly re-sync sub-variants
-        await insforge.database
-          .from("product_variants")
-          .delete()
-          .eq("product_id", productId)
-          .neq("id", primaryVar.id);
       } else {
         // If none existed, insert primary variant
         await insforge.database.from("product_variants").insert([
@@ -1852,25 +1852,69 @@ export async function updateAdminProductAction(
         ]);
       }
 
-      // Re-insert current sub-variants from payload
-      if (payload.variants && payload.variants.length > 0) {
-        const subVariants = payload.variants.map((v) => ({
-          id: crypto.randomUUID(),
-          product_id: productId,
-          sku: v.sku.trim() || `MM-${crypto.randomUUID().slice(0, 6).toUpperCase()}`,
-          title: v.title || `${payload.title} Variant`,
-          price: v.price || payload.price,
-          compare_at_price: v.compareAtPrice || payload.compareAtPrice || null,
-          cost_price: payload.buyingPrice || null,
-          stock_quantity: v.stock || 0,
-          attributes: v.attributes || {},
-          images: v.images?.length ? v.images : payload.images || [],
-          is_default: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }));
+      // Reconcile sub-variants: update existing, insert new, delete only removed
+      const existingSubVars = (existingVariants || []).filter(
+        (v: any) => v.id !== primaryVar?.id && !v.is_default
+      );
+      const existingSubIdSet = new Set(existingSubVars.map((v: any) => v.id));
 
-        await insforge.database.from("product_variants").insert(subVariants);
+      const incomingVariants = payload.variants || [];
+      const incomingIdSet = new Set(
+        incomingVariants.map((v) => v.id).filter(Boolean) as string[]
+      );
+
+      // 1. Delete only variants that were explicitly removed by the admin
+      const toDeleteIds = Array.from(existingSubIdSet).filter((id) => !incomingIdSet.has(id));
+      if (toDeleteIds.length > 0) {
+        await insforge.database
+          .from("product_variants")
+          .delete()
+          .eq("product_id", productId)
+          .in("id", toDeleteIds);
+      }
+
+      // 2. Update existing sub-variants or collect new ones to insert
+      const toInsert: any[] = [];
+
+      for (const v of incomingVariants) {
+        if (v.id && existingSubIdSet.has(v.id)) {
+          // Update existing variant to maintain foreign key integrity
+          await insforge.database
+            .from("product_variants")
+            .update({
+              sku: v.sku.trim() || `MM-${crypto.randomUUID().slice(0, 6).toUpperCase()}`,
+              title: v.title || `${payload.title} Variant`,
+              price: v.price || payload.price,
+              compare_at_price: v.compareAtPrice || payload.compareAtPrice || null,
+              cost_price: payload.buyingPrice || null,
+              stock_quantity: v.stock || 0,
+              attributes: v.attributes || {},
+              images: v.images?.length ? v.images : [],
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", v.id);
+        } else {
+          // Insert new variant
+          toInsert.push({
+            id: v.id && !v.id.startsWith("client-") ? v.id : crypto.randomUUID(),
+            product_id: productId,
+            sku: v.sku.trim() || `MM-${crypto.randomUUID().slice(0, 6).toUpperCase()}`,
+            title: v.title || `${payload.title} Variant`,
+            price: v.price || payload.price,
+            compare_at_price: v.compareAtPrice || payload.compareAtPrice || null,
+            cost_price: payload.buyingPrice || null,
+            stock_quantity: v.stock || 0,
+            attributes: v.attributes || {},
+            images: v.images?.length ? v.images : [],
+            is_default: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+        }
+      }
+
+      if (toInsert.length > 0) {
+        await insforge.database.from("product_variants").insert(toInsert);
       }
     }
 
