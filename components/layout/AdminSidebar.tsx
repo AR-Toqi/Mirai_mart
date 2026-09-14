@@ -13,6 +13,7 @@ import {
   Tag,
   LayoutTemplate,
   Settings,
+  ShoppingCart,
   Store,
   LogOut,
   ExternalLink,
@@ -22,7 +23,6 @@ import { useAuth } from "@/components/providers/AuthProvider";
 interface NavItem {
   label: string;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
   badge?: string | number;
 }
 
@@ -30,44 +30,65 @@ const NAV_ITEMS: NavItem[] = [
   {
     label: "Dashboard",
     href: "/admin",
-    icon: LayoutDashboard,
   },
   {
     label: "Products",
     href: "/admin/products",
-    icon: Package,
   },
   {
     label: "Categories",
     href: "/admin/categories",
-    icon: FolderTree,
   },
   {
     label: "Customers",
     href: "/admin/customers",
-    icon: Users,
+  },
+  {
+    label: "Orders",
+    href: "/admin/orders",
   },
   {
     label: "Analytics",
     href: "/admin/analytics",
-    icon: BarChart3,
   },
   {
     label: "Promo Codes",
     href: "/admin/promos",
-    icon: Tag,
   },
   {
     label: "Website Content",
     href: "/admin/content",
-    icon: LayoutTemplate,
   },
   {
     label: "Settings",
     href: "/admin/settings",
-    icon: Settings,
   },
 ];
+
+function renderNavIcon(href: string, className: string) {
+  switch (href) {
+    case "/admin":
+      return <LayoutDashboard className={className} />;
+    case "/admin/products":
+      return <Package className={className} />;
+    case "/admin/categories":
+      return <FolderTree className={className} />;
+    case "/admin/customers":
+      return <Users className={className} />;
+    case "/admin/orders":
+      return <ShoppingCart className={className} />;
+    case "/admin/analytics":
+      return <BarChart3 className={className} />;
+    case "/admin/promos":
+      return <Tag className={className} />;
+    case "/admin/content":
+      return <LayoutTemplate className={className} />;
+    case "/admin/settings":
+      return <Settings className={className} />;
+    default:
+      return <Package className={className} />;
+  }
+}
 
 export function AdminSidebar() {
   const pathname = usePathname();
@@ -104,11 +125,14 @@ export function AdminSidebar() {
         {/* Navigation Items */}
         <nav className="p-4 space-y-1.5">
           {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
             const isActive =
               item.href === "/admin"
                 ? pathname === "/admin" || pathname === "/admin/dashboard"
                 : pathname.startsWith(item.href);
+
+            const iconClass = `w-5 h-5 ${
+              isActive ? "text-primary" : "text-neutral-muted"
+            }`;
 
             return (
               <Link
@@ -121,11 +145,7 @@ export function AdminSidebar() {
                 }`}
               >
                 <div className="flex items-center gap-3.5">
-                  <Icon
-                    className={`w-5 h-5 ${
-                      isActive ? "text-primary" : "text-neutral-muted"
-                    }`}
-                  />
+                  {renderNavIcon(item.href, iconClass)}
                   <span>{item.label}</span>
                 </div>
                 {item.badge && (

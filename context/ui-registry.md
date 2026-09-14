@@ -1091,6 +1091,66 @@ Last updated: September 10, 2026
 
 ---
 
+#### 43. `AdminOrdersClient` (Fulfillment Management, 7 Metric Cards & Orders Data Table)
+File: `components/admin/AdminOrdersClient.tsx`  
+Last updated: September 14, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (canvas, table hover, & inputs), `bg-blue-50`, `bg-amber-50`, `bg-sky-50`, `bg-purple-50`, `bg-emerald-50`, `bg-rose-50`, `bg-teal-50` (KPI icon circles) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-b border-neutral-border` (table rows) |
+| Border radius | `rounded-2xl` (`16px`) for metric cards & table container, `rounded-xl` (`12px`) for search, filter popover, action buttons & tabs, `rounded-full` for status badges |
+| Text — primary | `font-heading font-bold text-3xl text-neutral-dark` (title), `font-heading font-bold text-2xl` (metrics), `font-sans font-bold text-xs text-neutral-dark` (pricing) |
+| Text — secondary | `font-sans text-xs text-neutral-muted`, `font-mono text-xs text-primary` (order numbers) |
+| Spacing | `p-4 sm:p-5` toolbar padding, `px-3 py-1.5` status tabs, `space-y-6` vertical stack |
+| Hover state | `hover:text-neutral-dark hover:bg-neutral-bg` (inactive status tabs), `hover:bg-neutral-bg` (filter & export triggers), `hover:text-primary` (order actions) |
+| Shadow | `shadow-xs` for metric cards, table container, and active status tab button |
+| Accent usage | `bg-primary text-white shadow-xs` (active status tab pill & bulk action), `text-primary` (order links), official SVG brand vectors (Bkash `#E2136E`, Nagad `#ED1C24`) |
+| Status badges | `bg-[#FEF6E7] text-[#D97706]` (Pending), `bg-[#EFF6FF] text-[#2563EB]` (Processing), `bg-[#F5F3FF] text-[#7C3AED]` (Shipped), `bg-[#ECFDF5] text-[#059669]` (Delivered), `bg-[#FEF2F2] text-[#DC2626]` (Cancelled), `bg-[#FFF1F2] text-[#E11D48]` (Refunded) |
+
+**Pattern notes:**
+- Exact match to `order_screen.png` with 7 summary metric cards, status tabs (`All (342)`, `Pending (28)`, `Processing (47)`, `Shipped (86)`, `Delivered (151)`, `Cancelled (18)`, `Refunded (12)`), instant search, multi-selection checkboxes, customer details, product thumbnails with count pills, Bangladeshi Taka pricing, authentic payment badges (Cash on Delivery, Bkash, Nagad, Card), and pagination.
+- **URL Status Synchronization**: Status filter tabs are bidirectionally synchronized with the URL query parameter `?status=` (`pending`, `processing`, `shipped`, `delivered`, `cancelled`, `refunded`) using `router.replace(targetUrl, { scroll: false })`. "All" tab omits the query parameter for a clean `/admin/orders` route. Automatically handles initial direct link navigation, bookmarking, and browser Back/Forward navigation with `<Suspense>` boundary in `app/(protectedRoutes)/admin/orders/page.tsx`.
+- **Pagination Lifecycle Reset**: Switching status tabs or traversing browser history via Back/Forward buttons automatically resets `currentPage = 1` inside `handleStatusTabChange` and the `searchParams` listener, ensuring operators never encounter out-of-range empty table views.
+- Includes floating bulk action bar when items are selected and 1-click CSV order data export.
+
+---
+
+#### 44. `AdminOrderDetailModal` (Order Inspection, Fulfillment Logistics & RMA Processing)
+File: `components/admin/AdminOrderDetailModal.tsx`  
+Last updated: September 14, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg/60` (header & nested cards), `bg-neutral-dark/60` (backdrop) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-b border-neutral-border/60` |
+| Border radius | `rounded-2xl` (`16px`) modal container & info cards, `rounded-xl` (`12px`) inputs & action buttons, `rounded-full` status badges |
+| Text — primary | `font-heading font-bold text-xl text-neutral-dark` (header), `font-bold text-sm text-neutral-dark` (customer & financial totals) |
+| Text — secondary | `font-sans text-xs text-neutral-muted`, `font-mono text-xs` (tracking & SKUs) |
+| Accents | `bg-primary text-white` (save tracking & active status), `text-error` (COD due balance), `bg-error text-white` (refund confirmation) |
+
+**Pattern notes:**
+- Comprehensive fulfillment workspace: Quick 1-click status switcher, customer contact links, complete COD cash ledger, carrier selector (Pathao, Steadfast, RedX, etc.) with consignment tracking assignment, and RMA refund processing with inventory restock.
+
+---
+
+#### 45. `AdminPackingSlipModal` (Printable A4 Customer Invoice & Packaging Slip)
+File: `components/admin/AdminPackingSlipModal.tsx`  
+Last updated: September 14, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-white` (A4 printable paper body), `bg-neutral-bg/60` (admin preview controls) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-dashed` (signature line) |
+| Border radius | `rounded-2xl` (`16px`) preview shell, `rounded-xl` (`12px`) line items table & customer box |
+| Typography | `font-heading font-extrabold uppercase` (Invoice headline), `font-mono font-bold` (Order ID & barcode tracking) |
+| Print styles | `print:p-0 print:space-y-4 print:hidden` (clean printer layout with CSS print media support) |
+
+**Pattern notes:**
+- Formats customer orders into a print-ready A4 official invoice with Mirai Mart branding, customer shipping details, courier tracking barcode, itemized table, financial ledger, authorized dispatcher signature line, and 1-click browser printing trigger (`window.print()`).
+
+---
+
 ## Component Usage Rules
 
 1. **Named Exports Only**: Always use named exports (`export function ComponentName()`), never default exports.

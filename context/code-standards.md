@@ -37,6 +37,7 @@ The AI agent on this project operates as a senior engineer. This means:
 - **Layouts Must Be Server Components**: Never add `"use client"` to layout files (`layout.tsx`). Keep root and nested layouts server-rendered.
 - **App Router only**: App Router exclusively — no Pages Router.
 - **React 19**: Use React 19 APIs throughout.
+  - **Static Flag Requirement**: Never assign components or Lucide icons dynamically to variable references (e.g., `const Icon = item.icon; <Icon />`) inside component render functions or `.map()` loops. The React 19 compiler / JSX transform expects static flags and will throw `Internal React error: Expected static flag was missing`. Always render static JSX tags directly (e.g., `<Package className={...} />`, `<Clock className={...} />`) via switch statements, explicit conditionals, or helper functions returning static JSX elements.
 - **Components are Server Components by default**: Only add `"use client"` when the specific isolated component requires:
   - `useState` or `useReducer`
   - `useEffect`

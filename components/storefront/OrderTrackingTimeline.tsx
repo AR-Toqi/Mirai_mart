@@ -31,7 +31,6 @@ interface StepInfo {
   key: OrderStatus;
   title: string;
   description: string;
-  icon: React.ElementType;
 }
 
 const ORDER_STEPS: StepInfo[] = [
@@ -39,27 +38,38 @@ const ORDER_STEPS: StepInfo[] = [
     key: "pending",
     title: "Order Placed",
     description: "Verifying payment & details",
-    icon: Clock,
   },
   {
     key: "packed",
     title: "Quality Check & Packed",
     description: "Boxed and sealed for transit",
-    icon: Package,
   },
   {
     key: "shipped",
     title: "In Transit / Dispatched",
     description: "Handed over to courier",
-    icon: Truck,
   },
   {
     key: "delivered",
     title: "Delivered",
     description: "Parcel received by customer",
-    icon: CheckCircle2,
   },
 ];
+
+function renderStepIcon(key: OrderStatus, size: number, className: string) {
+  switch (key) {
+    case "pending":
+      return <Clock size={size} className={className} />;
+    case "packed":
+      return <Package size={size} className={className} />;
+    case "shipped":
+      return <Truck size={size} className={className} />;
+    case "delivered":
+      return <CheckCircle2 size={size} className={className} />;
+    default:
+      return <Package size={size} className={className} />;
+  }
+}
 
 function getStatusStepIndex(status: OrderStatus): number {
   switch (status) {
@@ -230,7 +240,6 @@ export function OrderTrackingTimeline({
             />
 
             {ORDER_STEPS.map((step, idx) => {
-              const StepIcon = step.icon;
               const isCompleted = currentStepIdx > idx;
               const isCurrent = currentStepIdx === idx;
               const isUpcoming = currentStepIdx < idx;
@@ -250,7 +259,7 @@ export function OrderTrackingTimeline({
                     {isCompleted ? (
                       <Check size={18} className="stroke-[3]" />
                     ) : (
-                      <StepIcon size={18} className={isCurrent ? "animate-pulse" : ""} />
+                      renderStepIcon(step.key, 18, isCurrent ? "animate-pulse" : "")
                     )}
                   </div>
 
@@ -291,7 +300,6 @@ export function OrderTrackingTimeline({
             <div className="absolute top-4 bottom-4 left-7 w-0.5 bg-neutral-border" />
 
             {ORDER_STEPS.map((step, idx) => {
-              const StepIcon = step.icon;
               const isCompleted = currentStepIdx > idx;
               const isCurrent = currentStepIdx === idx;
 
@@ -309,7 +317,7 @@ export function OrderTrackingTimeline({
                     {isCompleted ? (
                       <Check size={14} className="stroke-[3]" />
                     ) : (
-                      <StepIcon size={14} />
+                      renderStepIcon(step.key, 14, isCurrent ? "animate-pulse" : "")
                     )}
                   </div>
 

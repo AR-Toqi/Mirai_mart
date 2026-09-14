@@ -912,14 +912,13 @@ export function ProductForm({ mode, initialData, categories }: Props) {
       {/* Quick Anchor Tabs matching add-new_screen.png */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-neutral-border/60 scrollbar-none">
         {[
-          { id: "basic", label: "Basic Info", icon: Info },
-          { id: "media", label: "Media", icon: ImageIcon },
-          { id: "pricing", label: "Pricing", icon: DollarSign },
-          { id: "inventory", label: "Inventory", icon: Package },
-          { id: "variants", label: "Variants", icon: Layers },
-          { id: "additional", label: "SEO & Additional", icon: Sparkles },
+          { id: "basic", label: "Basic Info" },
+          { id: "media", label: "Media" },
+          { id: "pricing", label: "Pricing" },
+          { id: "inventory", label: "Inventory" },
+          { id: "variants", label: "Variants" },
+          { id: "additional", label: "SEO & Additional" },
         ].map((tab) => {
-          const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
             <button
@@ -936,7 +935,12 @@ export function ProductForm({ mode, initialData, categories }: Props) {
                   : "bg-surface text-neutral-muted hover:text-neutral-dark hover:bg-neutral-bg"
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
+              {tab.id === "basic" && <Info className="w-3.5 h-3.5" />}
+              {tab.id === "media" && <ImageIcon className="w-3.5 h-3.5" />}
+              {tab.id === "pricing" && <DollarSign className="w-3.5 h-3.5" />}
+              {tab.id === "inventory" && <Package className="w-3.5 h-3.5" />}
+              {tab.id === "variants" && <Layers className="w-3.5 h-3.5" />}
+              {tab.id === "additional" && <Sparkles className="w-3.5 h-3.5" />}
               <span>{tab.label}</span>
             </button>
           );

@@ -75,14 +75,12 @@ export function PDPTabs({
       {/* Tab Navigation Strip - Only Product Description & Customer Reviews */}
       <div className="flex border-b border-neutral-border overflow-x-auto scrollbar-none bg-neutral-bg/60">
         {[
-          { id: "description", label: "Product Description", icon: FileText },
+          { id: "description", label: "Product Description" },
           {
             id: "reviews",
             label: `Customer Reviews (${totalReviews})`,
-            icon: Star,
           },
         ].map((tab) => {
-          const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
             <button
@@ -95,7 +93,11 @@ export function PDPTabs({
                   : "border-transparent text-neutral-muted hover:text-neutral-dark hover:bg-surface/50"
               }`}
             >
-              <Icon className={`h-4 w-4 ${isActive ? "text-primary" : "text-neutral-muted"}`} />
+              {tab.id === "description" ? (
+                <FileText className={`h-4 w-4 ${isActive ? "text-primary" : "text-neutral-muted"}`} />
+              ) : (
+                <Star className={`h-4 w-4 ${isActive ? "text-primary" : "text-neutral-muted"}`} />
+              )}
               <span>{tab.label}</span>
             </button>
           );

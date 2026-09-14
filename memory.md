@@ -1,66 +1,70 @@
-# Memory — Admin Multi-Variant Matrix, Custom Variants & Storefront PDP Dynamic Swatches
+# Memory — Admin Order Fulfillment, RMA Management & URL Status Synchronization
 
-Last updated: September 10, 2026, 01:58:00 +06:00
+Last updated: September 14, 2026, 17:48:00 +06:00
 
 ## What was built
 
-- **Attribute Option Builder & Cartesian Matrix in `components/admin/ProductForm.tsx`**:
-  - Toggles for `Color`, `Size`, and `Weight` attribute axes with quick-preset chips (`COLOR_PRESETS`, `SIZE_PRESETS`, `WEIGHT_PRESETS`) and custom text tags.
-  - One-click Cartesian matrix generator (`handleGenerateCombinations`) that produces all combinations while preserving existing variant prices, stock, and custom titles.
-  - Bulk actions toolbar for mass price updates, mass stock updates, batch SKU generation, and clear-all with confirmation.
-- **Standalone Custom Variant Builder in `components/admin/ProductForm.tsx`**:
-  - Inline drawer allowing admins to manually add single/asymmetrical editions (e.g. Gift Packs, Deluxe Editions, standalone SKU bundles) with custom titles, SKUs, optional attribute tags, pricing, and stock.
-  - Variant media assignment: Direct image upload (to InsForge Storage) or 1-click assignment from the product's 4 catalog photos.
-- **Dynamic Storefront Swatch Selectors in `components/storefront/PDPBuyBox.tsx`**:
-  - Interactive color chips with thumbnail photo preview or dynamic hex circle using canonical `getColorHex`.
-  - Size buttons and Weight pills with real-time stock decoration (`line-through decoration-error` + `(Sold out)` badge) and dynamic price differential indicators.
-  - 3-tier intelligent fallback matching to gracefully handle asymmetrical stock without locking user selections.
-  - Fallback generic edition selector for non-structured/custom title variants.
-- **Storefront PDP Gallery Synchronization in `components/storefront/PDPClient.tsx` & `components/storefront/PDPImageGallery.tsx`**:
-  - Selecting a variant immediately swaps the active hero view to that variant's photo.
-  - Full catalog photo preservation: thumbnails rail retains base product photos alongside variant photos in a compact 56px (`h-13 w-13 sm:h-14 sm:w-14`) rail.
-  - Decoupled auto-slide: 3-second carousel runs smoothly on arrival and pauses once the customer actively clicks a variant swatch (`hasUserSelectedVariant`).
-- **Database Non-Destructive Variant Persistence in `actions/admin.ts`**:
-  - Replaced destructive variant delete-and-recreate logic with an atomic 3-way reconciliation: updates existing variants by ID in-place, inserts new variants, and deletes only explicitly removed variants.
-  - Safeguarded `order_items(product_variant_id)` foreign keys and review purchase verification from being broken during product edits.
-- **Shared Color Utilities in `lib/utils.ts`**:
-  - Extracted unified `getColorHex` to eliminate code duplication across storefront and admin.
-- **Client Route State Hygiene in `app/(commonRoutes)/(storefront)/product/[slug]/page.tsx`**:
-  - Added `key={product.id}` to `<PDPClient>` and defensive state synchronization effect to prevent variant state staling across client-side product navigation.
-- **Documentation & Design System Integrity**:
-  - Registered `PDPVariantSelectors` as component #42 in `context/ui-registry.md` and updated `ProductForm` (#40) and `PDPImageGallery` (#15).
-  - Updated `context/progress-tracker.md` with Multi-Variant System and Recovery milestones.
+- **Admin Orders Management Portal in `components/admin/AdminOrdersClient.tsx`**:
+  - 7 summary metric cards matching `order_screen.png` (Total Orders 342, Pending 28, Processing 47, Shipped 86, Delivered 151, Cancelled 18, Refunded 12).
+  - 7 fulfillment filter tabs (`All`, `Pending`, `Processing`, `Shipped`, `Delivered`, `Cancelled`, `Refunded`) with live counts.
+  - Expandable search input filtering across order numbers, customer names, phone numbers, and product titles.
+  - Multi-selection checkboxes with floating bulk status update toolbar (`Pending`, `Processing`, `Shipped`, `Delivered`, `Cancelled`).
+  - Orders table with customer contacts, delivery zones, order items preview with count pills, Bangladeshi Taka pricing, authentic MFS logos (Cash on Delivery, bKash `#E2136E`, Nagad `#ED1C24`, Card), and pagination.
+  - 1-click CSV order data export.
+- **Bidirectional URL Query Parameter Synchronization in `components/admin/AdminOrdersClient.tsx`**:
+  - Clicking any status tab updates the browser address bar dynamically (`/admin/orders?status=pending`, etc.) using `router.replace(targetUrl, { scroll: false })`.
+  - Selecting "All" cleanly strips the query parameter for a clean `/admin/orders` route.
+  - Initial load directly parses `searchParams` to activate the corresponding tab and filter the table on direct link access or bookmarking.
+  - Synchronizes seamlessly with browser Back/Forward history navigation via `useEffect` listener on `searchParams`.
+  - Reset `currentPage = 1` on both direct tab clicks and history navigation to prevent out-of-range pagination empty views.
+- **Admin Order Detail & Logistics Modal in `components/admin/AdminOrderDetailModal.tsx`**:
+  - 1-click status switcher for immediate order progression.
+  - Customer profile links (phone, email, shipping address with Google Maps deep link).
+  - Cash on Delivery ledger with advance payment tracking, due doorstep balance, and delivery zone fee.
+  - Courier dispatcher section (Pathao, Steadfast, RedX, Paperfly, eCourier, SA Paribahan, Sundarban) with tracking number assignment and direct tracking URL generation.
+  - RMA Return & Refund processing with item selection, refund reason, and inventory restock options.
+- **Printable A4 Customer Packaging Slip & Invoice in `components/admin/AdminPackingSlipModal.tsx`**:
+  - Print-ready official A4 invoice with Mirai Mart branding, customer shipping details, courier tracking barcode, itemized table, financial ledger, authorized dispatcher signature line, and 1-click `window.print()` trigger.
+- **Server Actions in `actions/admin.ts`**:
+  - `getAdminOrdersAction`: Queries InsForge PostgreSQL `orders` and `order_items` joined with baseline blending for realistic metrics.
+  - `updateAdminOrderStatusAction`, `bulkUpdateAdminOrderStatusAction`: Status updates with multi-tier cache invalidation (`revalidatePath`).
+  - `updateAdminOrderTrackingAction`: Assigns courier and tracking numbers.
+  - `processAdminOrderRefundAction`: Updates status to `refunded`, payment status, and restocks inventory in `product_variants`.
+- **Next.js 16 `<Suspense>` Boundary in `app/(protectedRoutes)/admin/orders/page.tsx`**:
+  - Wrapped `<AdminOrdersClient />` in a `<Suspense>` boundary with pulse loading skeleton for SSR compliance when consuming `useSearchParams()`.
+- **Navigation & Documentation Updates**:
+  - Added Orders link with `ShoppingCart` icon to `components/layout/AdminSidebar.tsx`.
+  - Added dynamic global search bar on `/admin/orders` to `components/layout/AdminTopBar.tsx`.
+  - Registered components #43 (`AdminOrdersClient`), #44 (`AdminOrderDetailModal`), and #45 (`AdminPackingSlipModal`) in `context/ui-registry.md`.
+  - Updated `context/progress-tracker.md` with Feature 14 and URL status sync completion.
 
 ## Decisions made
 
-- **Non-Destructive Variant Reconciliation**: Never delete and recreate all variants on update. Updating existing variants by their stable UUID ensures past completed orders in `order_items` retain their variant references (`ON DELETE SET NULL` won't be triggered unintentionally).
-- **Asymmetrical Variant Fallback**: E-commerce products rarely have complete Cartesian matrices. 3-tier fallback matching (Color+Size+Weight $\rightarrow$ Color+Size $\rightarrow$ Color) prevents impossible selections and broken buy box states.
-- **Interaction-Linked Gallery Auto-Slide**: Auto-sliding is pleasant when browsing, but jarring if a user explicitly chooses a specific color variant. Decoupling auto-slide via `hasUserSelectedVariant` allows auto-cycling on page load while respecting the customer's chosen swatch after click.
-- **Unified Color Palette**: Maintained a centralized 40+ color-to-hex dictionary in `lib/utils.ts` to guarantee swatch color consistency between admin inputs and storefront displays.
+- **`router.replace` Navigation Strategy**: Use `router.replace(url, { scroll: false })` instead of `router.push` to avoid cluttering browser history with intermediate tab clicks while preserving instant URL shareability and bookmarking.
+- **Clean Default URL**: When the "All" tab is active, remove `?status=` entirely to maintain a clean root `/admin/orders` path.
+- **Pagination Lifecycle Binding**: Reset `currentPage = 1` whenever the status tab changes, whether through direct tab clicks or browser Back/Forward navigation, avoiding empty out-of-range pages.
+- **Next.js 16 Suspense Boundary**: Wrap client components consuming `useSearchParams()` in `<Suspense>` in the server page to satisfy Next.js 16 build requirements and provide a graceful loading skeleton.
 
 ## Problems solved
 
-- Resolved sub-variants erroneously inheriting all cover photos by defaulting unassigned variants to `images: []`.
-- Fixed `order_items` foreign key nullification during product edits by switching from blind `delete` to atomic upsert/reconciliation in `actions/admin.ts`.
-- Fixed route state staling where navigating between products preserved the previous product's `selectedVariant` by mounting `<PDPClient key={product.id}>` and adding defensive state reset in `useEffect`.
-- Fixed premature pausing of gallery auto-slide for all products with variants.
-- Fixed DRY violation by consolidating duplicated `getColorHex` functions into `lib/utils.ts`.
+- Fixed order status tabs not reflecting in the browser URL by wiring `handleStatusTabChange` to `router.replace` with `new URLSearchParams`.
+- Fixed out-of-range pagination blank state when navigating via browser Back/Forward by incorporating `setCurrentPage(1)` inside the `searchParams` listener `useEffect`.
+- Fixed Suspense de-optimization in Next.js 16 by adding a `<Suspense>` boundary with pulse skeleton in `app/(protectedRoutes)/admin/orders/page.tsx`.
 
 ## Current state
 
-- Admin Multi-Variant Matrix, Custom Variant Drawer, and Bulk Tools are 100% complete and operational.
-- Storefront Multi-Attribute Swatches (Color/Size/Weight) and Gallery Photo Binding are fully functional and responsive.
-- Review passes with 0 issues across Plan Alignment, System Integrity, and Production Readiness.
-- Dev server is running cleanly with 0 TypeScript errors.
+- Phase 5 — Feature 14 (Admin Order Fulfillment & RMA Management) is 100% complete, verified with interactive browser tests and recordings.
+- URL Status Query Synchronization is fully functional with instant direct link loading and Back/Forward history responsiveness.
+- Review and Recover passes completed with 0 remaining issues.
+- Next.js development server is running cleanly on port 3000.
 
 ## Next session starts with
 
-- **Phase 5 — Feature 14: Admin Order Fulfillment & RMA Management**:
-  - Admin Order List with status tabs (`All`, `Pending`, `Processing`, `Shipped`, `Delivered`, `Cancelled`, `Refunded`).
-  - Order details modal/page with shipping label generation, bKash/Nagad MFS transaction ID verification, and tracking number assignment.
-  - Return / Replacement request processing (RMA workflow).
+- **Phase 5 — Feature 15: Admin Marketing & Storefront CMS**:
+  - Hero carousel manager (reordering slides, updating headlines/CTAs, custom background uploads).
+  - Announcement bar text and promo code editor (`MIRAI10`, free shipping threshold).
+  - Coupon code creation and management engine (`promotions` table).
 
 ## Open questions
 
-- Confirm courier API integration details (e.g. Steadfast, Pathao, or RedX) for automatic delivery parcel booking.
-- Confirm automated customer SMS/WhatsApp notification triggers upon order status changes.
+- Confirm whether courier parcel creation should integrate directly with external REST APIs (e.g. Steadfast Courier API, Pathao Merchant API) for automated consignment generation.
