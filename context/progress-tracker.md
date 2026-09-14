@@ -142,4 +142,22 @@ Update this file after every completed feature. Any AI agent reading this should
      - Wrapped `<AdminOrdersClient />` in a `<Suspense>` boundary with pulse loading skeleton in `app/(protectedRoutes)/admin/orders/page.tsx`.
      - Verified with browser subagent across all status transitions, URL updates, and direct link navigation.
      - Resolved edge case: added `setCurrentPage(1)` inside the `searchParams` `useEffect` listener to prevent out-of-range pagination empty states when navigating via browser Back/Forward buttons.
-
+- Admin Dashboard UI Correction:
+  1. Removed the "New Customers" widget and its state from `AdminDashboardClient.tsx`.
+  2. Removed the "Recent Orders" table and its pagination state from the dashboard.
+  3. Re-architected "Sales Overview" into a broad, full-width 12-column interactive analytics canvas:
+     - Multi-timeframe switching tabs ("7 Days", "30 Days", "12 Months") with responsive dataset updates.
+     - Top metrics ribbon displaying Period Revenue (+growth %), Daily Average, Peak Day & amount, and Orders Volume.
+     - Vector spline curves with soft gradient area fill underneath the curve.
+     - Interactive hover guide with vertical crosshair, concentric glowing nodes, and high-contrast tooltip card showing date, current amount, previous amount, and growth delta.
+  4. Formed a balanced 3-column operational row underneath (Top Selling Products 4 cols, Sales by Channel 4 cols, Inventory Summary 4 cols).
+  5. Verified layout, interactive tabs, tooltips, and responsiveness via browser subagent.
+  6. Updated `context/ui-registry.md` and `context/progress-tracker.md`.
+- Codebase Quality & Review Issue Recovery:
+  1. Purged unconfigured raw Tailwind color classes across `AdminDashboardClient.tsx`, `AdminOrdersClient.tsx`, and `AdminOrderDetailModal.tsx`, standardizing all status badges and KPI card icons on Mirai Mart design tokens (`bg-primary-surface text-primary`, `bg-warning-surface text-warning-foreground`, `bg-success-surface text-success`, `bg-error-surface text-error`, `bg-secondary-surface text-secondary-foreground`, etc.).
+  2. Refactored SVG chart styles in `AdminDashboardClient.tsx` to utilize CSS variable tokens (`var(--color-primary)`, `var(--color-neutral-border)`, `var(--color-neutral-muted)`, `var(--color-neutral-dark)`, `var(--color-surface)`, `var(--color-success)`, `var(--color-error)`).
+  3. Removed unused Lucide icon imports (`ChevronDown`, `Calendar`, `Activity`) in `AdminDashboardClient.tsx`.
+  4. Added explicit error feedback handling in `AdminOrderDetailModal.tsx` for RMA refund processing.
+  5. Added safe clipboard API error handling and rejection guard in `AdminOrdersClient.tsx`.
+  6. Refactored `AdminDashboardMetrics` in `actions/admin.ts` to make legacy dashboard properties optional.
+  7. Updated `context/ui-registry.md` and `context/progress-tracker.md`.

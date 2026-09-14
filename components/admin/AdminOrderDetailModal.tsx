@@ -135,6 +135,7 @@ export function AdminOrderDetailModal({
 
   const handleProcessRefund = async () => {
     setIsProcessingRefund(true);
+    setStatusMessage(null);
     try {
       const res = await processAdminOrderRefundAction(
         currentOrder.id,
@@ -155,9 +156,11 @@ export function AdminOrderDetailModal({
         setIsRefundModalOpen(false);
         setStatusMessage("Refund processed and status set to REFUNDED");
         setTimeout(() => setStatusMessage(null), 3000);
+      } else {
+        setStatusMessage(res.error || "Failed to process refund. Please try again.");
       }
     } catch {
-      // ignore
+      setStatusMessage("An unexpected error occurred while processing the refund.");
     } finally {
       setIsProcessingRefund(false);
     }
@@ -168,42 +171,42 @@ export function AdminOrderDetailModal({
     switch (st) {
       case "pending":
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-amber-50 text-amber-700 border-amber-200/80">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-warning-surface text-warning-foreground border-warning/30">
             <Clock className="w-3.5 h-3.5" />
             <span>Pending</span>
           </span>
         );
       case "processing":
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-sky-50 text-sky-700 border-sky-200/80">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-primary-surface text-primary border-primary/20">
             <Package className="w-3.5 h-3.5" />
             <span>Processing</span>
           </span>
         );
       case "shipped":
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-purple-50 text-purple-700 border-purple-200/80">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-secondary-surface text-secondary-foreground border-secondary/40">
             <Truck className="w-3.5 h-3.5" />
             <span>Shipped</span>
           </span>
         );
       case "delivered":
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-emerald-50 text-emerald-700 border-emerald-200/80">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-success-surface text-success border-success/30">
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>Delivered</span>
           </span>
         );
       case "cancelled":
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-rose-50 text-rose-700 border-rose-200/80">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-error-surface text-error border-error/30">
             <XCircle className="w-3.5 h-3.5" />
             <span>Cancelled</span>
           </span>
         );
       case "refunded":
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-red-50 text-red-700 border-red-200/80">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-error-light text-error-foreground border-error/20">
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Refunded</span>
           </span>

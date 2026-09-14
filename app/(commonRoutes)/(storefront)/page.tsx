@@ -23,11 +23,11 @@ export default async function HomePage() {
       {/* Hero Section */}
       <HeroBanner content={heroContent} />
 
-      {/* 8-Circle Category Grid */}
-      <CategoryCircles />
-
       {/* 4-Card Trust Value Strip */}
       <TrustStrip />
+
+      {/* 8-Circle Category Grid */}
+      <CategoryCircles />
 
       {/* Featured Products Rail (5 Products) */}
       <FeaturedProducts />

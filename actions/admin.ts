@@ -38,7 +38,7 @@ export interface AdminDashboardMetrics {
     amount: number;
     color: string;
   }[];
-  recentOrders: {
+  recentOrders?: {
     id: string;
     orderNumber: string;
     customerName: string;
@@ -48,7 +48,7 @@ export interface AdminDashboardMetrics {
     amount: number;
     status: "Delivered" | "Shipped" | "In Transit" | "Cancelled" | "Pending";
   }[];
-  newCustomers: {
+  newCustomers?: {
     id: string;
     name: string;
     email: string;
@@ -65,7 +65,7 @@ export interface AdminDashboardMetrics {
 }
 
 // Fallback baseline data extracted directly from Admin_Dashboard.png
-const BASELINE_METRICS: AdminDashboardMetrics = {
+const BASELINE_METRICS = {
   kpis: {
     totalSales: 245680,
     salesGrowthPct: 18.6,
@@ -252,7 +252,7 @@ const BASELINE_METRICS: AdminDashboardMetrics = {
     outOfStock: 42,
     inStockPercentage: 68,
   },
-};
+} satisfies AdminDashboardMetrics;
 
 /**
  * Server Action to fetch live Admin Dashboard metrics from InsForge PostgreSQL
@@ -402,14 +402,14 @@ export async function getAdminDashboardMetricsAction(): Promise<{
     const existingNumbers = new Set(mappedDbOrders.map((o) => o.orderNumber));
     const mergedOrders = [
       ...mappedDbOrders,
-      ...BASELINE_METRICS.recentOrders.filter((o) => !existingNumbers.has(o.orderNumber)),
+      ...(BASELINE_METRICS.recentOrders ?? []).filter((o) => !existingNumbers.has(o.orderNumber)),
     ];
 
     // Merge customers
     const existingEmails = new Set(mappedDbCustomers.map((c) => c.email));
     const mergedCustomers = [
       ...mappedDbCustomers,
-      ...BASELINE_METRICS.newCustomers.filter((c) => !existingEmails.has(c.email)),
+      ...(BASELINE_METRICS.newCustomers ?? []).filter((c) => !existingEmails.has(c.email)),
     ];
 
     // Build top selling products from real database records if available

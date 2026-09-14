@@ -965,7 +965,7 @@ Last updated: September 4, 2026
 
 | Property | Class |
 | --- | --- |
-| Background | `bg-surface` (`#FFFFFF`), `bg-blue-50`, `bg-emerald-50`, `bg-purple-50`, `bg-amber-50`, `bg-sky-50` (KPI icon containers), `bg-neutral-bg` (canvas) |
+| Background | `bg-surface` (`#FFFFFF`), `bg-primary-surface`, `bg-success-surface`, `bg-secondary-surface`, `bg-warning-surface`, `bg-tertiary-surface` (KPI icon containers), `bg-neutral-bg` (canvas) |
 | Border | `border border-neutral-border` (`#E7E8EB`) for all cards and table rows |
 | Border radius | `rounded-2xl` (`16px`) for KPI cards, chart containers, tables, and gauges, `rounded-xl` for inner badges & inputs |
 | Text — primary | `font-sans font-bold text-2xl text-neutral-dark` (KPI figures), `font-heading font-bold text-lg text-neutral-dark` (card headers) |
@@ -973,10 +973,10 @@ Last updated: September 4, 2026
 | Spacing | `gap-4 sm:gap-6` card grids, `p-5 to p-6` card padding, `py-3` table rows |
 | Hover state | `hover:shadow-md transition-shadow` (cards), `hover:bg-neutral-bg/60` (table rows) |
 | Shadow | `shadow-xs hover:shadow-md` cards, `shadow-2xs` quick actions |
-| Accent usage | `#0A98C3` (This Week curve & Website channel), `#22C55E` (Facebook channel & Delivered status), `#A855F7` (Instagram channel), `#F59E0B` (Others channel & In Transit) |
+| Accent usage | `var(--color-primary)` (Sales Overview spline curve & Website channel), `var(--color-success)` (Delivered status & Facebook channel), `var(--color-tertiary)` (Revenue & Instagram channel), `var(--color-warning)` (In Stock / Others channel) |
 
 **Pattern notes:**
-- Exact layout matching `Admin_Dashboard.png`: 5 top KPI cards (Total Sales, Orders, Customers, Products, Total Revenue), Sales Overview SVG curve with interactive hover tooltip, Top Selling Products, Sales by Channel donut chart, Recent Orders table with pagination, New Customers list with pagination, Inventory Summary donut gauge (68% In Stock), and Website Content quick card.
+- Admin dashboard layout: 5 top KPI cards (Total Sales, Orders, Customers, Products, Total Revenue), broad full-width Sales Overview interactive analytics canvas (12 cols) with timeframe switcher tabs (7 Days, 30 Days, 12 Months), KPI metrics ribbon, spline curves with soft area gradient fill and floating interactive tooltips; followed by a balanced 3-card operational grid (Top Selling Products 4 cols, Sales by Channel 4 cols, Inventory Summary 4 cols), and Website Content quick card. (Recent Orders and New Customers removed per UI correction).
 
 ---
 
@@ -1097,7 +1097,7 @@ Last updated: September 14, 2026
 
 | Property | Class |
 | --- | --- |
-| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (canvas, table hover, & inputs), `bg-blue-50`, `bg-amber-50`, `bg-sky-50`, `bg-purple-50`, `bg-emerald-50`, `bg-rose-50`, `bg-teal-50` (KPI icon circles) |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (canvas, table hover, & inputs), `bg-primary-surface`, `bg-warning-surface`, `bg-tertiary-surface`, `bg-secondary-surface`, `bg-success-surface`, `bg-error-surface` (KPI icon circles) |
 | Border | `border border-neutral-border` (`#E7E8EB`), `border-b border-neutral-border` (table rows) |
 | Border radius | `rounded-2xl` (`16px`) for metric cards & table container, `rounded-xl` (`12px`) for search, filter popover, action buttons & tabs, `rounded-full` for status badges |
 | Text — primary | `font-heading font-bold text-3xl text-neutral-dark` (title), `font-heading font-bold text-2xl` (metrics), `font-sans font-bold text-xs text-neutral-dark` (pricing) |
@@ -1106,7 +1106,7 @@ Last updated: September 14, 2026
 | Hover state | `hover:text-neutral-dark hover:bg-neutral-bg` (inactive status tabs), `hover:bg-neutral-bg` (filter & export triggers), `hover:text-primary` (order actions) |
 | Shadow | `shadow-xs` for metric cards, table container, and active status tab button |
 | Accent usage | `bg-primary text-white shadow-xs` (active status tab pill & bulk action), `text-primary` (order links), official SVG brand vectors (Bkash `#E2136E`, Nagad `#ED1C24`) |
-| Status badges | `bg-[#FEF6E7] text-[#D97706]` (Pending), `bg-[#EFF6FF] text-[#2563EB]` (Processing), `bg-[#F5F3FF] text-[#7C3AED]` (Shipped), `bg-[#ECFDF5] text-[#059669]` (Delivered), `bg-[#FEF2F2] text-[#DC2626]` (Cancelled), `bg-[#FFF1F2] text-[#E11D48]` (Refunded) |
+| Status badges | `bg-warning-surface text-warning-foreground border border-warning/30` (Pending), `bg-primary-surface/40 text-primary border border-primary/20` (Processing), `bg-secondary-surface text-secondary-foreground border border-secondary/40` (Shipped), `bg-success-surface text-success border border-success/30` (Delivered), `bg-error-surface text-error border border-error/30` (Cancelled), `bg-error-light text-error-foreground border border-error/20` (Refunded) |
 
 **Pattern notes:**
 - Exact match to `order_screen.png` with 7 summary metric cards, status tabs (`All (342)`, `Pending (28)`, `Processing (47)`, `Shipped (86)`, `Delivered (151)`, `Cancelled (18)`, `Refunded (12)`), instant search, multi-selection checkboxes, customer details, product thumbnails with count pills, Bangladeshi Taka pricing, authentic payment badges (Cash on Delivery, Bkash, Nagad, Card), and pagination.

@@ -227,9 +227,17 @@ export function AdminOrdersClient({ initialData }: AdminOrdersClientProps) {
   // Copy order number handler
   const handleCopyOrderNumber = (e: React.MouseEvent, orderNumber: string) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(orderNumber);
-    setCopiedId(orderNumber);
-    setTimeout(() => setCopiedId(null), 1500);
+    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(orderNumber)
+        .then(() => {
+          setCopiedId(orderNumber);
+          setTimeout(() => setCopiedId(null), 1500);
+        })
+        .catch(() => {
+          // Fallback if clipboard permission denied
+        });
+    }
   };
 
   // Checkbox multi-select handlers
@@ -324,43 +332,43 @@ export function AdminOrdersClient({ initialData }: AdminOrdersClientProps) {
     switch (st) {
       case "pending":
         return (
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#FEF6E7] text-[#D97706] border border-[#FDE68A]/60">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-warning-surface text-warning-foreground border border-warning/30">
             Pending
           </span>
         );
       case "processing":
         return (
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE]/60">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-primary-surface/40 text-primary border border-primary/20">
             Processing
           </span>
         );
       case "shipped":
         return (
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#F5F3FF] text-[#7C3AED] border border-[#DDD6FE]/60">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-secondary-surface text-secondary-foreground border border-secondary/40">
             Shipped
           </span>
         );
       case "delivered":
         return (
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]/60">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-success-surface text-success border border-success/30">
             Delivered
           </span>
         );
       case "cancelled":
         return (
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA]/60">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-error-surface text-error border border-error/30">
             Cancelled
           </span>
         );
       case "refunded":
         return (
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#FFF1F2] text-[#E11D48] border border-[#FECDD3]/60">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-error-light text-error-foreground border border-error/20">
             Refunded
           </span>
         );
       default:
         return (
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-neutral-bg text-neutral-dark">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-neutral-bg text-neutral-dark border border-neutral-border">
             {st}
           </span>
         );

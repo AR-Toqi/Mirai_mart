@@ -160,42 +160,6 @@ export function HeroBanner({ content }: Props) {
           </div>
         )}
       </section>
-
-      {/* 2. Trust Value Strip Below Banner */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 rounded-2xl bg-surface border border-neutral-border shadow-2xs">
-        {/* Perk 1 */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary-surface text-primary flex items-center justify-center shrink-0">
-            <TruckIcon size={18} />
-          </div>
-          <div>
-            <h4 className="font-sans font-bold text-xs text-neutral-dark">Free Shipping</h4>
-            <p className="text-[11px] text-neutral-muted">On orders over ৳3,000</p>
-          </div>
-        </div>
-
-        {/* Perk 2 */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary-surface text-primary flex items-center justify-center shrink-0">
-            <RotateCcwIcon size={18} />
-          </div>
-          <div>
-            <h4 className="font-sans font-bold text-xs text-neutral-dark">Easy Returns</h4>
-            <p className="text-[11px] text-neutral-muted">30-day hassle free</p>
-          </div>
-        </div>
-
-        {/* Perk 3 */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary-surface text-primary flex items-center justify-center shrink-0">
-            <ShieldCheckIcon size={18} />
-          </div>
-          <div>
-            <h4 className="font-sans font-bold text-xs text-neutral-dark">Secure Payment</h4>
-            <p className="text-[11px] text-neutral-muted">100% protected</p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

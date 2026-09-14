@@ -30,8 +30,8 @@ export function TrustStrip() {
   ];
 
   return (
-    <section className="bg-white border border-neutral-border rounded-2xl p-6 sm:p-7 shadow-xs">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+    <section className="bg-white border border-neutral-border rounded-2xl p-6 sm:p-7 shadow-xs justify-between">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 justify-between">
         {perks.map((item) => {
           return (
             <div key={item.id} className="flex items-center gap-4">
