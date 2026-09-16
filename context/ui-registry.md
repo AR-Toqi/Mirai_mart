@@ -532,25 +532,28 @@ Last updated: August 29, 2026
 
 ---
 
-#### 21. `CartDrawer`
+#### 21. `CartDrawer` (Slide-Over Cart Drawer & Quick Promo Engine)
 File: `components/storefront/CartDrawer.tsx`  
-Last updated: August 29, 2026
+Last updated: September 16, 2026
 
 | Property | Class |
 | --- | --- |
-| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-dark/40 backdrop-blur-xs` (backdrop overlay) |
-| Border | `border-l border-neutral-border` (`#E7E8EB`), `border-t border-neutral-border` (footer summary) |
-| Border radius | `rounded-l-3xl` panel, `rounded-full` close icon, `rounded-2xl` item cards, `rounded-xl` checkout CTAs |
-| Text — primary | `font-heading font-bold text-2xl text-neutral-dark` (`#191C1E`) |
-| Text — secondary | `font-sans text-xs text-neutral-muted` (`#6E797F`), `text-success font-semibold` (free shipping milestone) |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-dark/40 backdrop-blur-xs` (backdrop overlay), `bg-success-surface` (active coupon card & celebratory banner), `bg-warning-surface` (inactive coupon card), `bg-primary-surface/30` (quick suggestion pill) |
+| Border | `border-l border-neutral-border` (`#E7E8EB`), `border-t border-neutral-border` (footer summary), `border border-neutral-border` (item cards & inputs), `border-success/30` (active coupon & free shipping banner), `border-warning/30` (inactive coupon) |
+| Border radius | `rounded-l-3xl` drawer panel, `rounded-2xl` item cards, `rounded-xl` coupon cards, free shipping banner, inputs & checkout CTAs, `rounded-lg` stepper & suggestion pills, `rounded-full` close icon & progress bar |
+| Text — primary | `font-heading font-bold text-2xl text-neutral-dark` (`#191C1E`), `font-sans font-bold text-sm sm:text-base text-neutral-dark` (prices) |
+| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted` (`#6E797F`), `text-success font-semibold` (free shipping milestone & discount), `text-warning-foreground` (inactive coupon header) |
+| Spacing | `px-6 pt-6 pb-4` header padding, `px-6 py-2` items scroll area, `px-6 pt-4 pb-6` footer summary, `gap-3.5` card layout |
+| Hover state | `hover:bg-neutral-bg` (close & stepper buttons), `hover:bg-tertiary` (Checkout CTA), `hover:bg-primary-surface/40` (View Cart), `hover:text-error hover:bg-error-surface` (trash icon & coupon remove) |
 | Animation | Framer Motion `AnimatePresence` with spring slide-in (`damping: 28, stiffness: 260`) and fade overlay |
-| Shadow | `shadow-2xl` drawer panel, `shadow-xs` CTA buttons |
-| CTAs | `bg-primary text-white` Proceed to Checkout (with lock icon), `text-primary` View Cart |
+| Shadow | `shadow-2xl` drawer panel, `shadow-xs` CTAs, `shadow-2xs` item cards & apply button |
+| Accent usage | `bg-primary text-white` (Proceed to Checkout with lock icon & active item checkboxes), `bg-primary-surface text-primary` (empty cart icon), `text-success` (unlocked free delivery) |
 
 **Pattern notes:**
-- Framer Motion `AnimatePresence` handles entry/exit transitions for both the darkened backdrop and sliding drawer panel.
-- Product list supports interactive selection checkboxes with live subtotal and discount recalculations.
-- Features dynamic free-shipping progress track with vehicle milestone indicator, 1-click coupon application card (`MIRAI10`), celebratory banner, and quick quantity stepper controls.
+- Framer Motion `AnimatePresence` handles spring slide-in and backdrop fade with locked body scroll and ESC key dismissal.
+- Dedicated promo code input form with `Tag` prefix icon, uppercase formatting, inline error/success feedback, and 1-click `MIRAI10` quick apply pill.
+- Supports dual coupon presentation: Active state (`bg-success-surface border-success/30 text-success`) with discount calculation and Inactive state (`bg-warning-surface border-warning/30 text-warning-foreground`) alerting customer to spend threshold deficit.
+- Dynamic free shipping progress track with milestone truck indicator and celebratory alert banner upon unlock.
 
 ---
 
@@ -572,30 +575,40 @@ Last updated: August 29, 2026
 
 #### 23. `CartPageClient` (Full Cart Page)
 File: `components/storefront/CartPageClient.tsx`  
-Last updated: August 29, 2026
+Last updated: September 16, 2026
 
 | Property | Class |
 | --- | --- |
-| Background | `bg-neutral-bg` (canvas), `bg-surface` (cards & sticky summary), `bg-secondary-surface/20` (gift wrap card) |
-| Border | `border border-neutral-border` (`#E7E8EB`), `border-secondary/40` (gift wrap card) |
-| Border radius | `rounded-2xl` (`16px`) for cards and summary container, `rounded-md` (`8px`) for inputs and CTAs |
-| Text — primary | `font-heading font-bold text-2xl sm:text-3xl lg:text-4xl text-neutral-dark` |
-| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted` |
-| Promo Input | Monospace uppercase code input with instant validation and quick suggestion pills (`MIRAI10`, `WELCOME50`, `FREESHIP`) |
-| WhatsApp CTA | `bg-[#25D366] text-white` Order Entire Bag via WhatsApp with prefilled multi-item list |
-| Trust Bar | Genuine Quality, 30-Day Easy Returns, Cash on Delivery nationwide |
+| Background | `bg-neutral-bg` (canvas), `bg-surface` (cards, items & sticky summary), `bg-secondary-surface/20` (gift wrap card), `bg-success-surface` (active coupon badge), `bg-warning-surface` (inactive coupon spend warning), `bg-neutral-bg/60` (trust strip) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-secondary/40` (gift wrap card), `border-success/20` (active coupon), `border-warning/30` (inactive coupon) |
+| Border radius | `rounded-2xl` (`16px`) for cards, gift card & summary container, `rounded-xl` (`12px`) for gift message input & trust strip, `rounded-lg` (`8px`) for coupon badges, `rounded-md` (`8px`) for inputs and CTAs, `rounded-full` quick suggestion pills |
+| Text — primary | `font-heading font-bold text-2xl sm:text-3xl lg:text-4xl text-neutral-dark` (headings), `font-sans font-bold text-base` (grand total) |
+| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted`, `text-success` (free shipping, active discount & coupon tags), `text-warning-foreground` (inactive coupon warning) |
+| Spacing | `py-8 sm:py-12` page padding, `gap-8` 2-column grid layout, `p-5 sm:p-6` cards padding, `space-y-3.5` list items, `space-y-3` cost breakdown |
+| Hover state | `hover:bg-tertiary` (primary CTA), `hover:bg-secondary-light` (gift combos CTA), `hover:bg-[#20bd5a]` (WhatsApp), `hover:text-error hover:bg-error-surface` (clear cart & delete actions), `hover:text-primary` (breadcrumbs & product titles) |
+| Shadow | `shadow-sm` (sticky order summary), `shadow-xs` (cards & CTAs), `shadow-2xs` (gift wrap card) |
+| Accent usage | `bg-primary text-white` (Proceed to Checkout CTA), `bg-secondary text-neutral-dark` (Gift Combos CTA), `bg-[#25D366] text-white` (1-Click WhatsApp Order), `bg-primary-surface/60 text-tertiary` (quick coupon pills) |
+
+**Pattern notes:**
+- Comprehensive 2-column storefront cart experience (8 cols line items & gift options, 4 cols sticky order summary).
+- Active coupon banner displays code in uppercase with `Tag` icon, `text-success`, dynamic discount or "(Free Delivery)" label, and 1-click `✕` remove button.
+- Inactive coupon state gracefully alerts users when subtotal drops below `minOrderValue` (`bg-warning-surface text-warning-foreground`) prompting `(Add ৳ X more)` without silently dropping user's coupon choice.
+- Luxury gift wrapping card (`bg-secondary-surface/20 border-secondary/40`) with animated accordion textarea (250 char limit counter) and embossed Mirai Mart note reminder.
+- Direct WhatsApp multi-item bag export link with pre-formatted product list, gift options, coupon code, delivery fee, and grand total.
+
+---
 
 #### 24. `CheckoutClient`
 File: `components/storefront/CheckoutClient.tsx`  
-Last updated: August 30, 2026
+Last updated: September 16, 2026
 
 | Property | Class |
 | --- | --- |
-| Background | `bg-surface` (cards), `bg-neutral-bg` (body/trust strip), `bg-success-surface` (security badge), `bg-primary-surface/30` (active delivery zone) |
-| Border | `border border-neutral-border/80` (cards), `border border-neutral-border/90` (pill inputs), `border-primary` (active delivery zone) |
-| Border radius | `rounded-3xl` (cards), `rounded-full` (inputs, zone buttons, CTAs), `rounded-2xl` (thumbnails, trust badge container), `rounded-md` (quantity stepper) |
+| Background | `bg-surface` (cards), `bg-neutral-bg` (body/trust strip), `bg-success-surface` (security badge), `bg-primary-surface/30` (active delivery zone), `bg-warning-surface/50` (inactive coupon banner) |
+| Border | `border border-neutral-border/80` (cards), `border border-neutral-border/90` (pill inputs), `border-primary` (active delivery zone), `border-warning/20` (inactive coupon callout) |
+| Border radius | `rounded-3xl` (cards), `rounded-full` (inputs, zone buttons, CTAs), `rounded-2xl` (thumbnails, trust badge container), `rounded-lg` (inactive coupon pill), `rounded-md` (quantity stepper) |
 | Text — primary | `font-heading font-bold text-xl sm:text-2xl text-neutral-dark` |
-| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted` |
+| Text — secondary | `font-sans text-xs sm:text-sm text-neutral-muted`, `text-success font-bold` (applied discount), `text-warning-foreground font-semibold` (inactive coupon) |
 | Spacing | `p-6 sm:p-8` (card container padding), `space-y-4` (form rows), `px-5 py-3` (input padding) |
 | Hover state | `hover:bg-secondary-light` (primary CTA), `hover:bg-tertiary` (links/back), `hover:bg-neutral-bg` (zone & stepper buttons) |
 | Shadow | `shadow-xs` (cards), `shadow-md` (Place Order CTA) |
@@ -606,6 +619,7 @@ Last updated: August 30, 2026
 - **Billing Inputs**: Uses `rounded-full` pill inputs with clear required asterisks (`<span className="text-red-500 font-bold">*</span>`).
 - **Delivery Zone Selector**: Segmented pill cards directly providing Inside Dhaka (৳80) and Outside Dhaka (৳120) with live free shipping evaluation at ৳ 3,000 threshold.
 - **Order Details**: Clean inline table format with thumbnail, `[-] qty [+]` quantity stepper, line subtotals, and `✕` remove button.
+- **Coupon Synchronization**: Displays active coupon discount line item or amber warning callout (`bg-warning-surface/50 border-warning/20`) when subtotal is below minimum spend threshold.
 
 #### 25. `CheckoutPaymentMethod`
 File: `components/storefront/CheckoutPaymentMethod.tsx`  
@@ -1148,6 +1162,40 @@ Last updated: September 14, 2026
 
 **Pattern notes:**
 - Formats customer orders into a print-ready A4 official invoice with Mirai Mart branding, customer shipping details, courier tracking barcode, itemized table, financial ledger, authorized dispatcher signature line, and 1-click browser printing trigger (`window.print()`).
+
+#### 46. `AdminPromosClient` (Promotions & Coupon Codes CMS Data Grid & Filter Bar)
+File: `components/admin/AdminPromosClient.tsx`  
+Last updated: September 16, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (toolbar & tabs), `bg-neutral-dark/60` (delete backdrop) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-b border-neutral-border/60` (table rows) |
+| Border radius | `rounded-2xl` (`16px`) table container & KPI cards, `rounded-xl` (`12px`) inputs & buttons |
+| Text — primary | `font-heading font-bold text-2xl text-neutral-dark`, `font-bold text-xs text-neutral-dark` |
+| Text — secondary | `font-sans text-xs text-neutral-muted`, `text-[10px]` uppercase metadata |
+| Status / Accents | `bg-primary-surface text-primary` (Total KPI), `bg-success-surface text-success` (Active KPI), `bg-secondary-surface text-secondary-foreground` (Redemptions KPI), `bg-warning-surface text-warning-foreground` (Attention Required KPI), `bg-error-surface text-error` (Expired & Delete) |
+
+**Pattern notes:**
+- Full CMS dashboard for store vouchers and coupon codes. Features 4 KPI metric cards, bidirectional URL query parameter synchronization (`?status=active|inactive`), debounced code search, 1-click clipboard copy with animated check feedback, toggle switch for live active status, redemption usage progress gauge with warning colors, and deletion confirmation modal.
+
+---
+
+#### 47. `PromotionModal` (Coupon Creator & Live Interactive Voucher Preview)
+File: `components/admin/PromotionModal.tsx`  
+Last updated: September 16, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-linear-to-br from-primary-surface/40 via-surface to-secondary-surface/30` (Voucher preview), `bg-neutral-dark/60` (modal backdrop) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-2 border-dashed border-primary/40` (Voucher card frame) |
+| Border radius | `rounded-2xl` (`16px`) modal container & voucher card, `rounded-xl` (`12px`) inputs & action buttons |
+| Text — primary | `font-heading font-bold text-2xl text-neutral-dark`, `font-heading font-bold text-2xl sm:text-3xl text-primary` (discount amount) |
+| Text — secondary | `font-sans text-xs text-neutral-muted`, `font-bold text-xs` labels |
+| Focus | `focus:outline-none ring-2 ring-primary/20 border-primary` |
+
+**Pattern notes:**
+- Create and edit promotional vouchers with real-time live preview rendering. Supports 3 discount models (Percentage with % cap check, Fixed Amount with ৳ currency formatting, and Free Shipping), minimum subtotal threshold, optional usage ceiling cap, date range constraints (start and expiry), and live active status switch. Validated server-side via Zod schema (`promotion.schema.ts`).
 
 ---
 

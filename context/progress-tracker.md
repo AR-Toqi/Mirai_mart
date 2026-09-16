@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 5 — Admin Management Panel  
-**Last completed:** Phase 5 — Feature 14 (Admin Order Fulfillment & RMA Management)  
-**Next:** Phase 5 — Feature 15 (Admin Marketing & Storefront CMS)  
+**Last completed:** Phase 5 — Feature 15 (Admin Marketing & Storefront CMS — Promo Codes Engine)  
+**Next:** Phase 5 — Feature 15 (Hero Banner & Announcement Bar CMS Refinements / Complete Phase 5)  
 
 ---
 
@@ -161,3 +161,30 @@ Update this file after every completed feature. Any AI agent reading this should
   5. Added safe clipboard API error handling and rejection guard in `AdminOrdersClient.tsx`.
   6. Refactored `AdminDashboardMetrics` in `actions/admin.ts` to make legacy dashboard properties optional.
   7. Updated `context/ui-registry.md` and `context/progress-tracker.md`.
+- Implemented Promotions & Coupon Codes CMS + Review Recovery (Phase 5 — Feature 15):
+  1. Built `AdminPromosClient.tsx` matching Mirai Mart design system: 4 KPI summary cards (Total Coupons 5, Active Codes 4, Total Redemptions 498, Attention Required 1), bidirectional URL query parameter synchronization (`?status=active|inactive`), debounced code search, 1-click clipboard copy, active status switch, redemption progress bar with warning colors, and deletion modal.
+  2. Built `PromotionModal.tsx` with live voucher preview card, 3 discount models (Percentage, Fixed Amount, Free Shipping), subtotal thresholds, optional usage ceilings, and date constraints.
+  3. Created type-safe Zod schema validation in `lib/validations/promotion.schema.ts` (`createPromotionSchema`, `updatePromotionSchema`) and wired into `actions/promotions.ts`.
+  4. Unified Storefront & Checkout Validation: Refactored `createOrderAction` in `actions/orders.ts` to delegate to `validatePromoCodeAction`, eliminating code duplication.
+  5. Guarded Usage Counter: Ensured `incrementPromotionUsageAction` only executes when the promotion is validated and actually applied.
+  6. Resolved Free Shipping Coupon Visibility Bug: Updated `CartPageClient.tsx`, `CartDrawer.tsx`, and `CheckoutClient.tsx` so `FREESHIP` coupons are visible and removable.
+  7. Threshold State Integrity: Extended `AppliedPromo` to store `minOrderValue` and enforce threshold checks in `CartProvider.tsx`.
+  8. Added custom promo code input form with "Apply" button inside `CartDrawer.tsx`.
+  9. Wrapped `AdminPromosClient` in a `<Suspense>` boundary in `app/(protectedRoutes)/admin/promos/page.tsx`.
+  10. Imprinted components #46 and #47 in `context/ui-registry.md` and verified end-to-end via browser subagent.
+  11. Targeted Recovery across 6 Core Files (`actions/orders.ts`, `actions/promotions.ts`, `lib/validations/promotion.schema.ts`, `CartProvider.tsx`, `CartDrawer.tsx`, `CartPageClient.tsx`):
+      - `actions/orders.ts`: Imported missing types `OrderRecord` and `OrderItemRecord` from `@/lib/db/types`, sanitized `appliedPromoCode` against empty/whitespace strings.
+      - `lib/validations/promotion.schema.ts`: Fixed `max_uses` schema to accept 0 as unlimited without validation error, added date regex and expiration-after-start date refinement to `updatePromotionSchema`, exported `CreatePromotionInput` and `UpdatePromotionInput` (`z.input`).
+      - `actions/promotions.ts`: Directly used input types for actions, added baseline promotion fallback upserting in `updateAdminPromotionAction` and `toggleAdminPromotionStatusAction`, added null-safe `used_count` comparison.
+      - `CartProvider.tsx`: Added missing `setGiftMessage` and `removePromoCode` to `CartContextType` interface, fixed `selectedItemIds` hydration empty array edge case.
+      - `CartDrawer.tsx`: Replaced hardcoded raw hex classes with semantic design tokens (`bg-success-surface border-success/30 text-success`).
+      - `CartPageClient.tsx`: Restored complete type safety and verified coupon removal/discount application.
+      - Tested and verified end-to-end via browser subagent recording `recover_verify_1789546791309.webp`.
+  12. Review Quality Recovery (Failure Mode 1 Targeted Fixes):
+      - `actions/promotions.ts`: Set database query results as single source of truth in `getAdminPromotionsAction` so deleted baseline promotions never re-appear on reload.
+      - `actions/promotions.ts`: In `validatePromoCodeAction`, only fell back to baseline promotions when the database is unreachable, preventing deleted baseline coupons from validating on checkout.
+      - `actions/promotions.ts`: Added uniqueness check in `updateAdminPromotionAction` preventing rename collisions with existing promo codes.
+      - `actions/promotions.ts`: Added null-safe property access `(record.min_order_value ?? 0).toLocaleString()`.
+      - `components/admin/PromotionModal.tsx`: Fixed date expiration cutoff to end-of-day (`23:59:59.999Z`) and starts_at to start-of-day (`00:00:00.000Z`) so coupons remain valid through the entire expiration day.
+      - `components/admin/AdminPromosClient.tsx`: Added null-safe property access `(p.used_count ?? 0).toLocaleString()`.
+      - `components/storefront/CartDrawer.tsx`, `CartPageClient.tsx`, `CheckoutClient.tsx`: Added informative amber warning banner when cart subtotal drops below minimum order spend threshold (`Add ৳ [amount] more to activate`), eliminating customer confusion.

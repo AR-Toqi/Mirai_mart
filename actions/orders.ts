@@ -2,6 +2,7 @@
 
 import { revalidatePath, updateTag } from "next/cache";
 import { createInsforgeServer } from "@/lib/insforge-server";
+import type { OrderRecord, OrderItemRecord } from "@/lib/db/types";
 import {
   orderPlacementPayloadSchema,
   type OrderPlacementPayload,
@@ -12,7 +13,10 @@ import {
   GIFT_WRAP_PRICE,
   VALID_PROMO_CODES,
 } from "@/lib/constants";
-import type { OrderRecord, OrderItemRecord } from "@/lib/db/types";
+import {
+  incrementPromotionUsageAction,
+  validatePromoCodeAction,
+} from "@/actions/promotions";
 
 export interface CreateOrderResult {
   success: boolean;
@@ -68,18 +72,45 @@ export async function createOrderAction(
         ? SHIPPING_RATES.inside_dhaka
         : SHIPPING_RATES.outside_dhaka;
 
-    // Promo code validation
+    const insforge = await createInsforgeServer();
+
+    // Promo code validation & application
     let discountAmount = 0;
-    if (appliedPromoCode) {
-      const cleanCode = appliedPromoCode.trim().toUpperCase();
-      const promo = VALID_PROMO_CODES[cleanCode];
-      if (promo && subtotal >= promo.minSubtotal) {
-        if (promo.type === "percentage") {
-          discountAmount = Math.round((subtotal * promo.value) / 100);
-        } else if (promo.type === "fixed_amount") {
-          discountAmount = Math.min(subtotal, promo.value);
-        } else if (promo.type === "free_shipping") {
-          shippingFee = 0;
+    let isPromoApplied = false;
+    const cleanPromoCode = appliedPromoCode?.trim().toUpperCase();
+
+    if (cleanPromoCode) {
+      try {
+        const promoRes = await validatePromoCodeAction(cleanPromoCode, subtotal);
+        if (promoRes.success && promoRes.promo) {
+          if (
+            promoRes.promo.discountType === "percentage" ||
+            promoRes.promo.discountType === "fixed_amount"
+          ) {
+            discountAmount = promoRes.promo.discountAmount;
+            isPromoApplied = true;
+          } else if (promoRes.promo.discountType === "free_shipping") {
+            shippingFee = 0;
+            isPromoApplied = true;
+          }
+        }
+      } catch (promoErr) {
+        console.warn(
+          "[actions/orders] promo validation error, falling back to local constants:",
+          promoErr
+        );
+        const fallback = VALID_PROMO_CODES[cleanPromoCode];
+        if (fallback && subtotal >= fallback.minSubtotal) {
+          if (fallback.type === "percentage") {
+            discountAmount = Math.round((subtotal * fallback.value) / 100);
+            isPromoApplied = true;
+          } else if (fallback.type === "fixed_amount") {
+            discountAmount = Math.min(subtotal, fallback.value);
+            isPromoApplied = true;
+          } else if (fallback.type === "free_shipping") {
+            shippingFee = 0;
+            isPromoApplied = true;
+          }
         }
       }
     }
@@ -100,7 +131,6 @@ export async function createOrderAction(
     const randomDigits = Math.floor(1000 + Math.random() * 9000);
     const orderNumber = `MM-${timestamp}${randomDigits}`;
 
-    const insforge = await createInsforgeServer();
     const { data: authData } = await insforge.auth.getCurrentUser();
     const user = authData?.user;
 
@@ -251,6 +281,15 @@ export async function createOrderAction(
           .eq("id", user.id);
       } catch {
         // non-blocking
+      }
+    }
+
+    // 6.5 Increment promotion usage count ONLY if promo was verified and actually applied
+    if (cleanPromoCode && isPromoApplied) {
+      try {
+        await incrementPromotionUsageAction(cleanPromoCode);
+      } catch (promoErr) {
+        console.warn("[actions/orders] promo usage increment error:", promoErr);
       }
     }
 

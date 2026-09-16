@@ -17,6 +17,7 @@ import {
   Info,
   ShoppingBag,
   Sparkles,
+  AlertCircle,
 } from "lucide-react";
 import { useCart } from "@/components/providers/CartProvider";
 import { formatCurrency } from "@/lib/utils";
@@ -46,7 +47,8 @@ export function CartDrawer() {
     removePromoCode,
   } = useCart();
 
-  const [promoInput, setPromoInput] = useState("MIRAI10");
+  const [promoInput, setPromoInput] = useState("");
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
   const [promoFeedback, setPromoFeedback] = useState<{
     type: "success" | "error";
     message: string;
@@ -85,20 +87,25 @@ export function CartDrawer() {
     router.push("/cart");
   }
 
-  function handleApplyPromo(codeToApply?: string) {
-    const code = codeToApply || promoInput;
-    const res = applyPromoCode(code);
-    if (res.success) {
-      setPromoFeedback({ type: "success", message: res.message });
-    } else {
-      setPromoFeedback({ type: "error", message: res.message });
+  async function handleApplyPromo(codeToApply?: string) {
+    const code = (codeToApply || promoInput).trim();
+    if (!code) return;
+    setIsApplyingPromo(true);
+    try {
+      const res = await applyPromoCode(code);
+      if (res.success) {
+        setPromoFeedback({ type: "success", message: res.message });
+        setPromoInput("");
+      } else {
+        setPromoFeedback({ type: "error", message: res.message });
+      }
+    } finally {
+      setIsApplyingPromo(false);
     }
     setTimeout(() => {
       setPromoFeedback(null);
     }, 3500);
   }
-
-  const isPromoApplied = appliedPromo?.code === "MIRAI10";
 
   return (
     <AnimatePresence>
@@ -278,44 +285,108 @@ export function CartDrawer() {
                   );
                 })}
 
-                {/* 3. Promo Banner Card */}
-                <div className="rounded-2xl border border-primary/30 bg-primary-surface/30 p-3.5 flex items-center justify-between gap-3 mt-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-primary shadow-2xs shrink-0">
-                      <Tag size={18} />
+                {/* 3. Promo Code Section */}
+                {appliedPromo ? (
+                  !appliedPromo.minOrderValue || selectedSubtotal >= appliedPromo.minOrderValue ? (
+                    <div className="rounded-xl bg-success-surface border border-success/30 p-3 flex items-center justify-between gap-2 mt-4 text-xs">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Tag size={14} className="text-success shrink-0" />
+                        <div className="min-w-0">
+                          <div className="font-bold text-success uppercase tracking-wider">
+                            {appliedPromo.code} Applied
+                          </div>
+                          <div className="text-[11px] text-neutral-muted">
+                            {appliedPromo.discountType === "free_shipping"
+                              ? "Free delivery unlocked"
+                              : appliedPromo.discountType === "percentage"
+                              ? `${appliedPromo.discountValue}% off subtotal`
+                              : `৳ ${appliedPromo.discountValue} discount applied`}
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={removePromoCode}
+                        className="text-neutral-muted hover:text-error text-xs font-bold px-2 py-1 rounded-md hover:bg-error-surface transition-colors cursor-pointer"
+                        aria-label="Remove coupon"
+                      >
+                        Remove
+                      </button>
                     </div>
-                    <div className="min-w-0">
-                      <p className="font-sans font-bold text-xs text-primary leading-tight">
-                        Extra 10% off on prepaid orders
-                      </p>
-                      <p className="text-xs text-neutral-dark font-sans mt-0.5">
-                        Use code: <strong className="font-bold">MIRAI10</strong>
-                      </p>
+                  ) : (
+                    <div className="rounded-xl bg-warning-surface border border-warning/30 p-3 flex items-center justify-between gap-2 mt-4 text-xs">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <AlertCircle size={14} className="text-warning-foreground shrink-0" />
+                        <div className="min-w-0">
+                          <div className="font-bold text-warning-foreground uppercase tracking-wider">
+                            {appliedPromo.code} Inactive
+                          </div>
+                          <div className="text-[11px] text-neutral-muted">
+                            Add ৳ {(appliedPromo.minOrderValue - selectedSubtotal).toLocaleString()} more to activate discount
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={removePromoCode}
+                        className="text-neutral-muted hover:text-error text-xs font-bold px-2 py-1 rounded-md hover:bg-error-surface transition-colors cursor-pointer"
+                        aria-label="Remove coupon"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )
+                ) : (
+                  <div className="mt-4 space-y-2">
+                    {/* Promo Code Input Form */}
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleApplyPromo();
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      <div className="relative flex-1">
+                        <Tag
+                          size={13}
+                          className="text-neutral-muted absolute left-3 top-2.5"
+                        />
+                        <input
+                          type="text"
+                          value={promoInput}
+                          onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                          placeholder="Promo code (e.g. FREESHIP)"
+                          className="w-full pl-8 pr-3 py-2 rounded-xl border border-neutral-border bg-surface text-xs font-bold uppercase text-neutral-dark placeholder:text-neutral-muted placeholder:normal-case placeholder:font-normal focus:outline-none ring-2 ring-primary/20 border-primary transition-all"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={isApplyingPromo || !promoInput.trim()}
+                        className="px-4 py-2 rounded-xl bg-primary hover:bg-tertiary text-white font-bold text-xs transition-colors cursor-pointer disabled:opacity-50 shrink-0 shadow-2xs"
+                      >
+                        {isApplyingPromo ? "..." : "Apply"}
+                      </button>
+                    </form>
+
+                    {/* Quick Suggestion Pill for MIRAI10 */}
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-primary-surface/30 border border-primary/20 text-[11px]">
+                      <span className="text-neutral-muted">
+                        Use <strong className="font-bold text-primary">MIRAI10</strong> for 10% off
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyPromo("MIRAI10")}
+                        className="text-xs font-bold text-primary hover:underline cursor-pointer"
+                      >
+                        Quick Apply
+                      </button>
                     </div>
                   </div>
-
-                  {isPromoApplied ? (
-                    <button
-                      type="button"
-                      onClick={removePromoCode}
-                      className="px-3.5 py-1.5 rounded-lg bg-success text-white font-bold text-xs transition-colors hover:bg-error cursor-pointer shrink-0"
-                    >
-                      Applied ✓
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => handleApplyPromo("MIRAI10")}
-                      className="px-4 py-1.5 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white font-bold text-xs transition-colors cursor-pointer shrink-0 bg-white"
-                    >
-                      Apply
-                    </button>
-                  )}
-                </div>
+                )}
 
                 {promoFeedback && (
                   <p
-                    className={`text-xs px-2 font-medium ${
+                    className={`text-xs px-2 font-medium mt-1.5 ${
                       promoFeedback.type === "success"
                         ? "text-success"
                         : "text-error"
@@ -365,14 +436,25 @@ export function CartDrawer() {
                     </span>
                   </div>
 
-                  {appliedPromo && discountAmount > 0 && (
-                    <div className="flex justify-between text-success font-semibold">
-                      <span>Discount ({appliedPromo.code})</span>
-                      <span className="font-bold">
-                        -{formatCurrency(discountAmount)}
-                      </span>
-                    </div>
-                  )}
+                  {appliedPromo &&
+                    (discountAmount > 0 ||
+                      appliedPromo.discountType === "free_shipping") && (
+                      <div className="flex justify-between items-center text-success font-semibold text-xs">
+                        <span className="flex items-center gap-1">
+                          <Tag size={12} />
+                          <span>
+                            {appliedPromo.discountType === "free_shipping"
+                              ? `Free Delivery (${appliedPromo.code})`
+                              : `Discount (${appliedPromo.code})`}
+                          </span>
+                        </span>
+                        <span className="font-bold">
+                          {appliedPromo.discountType === "free_shipping"
+                            ? "FREE"
+                            : `-${formatCurrency(discountAmount)}`}
+                        </span>
+                      </div>
+                    )}
 
                   <div className="flex justify-between items-center">
                     <span className="flex items-center gap-1 text-neutral-dark">
@@ -397,7 +479,7 @@ export function CartDrawer() {
 
                 {/* Celebratory Free Shipping Banner */}
                 {isFreeShippingEligible && (
-                  <div className="bg-[#eaf8f0] border border-[#c3edd5] rounded-xl py-2.5 px-4 flex items-center justify-center gap-2 text-[#15803d] font-bold text-xs sm:text-sm">
+                  <div className="bg-success-surface border border-success/30 rounded-xl py-2.5 px-4 flex items-center justify-center gap-2 text-success font-bold text-xs sm:text-sm">
                     <Truck size={16} />
                     <span>Yay! You got free shipping!</span>
                   </div>

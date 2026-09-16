@@ -84,6 +84,7 @@ export interface AppliedPromo {
   code: string;
   discountType: "percentage" | "fixed_amount" | "free_shipping";
   discountValue: number; // e.g. 10 for 10%, 150 for ৳ 150
+  minOrderValue?: number; // Minimum subtotal threshold
 }
 
 export interface CartState {

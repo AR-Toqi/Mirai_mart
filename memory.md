@@ -1,70 +1,67 @@
-# Memory — Admin Order Fulfillment, RMA Management & URL Status Synchronization
+# Memory — Promotions & Coupon Codes CMS Engine, Storefront Checkout Integration & Threshold Safeguards
 
-Last updated: September 14, 2026, 17:48:00 +06:00
+Last updated: September 16, 2026, 14:46:00 +06:00
 
 ## What was built
 
-- **Admin Orders Management Portal in `components/admin/AdminOrdersClient.tsx`**:
-  - 7 summary metric cards matching `order_screen.png` (Total Orders 342, Pending 28, Processing 47, Shipped 86, Delivered 151, Cancelled 18, Refunded 12).
-  - 7 fulfillment filter tabs (`All`, `Pending`, `Processing`, `Shipped`, `Delivered`, `Cancelled`, `Refunded`) with live counts.
-  - Expandable search input filtering across order numbers, customer names, phone numbers, and product titles.
-  - Multi-selection checkboxes with floating bulk status update toolbar (`Pending`, `Processing`, `Shipped`, `Delivered`, `Cancelled`).
-  - Orders table with customer contacts, delivery zones, order items preview with count pills, Bangladeshi Taka pricing, authentic MFS logos (Cash on Delivery, bKash `#E2136E`, Nagad `#ED1C24`, Card), and pagination.
-  - 1-click CSV order data export.
-- **Bidirectional URL Query Parameter Synchronization in `components/admin/AdminOrdersClient.tsx`**:
-  - Clicking any status tab updates the browser address bar dynamically (`/admin/orders?status=pending`, etc.) using `router.replace(targetUrl, { scroll: false })`.
-  - Selecting "All" cleanly strips the query parameter for a clean `/admin/orders` route.
-  - Initial load directly parses `searchParams` to activate the corresponding tab and filter the table on direct link access or bookmarking.
-  - Synchronizes seamlessly with browser Back/Forward history navigation via `useEffect` listener on `searchParams`.
-  - Reset `currentPage = 1` on both direct tab clicks and history navigation to prevent out-of-range pagination empty views.
-- **Admin Order Detail & Logistics Modal in `components/admin/AdminOrderDetailModal.tsx`**:
-  - 1-click status switcher for immediate order progression.
-  - Customer profile links (phone, email, shipping address with Google Maps deep link).
-  - Cash on Delivery ledger with advance payment tracking, due doorstep balance, and delivery zone fee.
-  - Courier dispatcher section (Pathao, Steadfast, RedX, Paperfly, eCourier, SA Paribahan, Sundarban) with tracking number assignment and direct tracking URL generation.
-  - RMA Return & Refund processing with item selection, refund reason, and inventory restock options.
-- **Printable A4 Customer Packaging Slip & Invoice in `components/admin/AdminPackingSlipModal.tsx`**:
-  - Print-ready official A4 invoice with Mirai Mart branding, customer shipping details, courier tracking barcode, itemized table, financial ledger, authorized dispatcher signature line, and 1-click `window.print()` trigger.
-- **Server Actions in `actions/admin.ts`**:
-  - `getAdminOrdersAction`: Queries InsForge PostgreSQL `orders` and `order_items` joined with baseline blending for realistic metrics.
-  - `updateAdminOrderStatusAction`, `bulkUpdateAdminOrderStatusAction`: Status updates with multi-tier cache invalidation (`revalidatePath`).
-  - `updateAdminOrderTrackingAction`: Assigns courier and tracking numbers.
-  - `processAdminOrderRefundAction`: Updates status to `refunded`, payment status, and restocks inventory in `product_variants`.
-- **Next.js 16 `<Suspense>` Boundary in `app/(protectedRoutes)/admin/orders/page.tsx`**:
-  - Wrapped `<AdminOrdersClient />` in a `<Suspense>` boundary with pulse loading skeleton for SSR compliance when consuming `useSearchParams()`.
-- **Navigation & Documentation Updates**:
-  - Added Orders link with `ShoppingCart` icon to `components/layout/AdminSidebar.tsx`.
-  - Added dynamic global search bar on `/admin/orders` to `components/layout/AdminTopBar.tsx`.
-  - Registered components #43 (`AdminOrdersClient`), #44 (`AdminOrderDetailModal`), and #45 (`AdminPackingSlipModal`) in `context/ui-registry.md`.
-  - Updated `context/progress-tracker.md` with Feature 14 and URL status sync completion.
+- **Admin Promotions & Coupon Codes CMS in `components/admin/AdminPromosClient.tsx`**:
+  - 4 summary KPI metric cards (Total Coupons 5, Active Codes 4, Total Redemptions 498, Attention Required 1).
+  - Multi-status filter tabs (`All`, `Active`, `Inactive`) with bidirectional URL query parameter synchronization (`/admin/promos?status=active`, etc.) using `router.replace(targetUrl, { scroll: false })`.
+  - Debounced code search filtering by coupon code, discount title, or type.
+  - Interactive table displaying coupon codes with 1-click clipboard copy and animated feedback, discount type badges (`Percentage`, `Fixed Amount`, `Free Shipping`), minimum order value thresholds, date validity ranges, redemption progress bars with warning thresholds, and active status toggle switches.
+  - Delete confirmation modal with optimistic UI removal.
+- **Voucher Creator & Live Interactive Preview in `components/admin/PromotionModal.tsx`**:
+  - Modal supporting both Create and Edit modes.
+  - Real-time voucher preview card with dashed border, dynamic discount formatting (%, ৳, or Free Shipping), and expiry countdown.
+  - Granular discount rule configuration: Discount Type, Value, Minimum Order Subtotal, Usage Limit Ceiling (with 0 or blank for unlimited), and Start / Expiry dates.
+  - Normalized date handling setting `starts_at` to start of day (`00:00:00.000Z`) and `expires_at` to end of day (`23:59:59.999Z`) for full-day coupon validity.
+- **Server Actions in `actions/promotions.ts`**:
+  - `getAdminPromotionsAction`: Queries InsForge PostgreSQL `promotions` table as single source of truth, with baseline fallback only when the database table is empty.
+  - `createAdminPromotionAction` and `updateAdminPromotionAction`: Zod-validated mutation actions with code collision checks and Next.js tag/path revalidation (`revalidatePath("/admin/promos")`).
+  - `toggleAdminPromotionStatusAction` and `deleteAdminPromotionAction`: Database-driven status toggling and hard deletion.
+  - `validatePromoCodeAction`: Validates promo codes against database with checks for active state, date validity, usage ceiling, and cart minimum order spend.
+  - `incrementPromotionUsageAction`: Atomic database usage incrementer executed upon completed order placement.
+- **Zod Validation Schemas in `lib/validations/promotion.schema.ts`**:
+  - `createPromotionSchema` and `updatePromotionSchema` validating code format, discount values, positive subtotal thresholds, optional usage limits (allowing 0 as unlimited), and date ordering.
+- **Storefront & Checkout Promotions Integration**:
+  - `components/providers/CartProvider.tsx`: Added `appliedPromo` object tracking `code`, `discountType`, `discountValue`, `minOrderValue`, and `discountAmount`; implemented `applyPromoCode` and `removePromoCode`.
+  - `components/storefront/CartDrawer.tsx`: Promo code input form with `Tag` prefix icon, uppercase input, 1-click `MIRAI10` quick apply pill, active coupon badge, minimum spend threshold deficit warning card (`Add ৳ X more to activate discount`), celebratory free shipping banner, and remove action.
+  - `components/storefront/CartPageClient.tsx`: Real-time coupon discount display, support for `free_shipping` coupon type, inactive warning card when subtotal is below minimum order value, and promo code quick suggestions.
+  - `components/storefront/CheckoutClient.tsx`: Order summary discount line item or inactive coupon threshold callout with minimum spend notification.
+  - `actions/orders.ts`: Refactored `createOrderAction` to delegate coupon validation directly to `validatePromoCodeAction` and increment usage count only when verified and applied.
+- **Next.js 16 `<Suspense>` Boundary in `app/(protectedRoutes)/admin/promos/page.tsx`**:
+  - Wrapped `<AdminPromosClient />` in a `<Suspense>` boundary with a skeleton loader for App Router SSR compliance with `useSearchParams()`.
+- **UI Registry & Progress Tracker Updates**:
+  - Registered components #46 (`AdminPromosClient`) and #47 (`PromotionModal`) in `context/ui-registry.md`.
+  - Imprinted updated coupon patterns into entries #21 (`CartDrawer`), #23 (`CartPageClient`), and #24 (`CheckoutClient`).
+  - Updated `context/progress-tracker.md` to reflect completion of Phase 5 — Feature 15 (Promo Codes Engine).
 
 ## Decisions made
 
-- **`router.replace` Navigation Strategy**: Use `router.replace(url, { scroll: false })` instead of `router.push` to avoid cluttering browser history with intermediate tab clicks while preserving instant URL shareability and bookmarking.
-- **Clean Default URL**: When the "All" tab is active, remove `?status=` entirely to maintain a clean root `/admin/orders` path.
-- **Pagination Lifecycle Binding**: Reset `currentPage = 1` whenever the status tab changes, whether through direct tab clicks or browser Back/Forward navigation, avoiding empty out-of-range pages.
-- **Next.js 16 Suspense Boundary**: Wrap client components consuming `useSearchParams()` in `<Suspense>` in the server page to satisfy Next.js 16 build requirements and provide a graceful loading skeleton.
+- **Database Authority Over Baseline Seeding**: Set live database queries as the single source of truth in `getAdminPromotionsAction` and `validatePromoCodeAction` so deleted coupons never ghost reappearance upon reload.
+- **Non-Destructive Inactive Threshold State**: When a customer's cart drops below a coupon's `minOrderValue`, do not discard or detach the coupon. Instead, transition it to an informative "Inactive" state with a clear spend callout (`Add ৳ X more to activate discount`), keeping it active as soon as more items are added.
+- **Full-Day Expiration Cutoff**: Coupon expiration dates are normalized to `23:59:59.999Z` so vouchers remain valid throughout the entire day of expiry.
+- **Delegated Checkout Validation**: Refactored checkout order creation (`createOrderAction`) to call `validatePromoCodeAction` directly instead of maintaining duplicate validation logic.
 
 ## Problems solved
 
-- Fixed order status tabs not reflecting in the browser URL by wiring `handleStatusTabChange` to `router.replace` with `new URLSearchParams`.
-- Fixed out-of-range pagination blank state when navigating via browser Back/Forward by incorporating `setCurrentPage(1)` inside the `searchParams` listener `useEffect`.
-- Fixed Suspense de-optimization in Next.js 16 by adding a `<Suspense>` boundary with pulse skeleton in `app/(protectedRoutes)/admin/orders/page.tsx`.
+- Resolved TypeScript `ZodError` issue where `max_uses` rejected `0` or empty strings as invalid numbers by handling optional/nullable integer conversion cleanly.
+- Resolved Free Shipping coupon (`FREESHIP`) visibility issue where `$0` discount value caused discount lines to disappear by checking `appliedPromo.discountType === "free_shipping"`.
+- Resolved phantom baseline coupon reactivation by prioritizing live database records over static mock fallbacks.
+- Purged unconfigured raw Tailwind hex classes in `CartDrawer.tsx` in favor of semantic design tokens (`bg-success-surface`, `border-success/30`, `text-success`).
 
 ## Current state
 
-- Phase 5 — Feature 14 (Admin Order Fulfillment & RMA Management) is 100% complete, verified with interactive browser tests and recordings.
-- URL Status Query Synchronization is fully functional with instant direct link loading and Back/Forward history responsiveness.
-- Review and Recover passes completed with 0 remaining issues.
-- Next.js development server is running cleanly on port 3000.
+- Phase 5 — Feature 15 (Promotions & Coupon Codes CMS + Storefront Integration) is 100% complete, fully verified in both Admin and Storefront.
+- Cart Drawer, Cart Page, and Checkout clients are aligned with the Mirai Mart design token system and registered in `context/ui-registry.md`.
+- Next.js development server is running cleanly with 0 type errors and 0 lint warnings.
 
 ## Next session starts with
 
-- **Phase 5 — Feature 15: Admin Marketing & Storefront CMS**:
-  - Hero carousel manager (reordering slides, updating headlines/CTAs, custom background uploads).
-  - Announcement bar text and promo code editor (`MIRAI10`, free shipping threshold).
-  - Coupon code creation and management engine (`promotions` table).
+- **Phase 5 — Feature 15 (Storefront CMS Refinements & Complete Phase 5)**:
+  - Verify and refine Website Content manager (`/admin/content`): Hero banner 3-slide carousel CMS and top Announcement Bar promotional text customization.
+  - Conduct final Phase 5 end-to-end integration audit before proceeding to final deployment preparation.
 
 ## Open questions
 
-- Confirm whether courier parcel creation should integrate directly with external REST APIs (e.g. Steadfast Courier API, Pathao Merchant API) for automated consignment generation.
+- Determine whether coupon codes should support single-use-per-customer restrictions linked to customer profile IDs or emails.

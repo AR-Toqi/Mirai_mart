@@ -16,6 +16,7 @@ import {
   GIFT_WRAP_PRICE,
   VALID_PROMO_CODES,
 } from "@/lib/constants";
+import { validatePromoCodeAction } from "@/actions/promotions";
 
 const CART_STORAGE_KEY = "mirai_mart_cart_v1";
 
@@ -56,7 +57,9 @@ export interface CartContextType {
   toggleSelectAll: (select?: boolean) => void;
   toggleGiftWrap: (enabled?: boolean) => void;
   setGiftMessage: (message: string) => void;
-  applyPromoCode: (code: string) => { success: boolean; message: string };
+  applyPromoCode: (
+    code: string
+  ) => Promise<{ success: boolean; message: string }>;
   removePromoCode: () => void;
   clearCart: () => void;
   openCartDrawer: () => void;
@@ -92,7 +95,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed.items)) {
           setItems(parsed.items);
-          if (Array.isArray(parsed.selectedItemIds)) {
+          if (Array.isArray(parsed.selectedItemIds) && parsed.selectedItemIds.length > 0) {
             setSelectedItemIds(parsed.selectedItemIds);
           } else {
             setSelectedItemIds(parsed.items.map((i: CartItem) => i.id));
@@ -280,7 +283,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const isFreeShippingEligible = useMemo(() => {
     if (selectedSubtotal >= FREE_SHIPPING_THRESHOLD) return true;
-    if (appliedPromo?.discountType === "free_shipping") return true;
+    if (
+      appliedPromo?.discountType === "free_shipping" &&
+      (!appliedPromo.minOrderValue || selectedSubtotal >= appliedPromo.minOrderValue)
+    ) {
+      return true;
+    }
     return false;
   }, [selectedSubtotal, appliedPromo]);
 
@@ -305,6 +313,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const discountAmount = useMemo(() => {
     if (!appliedPromo) return 0;
+    if (
+      appliedPromo.minOrderValue &&
+      selectedSubtotal < appliedPromo.minOrderValue
+    ) {
+      return 0;
+    }
     if (appliedPromo.discountType === "percentage") {
       return Math.round((selectedSubtotal * appliedPromo.discountValue) / 100);
     }
@@ -451,29 +465,47 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const applyPromoCode = useCallback(
-    (code: string): { success: boolean; message: string } => {
+    async (code: string): Promise<{ success: boolean; message: string }> => {
       const clean = code.trim().toUpperCase();
       if (!clean) {
         return { success: false, message: "Please enter a promo code" };
       }
-      const found = VALID_PROMO_CODES[clean];
-      if (!found) {
-        return { success: false, message: "Invalid or expired promo code" };
-      }
-      if (selectedSubtotal < found.minSubtotal) {
-        return {
-          success: false,
-          message: `Minimum subtotal of ৳ ${found.minSubtotal.toLocaleString()} required for this code`,
-        };
-      }
 
-      setAppliedPromo({
-        code: clean,
-        discountType: found.type,
-        discountValue: found.value,
-      });
+      try {
+        const result = await validatePromoCodeAction(clean, selectedSubtotal);
+        if (result.success && result.promo) {
+          setAppliedPromo({
+            code: result.promo.code,
+            discountType: result.promo.discountType,
+            discountValue: result.promo.discountValue,
+            minOrderValue: result.promo.minOrderValue,
+          });
+          return { success: true, message: result.message };
+        } else {
+          return { success: false, message: result.message || "Invalid or expired promo code" };
+        }
+      } catch {
+        // Fallback to local constants if action fails
+        const found = VALID_PROMO_CODES[clean];
+        if (!found) {
+          return { success: false, message: "Invalid or expired promo code" };
+        }
+        if (selectedSubtotal < found.minSubtotal) {
+          return {
+            success: false,
+            message: `Minimum subtotal of ৳ ${found.minSubtotal.toLocaleString()} required for this code`,
+          };
+        }
 
-      return { success: true, message: `Promo code ${clean} applied! (${found.description})` };
+        setAppliedPromo({
+          code: clean,
+          discountType: found.type,
+          discountValue: found.value,
+          minOrderValue: found.minSubtotal,
+        });
+
+        return { success: true, message: `Promo code ${clean} applied! (${found.description})` };
+      }
     },
     [selectedSubtotal]
   );

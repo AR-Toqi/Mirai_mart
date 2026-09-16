@@ -37,6 +37,7 @@ export function CartPageClient() {
     items,
     itemCount,
     subtotal,
+    selectedSubtotal,
     rawSavings,
     giftOptions,
     appliedPromo,
@@ -63,11 +64,11 @@ export function CartPageClient() {
   // Cross-sell recommendations
   const recommendedProducts: Product[] = ALL_PRODUCTS.slice(0, 4);
 
-  function handleApplyPromo(e: React.FormEvent) {
+  async function handleApplyPromo(e: React.FormEvent) {
     e.preventDefault();
     if (!promoInput.trim()) return;
 
-    const result = applyPromoCode(promoInput);
+    const result = await applyPromoCode(promoInput);
     if (result.success) {
       setPromoFeedback({ type: "success", message: result.message });
       setPromoInput("");
@@ -76,8 +77,8 @@ export function CartPageClient() {
     }
   }
 
-  function handleQuickApplyCode(code: string) {
-    const result = applyPromoCode(code);
+  async function handleQuickApplyCode(code: string) {
+    const result = await applyPromoCode(code);
     if (result.success) {
       setPromoFeedback({ type: "success", message: result.message });
     } else {
@@ -413,29 +414,57 @@ export function CartPageClient() {
                 </span>
               </div>
 
-              {appliedPromo && discountAmount > 0 && (
-                <div className="flex items-center justify-between rounded-lg bg-success-surface border border-success/20 p-2.5 text-success">
-                  <div className="flex items-center gap-1.5">
-                    <Tag size={13} />
-                    <span className="font-bold uppercase tracking-wider text-[11px]">
-                      {appliedPromo.code}
-                    </span>
+              {appliedPromo &&
+                (!appliedPromo.minOrderValue || selectedSubtotal >= appliedPromo.minOrderValue ? (
+                  <div className="flex items-center justify-between rounded-lg bg-success-surface border border-success/20 p-2.5 text-success">
+                    <div className="flex items-center gap-1.5">
+                      <Tag size={13} />
+                      <span className="font-bold uppercase tracking-wider text-[11px]">
+                        {appliedPromo.code}
+                      </span>
+                      {appliedPromo.discountType === "free_shipping" && (
+                        <span className="text-[10px] font-semibold text-success/80">
+                          (Free Delivery)
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold">
+                        {appliedPromo.discountType === "free_shipping"
+                          ? "FREE"
+                          : `-${formatCurrency(discountAmount)}`}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={removePromoCode}
+                        className="text-neutral-muted hover:text-error transition-colors text-xs font-bold cursor-pointer"
+                        aria-label="Remove coupon"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold">
-                      -{formatCurrency(discountAmount)}
-                    </span>
+                ) : (
+                  <div className="flex items-center justify-between rounded-lg bg-warning-surface border border-warning/30 p-2.5 text-warning-foreground text-xs">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <Tag size={13} className="shrink-0" />
+                      <span className="font-bold uppercase tracking-wider text-[11px] shrink-0">
+                        {appliedPromo.code} Inactive
+                      </span>
+                      <span className="text-[10px] text-neutral-muted truncate">
+                        (Add ৳ {(appliedPromo.minOrderValue - selectedSubtotal).toLocaleString()} more)
+                      </span>
+                    </div>
                     <button
                       type="button"
                       onClick={removePromoCode}
-                      className="text-neutral-muted hover:text-error transition-colors text-xs font-bold cursor-pointer"
+                      className="text-neutral-muted hover:text-error transition-colors text-xs font-bold cursor-pointer shrink-0 ml-2"
                       aria-label="Remove coupon"
                     >
                       ✕
                     </button>
                   </div>
-                </div>
-              )}
+                ))}
 
               {/* Grand Total */}
               <div className="flex justify-between items-baseline pt-3 border-t border-neutral-border text-neutral-dark">

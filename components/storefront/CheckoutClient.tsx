@@ -655,12 +655,31 @@ export function CheckoutClient() {
                   </span>
                 </div>
 
-                {appliedPromo && discountAmount > 0 && (
-                  <div className="flex justify-between items-center text-xs text-success font-bold">
-                    <span>Discount ({appliedPromo.code})</span>
-                    <span>-{discountAmount.toLocaleString()}৳</span>
-                  </div>
-                )}
+                {appliedPromo &&
+                  (!appliedPromo.minOrderValue || subtotal >= appliedPromo.minOrderValue ? (
+                    (discountAmount > 0 ||
+                      appliedPromo.discountType === "free_shipping") && (
+                      <div className="flex justify-between items-center text-xs text-success font-bold">
+                        <span>
+                          {appliedPromo.discountType === "free_shipping"
+                            ? `Free Shipping Coupon (${appliedPromo.code})`
+                            : `Discount (${appliedPromo.code})`}
+                        </span>
+                        <span>
+                          {appliedPromo.discountType === "free_shipping"
+                            ? "FREE"
+                            : `-${discountAmount.toLocaleString()}৳`}
+                        </span>
+                      </div>
+                    )
+                  ) : (
+                    <div className="flex justify-between items-center text-xs text-warning-foreground font-semibold bg-warning-surface/50 p-2 rounded-lg border border-warning/20">
+                      <span>{appliedPromo.code} Inactive</span>
+                      <span className="text-[11px] text-neutral-muted">
+                        Min. spend ৳ {appliedPromo.minOrderValue.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
 
                 {/* Grand Total Row */}
                 <div className="flex justify-between items-baseline pt-3 border-t border-neutral-border/80 text-neutral-dark">
