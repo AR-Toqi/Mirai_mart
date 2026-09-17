@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Phase:** Phase 5 — Admin Management Panel  
-**Last completed:** Phase 5 — Feature 15 (Admin Marketing & Storefront CMS — Promo Codes Engine)  
-**Next:** Phase 5 — Feature 15 (Hero Banner & Announcement Bar CMS Refinements / Complete Phase 5)  
+**Phase:** Phase 5 — Admin Management Panel (In Progress: Extended Operations)  
+**Last completed:** Phase 5 — Feature 15 (Admin Marketing & Storefront CMS)  
+**Next:** Phase 5 — Feature 16 (Admin Category Management CMS)  
 
 ---
 
@@ -43,7 +43,10 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] 12 Admin Layout & Dashboard — Full UI & Real Metrics
 - [x] 13 Admin Product & Inventory CMS
 - [x] 14 Admin Order Fulfillment & RMA Management
-- [ ] 15 Admin Marketing & Storefront CMS
+- [x] 15 Admin Marketing & Storefront CMS
+- [ ] 16 Admin Category Management CMS
+- [ ] 17 Admin Customer Directory & CRM
+- [ ] 18 Admin Advanced Sales Analytics & Reporting
 
 ---
 
@@ -188,3 +191,10 @@ Update this file after every completed feature. Any AI agent reading this should
       - `components/admin/PromotionModal.tsx`: Fixed date expiration cutoff to end-of-day (`23:59:59.999Z`) and starts_at to start-of-day (`00:00:00.000Z`) so coupons remain valid through the entire expiration day.
       - `components/admin/AdminPromosClient.tsx`: Added null-safe property access `(p.used_count ?? 0).toLocaleString()`.
       - `components/storefront/CartDrawer.tsx`, `CartPageClient.tsx`, `CheckoutClient.tsx`: Added informative amber warning banner when cart subtotal drops below minimum order spend threshold (`Add ৳ [amount] more to activate`), eliminating customer confusion.
+- Implemented Website Content Manager Refinements & Complete Phase 5:
+  1. Hero Banner 3-Slide Carousel CMS verified: 3-slide tab switcher, live aspect-ratio preview, 3-second auto-play with pause-on-hover, drag-and-drop custom banner image uploader (5MB limit), curated preset photo gallery, direct URL input, and centered CTA button toggle controls in `/admin/content`.
+  2. Top Announcement Bar CMS verified & refined: active/hidden toggle switch, custom promotional message input, and promo code highlight badge input with live preview in `WebsiteContentManager.tsx`.
+  3. Refined `AnnouncementBar.tsx` on the storefront to mirror the CMS preview with high-contrast dark promo badge styling (`bg-neutral-dark text-secondary px-2 py-0.5 rounded-md text-[11px] font-bold`) and added a 5-second auto-rotation timer with hover-pause functionality.
+  4. Registered Component #48 (`WebsiteContentManager`) and updated Component #1 (`AnnouncementBar`) in `context/ui-registry.md`.
+  5. Phase 5 (all 15 build-plan features across Phase 1 to Phase 5) is now 100% complete.
+

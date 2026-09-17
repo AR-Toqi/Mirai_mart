@@ -55,16 +55,19 @@ A centralized inventory of all reusable components, layouts, design tokens, and 
 
 #### 1. `AnnouncementBar.tsx`
 - **Path**: `components/layout/AnnouncementBar.tsx`
-- **Purpose**: Top promotional banner displaying free shipping thresholds (`৳ 999`), promo coupon codes, and store notices.
-- **Visuals**: Light warm Secondary Surface (`#FFF3B3` / `bg-secondary-surface`) background, neutral dark (`#191C1E`) bold text, navigation arrows, and delivery truck icon.
+- **Last updated**: September 17, 2026
+- **Purpose**: Top promotional banner displaying dynamic free shipping thresholds, promo coupon codes, and rotating store notices.
+- **Visuals**: Sunny Yellow Secondary (`bg-secondary`, `#FCE35F`) background with subtle bottom border (`border-secondary/40`), neutral dark (`#191C1E`) typography, delivery truck icon, high-contrast dark promo badge (`bg-neutral-dark text-secondary px-2 py-0.5 rounded-md`), and interactive carousel navigation buttons.
 - **Props**:
   ```typescript
   type Props = {
-    message?: string;
-    promoCode?: string;
-    isActive?: boolean;
+    announcement?: StorefrontContentConfig["announcement"];
   };
   ```
+- **Pattern notes**:
+  - Automatically hidden if `announcement.isActive === false`.
+  - Primary promotional slide renders custom CMS text alongside a high-contrast coupon code badge pill.
+  - Automatically rotates across announcement slides every 5 seconds; automatically pauses on mouse hover.
 
 #### 2. `Header.tsx`
 
@@ -1196,6 +1199,25 @@ Last updated: September 16, 2026
 
 **Pattern notes:**
 - Create and edit promotional vouchers with real-time live preview rendering. Supports 3 discount models (Percentage with % cap check, Fixed Amount with ৳ currency formatting, and Free Shipping), minimum subtotal threshold, optional usage ceiling cap, date range constraints (start and expiry), and live active status switch. Validated server-side via Zod schema (`promotion.schema.ts`).
+
+#### 48. `WebsiteContentManager` (Homepage Hero Carousel & Announcement Bar CMS)
+File: `components/admin/WebsiteContentManager.tsx`  
+Last updated: September 17, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (canvas, drag zone hover, inputs), `bg-neutral-dark` (live preview shell), `bg-primary` (save CTA & active slide dot), `bg-secondary` (announcement preview) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-2 border-dashed border-neutral-border` (upload dropzone) |
+| Border radius | `rounded-2xl` (`16px`) content sections, dropzone & preview frames, `rounded-xl` (`12px`) inputs, buttons & slide cards |
+| Text — primary | `font-heading font-bold text-2xl text-neutral-dark`, `font-bold text-xs text-neutral-dark` |
+| Text — secondary | `font-sans text-xs text-neutral-muted`, `text-[11px] font-medium text-neutral-muted` |
+| Status / Accents | `bg-primary/10 text-primary border-primary/20` (CMS badge), `bg-success-surface text-success border-success/30` (Save notification), `bg-error-surface text-error border-error/30` (Upload error) |
+
+**Pattern notes:**
+- Full management console for storefront visual highlights.
+- 3-Slide background carousel controller: individual slide configuration, live aspect-ratio preview, 3-second auto-play preview, centered CTA button controls with active/disabled switchbars, drag-and-drop 5MB image uploader, and preset photography gallery.
+- Announcement Bar manager: live preview, active/disabled visibility switch, announcement message input, and promo highlight code badge input.
+- Automatically revalidates storefront routes (`revalidatePath("/")`, `revalidatePath("/admin/content")`).
 
 ---
 

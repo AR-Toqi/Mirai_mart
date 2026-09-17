@@ -1,67 +1,46 @@
-# Memory — Promotions & Coupon Codes CMS Engine, Storefront Checkout Integration & Threshold Safeguards
+# Memory — Storefront CMS Refinements & Complete Phase 5 (Announcement Bar & Hero Carousel)
 
-Last updated: September 16, 2026, 14:46:00 +06:00
+Last updated: September 17, 2026, 20:03:00 +06:00
 
 ## What was built
 
-- **Admin Promotions & Coupon Codes CMS in `components/admin/AdminPromosClient.tsx`**:
-  - 4 summary KPI metric cards (Total Coupons 5, Active Codes 4, Total Redemptions 498, Attention Required 1).
-  - Multi-status filter tabs (`All`, `Active`, `Inactive`) with bidirectional URL query parameter synchronization (`/admin/promos?status=active`, etc.) using `router.replace(targetUrl, { scroll: false })`.
-  - Debounced code search filtering by coupon code, discount title, or type.
-  - Interactive table displaying coupon codes with 1-click clipboard copy and animated feedback, discount type badges (`Percentage`, `Fixed Amount`, `Free Shipping`), minimum order value thresholds, date validity ranges, redemption progress bars with warning thresholds, and active status toggle switches.
-  - Delete confirmation modal with optimistic UI removal.
-- **Voucher Creator & Live Interactive Preview in `components/admin/PromotionModal.tsx`**:
-  - Modal supporting both Create and Edit modes.
-  - Real-time voucher preview card with dashed border, dynamic discount formatting (%, ৳, or Free Shipping), and expiry countdown.
-  - Granular discount rule configuration: Discount Type, Value, Minimum Order Subtotal, Usage Limit Ceiling (with 0 or blank for unlimited), and Start / Expiry dates.
-  - Normalized date handling setting `starts_at` to start of day (`00:00:00.000Z`) and `expires_at` to end of day (`23:59:59.999Z`) for full-day coupon validity.
-- **Server Actions in `actions/promotions.ts`**:
-  - `getAdminPromotionsAction`: Queries InsForge PostgreSQL `promotions` table as single source of truth, with baseline fallback only when the database table is empty.
-  - `createAdminPromotionAction` and `updateAdminPromotionAction`: Zod-validated mutation actions with code collision checks and Next.js tag/path revalidation (`revalidatePath("/admin/promos")`).
-  - `toggleAdminPromotionStatusAction` and `deleteAdminPromotionAction`: Database-driven status toggling and hard deletion.
-  - `validatePromoCodeAction`: Validates promo codes against database with checks for active state, date validity, usage ceiling, and cart minimum order spend.
-  - `incrementPromotionUsageAction`: Atomic database usage incrementer executed upon completed order placement.
-- **Zod Validation Schemas in `lib/validations/promotion.schema.ts`**:
-  - `createPromotionSchema` and `updatePromotionSchema` validating code format, discount values, positive subtotal thresholds, optional usage limits (allowing 0 as unlimited), and date ordering.
-- **Storefront & Checkout Promotions Integration**:
-  - `components/providers/CartProvider.tsx`: Added `appliedPromo` object tracking `code`, `discountType`, `discountValue`, `minOrderValue`, and `discountAmount`; implemented `applyPromoCode` and `removePromoCode`.
-  - `components/storefront/CartDrawer.tsx`: Promo code input form with `Tag` prefix icon, uppercase input, 1-click `MIRAI10` quick apply pill, active coupon badge, minimum spend threshold deficit warning card (`Add ৳ X more to activate discount`), celebratory free shipping banner, and remove action.
-  - `components/storefront/CartPageClient.tsx`: Real-time coupon discount display, support for `free_shipping` coupon type, inactive warning card when subtotal is below minimum order value, and promo code quick suggestions.
-  - `components/storefront/CheckoutClient.tsx`: Order summary discount line item or inactive coupon threshold callout with minimum spend notification.
-  - `actions/orders.ts`: Refactored `createOrderAction` to delegate coupon validation directly to `validatePromoCodeAction` and increment usage count only when verified and applied.
-- **Next.js 16 `<Suspense>` Boundary in `app/(protectedRoutes)/admin/promos/page.tsx`**:
-  - Wrapped `<AdminPromosClient />` in a `<Suspense>` boundary with a skeleton loader for App Router SSR compliance with `useSearchParams()`.
+- **Storefront Announcement Bar in `components/layout/AnnouncementBar.tsx`**:
+  - Refined to mirror the Admin CMS preview: high-contrast dark promo badge pill (`bg-neutral-dark text-secondary px-2 py-0.5 rounded-md text-[11px] font-bold`) for the highlight coupon text.
+  - Implemented 5-second automatic rotation across announcements (`primaryText` + secondary notices) with hover-pause functionality (`onMouseEnter`, `onMouseLeave`, `isPaused` state).
+  - Responsive layout with chevron navigation buttons, delivery truck icon, and smooth transitions.
+- **Website Content Manager Verification in `components/admin/WebsiteContentManager.tsx`**:
+  - Hero Banner 3-Slide Carousel CMS: verified 3-slide tab switching, live aspect-ratio preview container, 3-second auto-play preview with pause-on-hover, drag-and-drop custom banner image uploader (5MB limit), curated preset photo gallery, direct image URL input, and centered CTA button toggle controls in `/admin/content`.
+  - Top Announcement Bar CMS: verified live preview, active/hidden visibility toggle, custom promotional message input, and promo code highlight badge input.
 - **UI Registry & Progress Tracker Updates**:
-  - Registered components #46 (`AdminPromosClient`) and #47 (`PromotionModal`) in `context/ui-registry.md`.
-  - Imprinted updated coupon patterns into entries #21 (`CartDrawer`), #23 (`CartPageClient`), and #24 (`CheckoutClient`).
-  - Updated `context/progress-tracker.md` to reflect completion of Phase 5 — Feature 15 (Promo Codes Engine).
+  - Registered Component #48 (`WebsiteContentManager`) in `context/ui-registry.md` with complete token specs and pattern notes.
+  - Updated Component #1 (`AnnouncementBar`) in `context/ui-registry.md` with new props, visual specifications, and auto-rotation pattern notes.
+  - Updated `context/progress-tracker.md` to mark Phase 5 — Feature 15 (Admin Marketing & Storefront CMS) as 100% complete, completing all 15 core features from Phase 1 through Phase 5.
+  - Expanded `context/build-plan.md` and `context/progress-tracker.md` with extended operations: Feature 16 (Admin Category Management CMS), Feature 17 (Admin Customer Directory & CRM), and Feature 18 (Admin Advanced Sales Analytics & Reporting).
 
 ## Decisions made
 
-- **Database Authority Over Baseline Seeding**: Set live database queries as the single source of truth in `getAdminPromotionsAction` and `validatePromoCodeAction` so deleted coupons never ghost reappearance upon reload.
-- **Non-Destructive Inactive Threshold State**: When a customer's cart drops below a coupon's `minOrderValue`, do not discard or detach the coupon. Instead, transition it to an informative "Inactive" state with a clear spend callout (`Add ৳ X more to activate discount`), keeping it active as soon as more items are added.
-- **Full-Day Expiration Cutoff**: Coupon expiration dates are normalized to `23:59:59.999Z` so vouchers remain valid throughout the entire day of expiry.
-- **Delegated Checkout Validation**: Refactored checkout order creation (`createOrderAction`) to call `validatePromoCodeAction` directly instead of maintaining duplicate validation logic.
+- **Storefront & Admin Visual Fidelity**: Ensured storefront `AnnouncementBar.tsx` renders identical styling to the admin CMS preview card, using `bg-secondary` (`#FCE35F`), `border-secondary/40`, and `bg-neutral-dark text-secondary` for promo code badges.
+- **Hover-Paused Auto-Rotation**: Added pause-on-hover to both admin preview and storefront announcement carousel to prevent distracting content shifts while users are reading or attempting to click.
+- **Scope Expansion to Extended Operations**: Formally integrated Features 16–18 (Category CMS, Customer CRM, Sales Analytics) into the project build plan and progress tracker to complete the full enterprise e-commerce admin suite.
 
 ## Problems solved
 
-- Resolved TypeScript `ZodError` issue where `max_uses` rejected `0` or empty strings as invalid numbers by handling optional/nullable integer conversion cleanly.
-- Resolved Free Shipping coupon (`FREESHIP`) visibility issue where `$0` discount value caused discount lines to disappear by checking `appliedPromo.discountType === "free_shipping"`.
-- Resolved phantom baseline coupon reactivation by prioritizing live database records over static mock fallbacks.
-- Purged unconfigured raw Tailwind hex classes in `CartDrawer.tsx` in favor of semantic design tokens (`bg-success-surface`, `border-success/30`, `text-success`).
+- **Storefront Promo Badge Visual Disconnect**: Eliminated inconsistency where the storefront announcement bar previously displayed promo codes as plain bulleted text rather than the high-contrast badge pill configured in the CMS preview.
+- **Announcement Rotation Usability**: Added `useCallback` for slide progression and an interval timer that respects hover pause so announcement navigation is seamless and accessible.
 
 ## Current state
 
-- Phase 5 — Feature 15 (Promotions & Coupon Codes CMS + Storefront Integration) is 100% complete, fully verified in both Admin and Storefront.
-- Cart Drawer, Cart Page, and Checkout clients are aligned with the Mirai Mart design token system and registered in `context/ui-registry.md`.
+- All 15 core features across Phase 1 to Phase 5 are 100% complete and verified.
 - Next.js development server is running cleanly with 0 type errors and 0 lint warnings.
+- Next active roadmap item: Phase 5 Extended Operations — Feature 16 (Admin Category Management CMS).
 
 ## Next session starts with
 
-- **Phase 5 — Feature 15 (Storefront CMS Refinements & Complete Phase 5)**:
-  - Verify and refine Website Content manager (`/admin/content`): Hero banner 3-slide carousel CMS and top Announcement Bar promotional text customization.
-  - Conduct final Phase 5 end-to-end integration audit before proceeding to final deployment preparation.
+- **Phase 5 — Feature 16: Admin Category Management CMS (`/admin/categories`)**:
+  - Create category data schema, migrations, and server actions in `actions/admin.ts` (or `actions/categories.ts`).
+  - Build Category List & Management UI (`components/admin/AdminCategoriesClient.tsx`): hierarchical category tree (parent/child), active/featured status badges, product count counters, and category image upload/thumbnail selector.
+  - Implement Category Modal for creating/editing categories with auto-slug generation from name.
 
 ## Open questions
 
-- Determine whether coupon codes should support single-use-per-customer restrictions linked to customer profile IDs or emails.
+- Confirm whether category hierarchy should remain strictly 2-level (Parent Category -> Subcategory) or support arbitrary recursive N-depth nesting.

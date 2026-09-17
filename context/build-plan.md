@@ -354,6 +354,59 @@ Build the banner manager and coupon code engine.
 
 ---
 
+### 16 Admin Category Management CMS (`/admin/categories`)
+
+Build the complete Category & Subcategory taxonomy manager.
+
+**UI:**
+* Category Data Grid & Tree view: Name, Slug, Parent Category hierarchy pill, Icon/Thumbnail, linked active product count badge, Display Order, Active/Draft status toggle, and Edit/Delete actions
+* Add/Edit Category Modal: Name, Auto-generated Slug (editable), Description, Parent Category dropdown (hierarchical nesting), Icon Picker, Thumbnail upload, Display Order, and Status switch
+* Delete Guard: Confirmation modal with dependency check preventing deletion of categories containing active products
+
+**Logic:**
+* Server Actions in `actions/admin.ts` for category CRUD (`createAdminCategoryAction`, `updateAdminCategoryAction`, `deleteAdminCategoryAction`, `toggleAdminCategoryStatusAction`)
+* Direct mutation against InsForge PostgreSQL `categories` table with `parent_id` foreign keys
+* Storefront cache revalidation for Category Navigation, Megamenu, and PLPs (`revalidatePath('/')`, `revalidatePath('/category/[slug]')`)
+
+---
+
+### 17 Admin Customer Directory & CRM (`/admin/customers`)
+
+Build the customer account directory and customer profile viewer.
+
+**UI:**
+* Customers Data Table: Avatar/Initials, Full Name, Email, Phone, Role badge (`customer`, `admin`, `store-manager`), Total Orders count, Lifetime Spend (LTV in ৳), Registered date, and Action trigger
+* Search & Filters: Search by name, email, or phone; filter by Role or Order Activity status
+* Customer Detail Drawer / Modal: Full profile card, contact info, default and saved shipping addresses, chronological order history table with status badges and totals, and quick actions
+
+**Logic:**
+* Server Actions querying InsForge `profiles` table joined with aggregated metrics from `orders` (`total_orders`, `lifetime_value`, `last_order_date`)
+* Role-based access control protecting customer data
+* Export customer list to CSV
+
+---
+
+### 18 Admin Advanced Sales Analytics & Reporting (`/admin/analytics`)
+
+Build the dedicated analytical command center for executive sales reporting and business intelligence.
+
+**UI:**
+* Metric Ribbons: Gross Sales, Net Revenue, Orders Volume, Average Order Value (AOV), Return/Refund Rate, and Repeat Customer Rate with period-over-period percentage growth indicators
+* Timeframe Selector: Preset tabs ("Today", "Last 7 Days", "Last 30 Days", "This Quarter", "Year to Date") + custom date range picker
+* Interactive Visualizations:
+  * Sales & Orders Trend spline curve with hover data points and comparison period overlay
+  * Category Contribution breakdown (Donut / Bar chart showing sales by department: Toys, Gadgets, Gift Combos, Decor)
+  * Payment Methods & Fulfillment Breakdown (MFS bKash/Nagad vs Cash on Delivery)
+  * Top Performing Products Leaderboard with volume, revenue, and inventory conversion
+* Export Engine: Download PDF/CSV report of analytical summary
+
+**Logic:**
+* Server Actions in `actions/admin.ts` aggregating metrics across `orders`, `order_items`, and `products`
+* Time-bucketed aggregation for daily, weekly, and monthly intervals
+* High-performance queries with caching
+
+---
+
 ## Feature Summary Count
 
 | Phase | Description | Features |
@@ -362,5 +415,5 @@ Build the banner manager and coupon code engine.
 | **Phase 2 — Catalog, Discovery & PDP** | PLP UI, Dynamic Multi-Filter Search, Rich PDP & Variant Logic | 3 |
 | **Phase 3 — Cart Drawer & Checkout** | Cart Drawer & Free Shipping Bar, Multi-Step Checkout & Orders | 2 |
 | **Phase 4 — Customer Portal & Features** | Customer Account & Tracking, Spec Comparison Page | 2 |
-| **Phase 5 — Admin Management Panel** | Admin Dashboard & KPIs, Product/Variant CMS, Orders/Fulfillment, Marketing CMS | 4 |
-| **Total** |  | **15** |
+| **Phase 5 — Admin Management Panel** | Admin Dashboard & KPIs, Product/Variant CMS, Orders/Fulfillment, Marketing CMS, Category CMS, Customer CRM, Sales Analytics | 7 |
+| **Total** |  | **18** |
