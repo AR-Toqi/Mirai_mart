@@ -111,31 +111,32 @@ Last updated: August 25, 2026
 #### 4. `CategoryNavBar.tsx`
 
 File: `components/layout/CategoryNavBar.tsx`  
-Last updated: August 25, 2026
+Last updated: September 18, 2026
 
 | Property | Class |
 | --- | --- |
-| Background | `bg-white` (sticky bar), `bg-surface` (dropdowns & drawer), `bg-neutral-bg/60` (mega-menu footer) |
-| Border | `border-b border-neutral-border` (`#E7E8EB`), `border border-neutral-border` (cards & drawers) |
-| Border radius | `rounded-2xl` (`16px`) for hover subcategory cards & mega-menu, `rounded-xl` for category links, `rounded-full` for Deals Zone pill |
-| Text — primary | `font-heading font-bold text-xs uppercase tracking-wider text-primary` (dropdown header), `font-bold text-xs text-neutral-dark` (links) |
+| Background | `bg-white` (sticky bar), `bg-surface` (dropdowns & drawer), `bg-neutral-bg/60` (mega-menu footer & subcategory accordion), `bg-neutral-bg/40` (drawer category cards) |
+| Border | `border-b border-neutral-border` (`#E7E8EB`), `border border-neutral-border` (cards & drawer) |
+| Border radius | `rounded-2xl` (`16px`) for hover subcategory cards & mega-menu, `rounded-xl` for category links & drawer cards, `rounded-full` for Deals Zone pill |
+| Text — primary | `font-heading font-bold text-xs uppercase tracking-wider text-primary` (dropdown header), `font-bold text-xs text-neutral-dark` (links & drawer trigger) |
 | Text — secondary | `font-sans text-[10px] sm:text-xs text-neutral-muted` (`#6E797F`) |
-| Spacing | `py-2` sticky bar padding, `p-4` subcategory flyout padding, `p-6` mega-menu padding |
-| Hover state | `hover:bg-primary-surface/40` (subcategories), `hover:bg-tertiary` (menu trigger), `hover:bg-secondary-light` (deals button) |
-| Shadow | `shadow-2xs` sticky bar, `shadow-xl` hover dropdown, `shadow-2xl` mega-menu panel |
+| Spacing | `py-2` sticky bar padding, `p-4` subcategory flyout padding, `p-6` mega-menu padding, `p-3` drawer accordion item |
+| Hover state | `hover:bg-primary-surface/40` (subcategories), `hover:bg-tertiary` (menu trigger), `hover:bg-secondary-light` (deals button), `hover:text-primary` (drawer links) |
+| Shadow | `shadow-2xs` sticky bar, `shadow-xl` hover dropdown, `shadow-2xl` mega-menu panel & mobile drawer |
 | Accent usage | `bg-primary text-white` for Categories trigger, `bg-secondary text-neutral-dark` for Deals Zone pill button |
 
 **Pattern notes:**
+- 100% database-driven categories received via props (`categories?: CategoryWithProductCount[]`).
 - Hover dropdown cards use a 160ms exit timeout to ensure smooth pointer navigation without accidental dismissal.
 - Mega-menu displays a 4-column structured grid of all main departments with a Deals Zone callout strip.
-- Mobile drawer incorporates collapsible accordions with animated chevron indicators.
+- Mobile drawer incorporates collapsible accordions with animated chevron indicators for nested subcategories.
 
 ---
 
 #### 5. `CategoryCircles.tsx`
 
 File: `components/storefront/CategoryCircles.tsx`  
-Last updated: August 25, 2026
+Last updated: September 18, 2026
 
 | Property | Class |
 | --- | --- |
@@ -144,14 +145,16 @@ Last updated: August 25, 2026
 | Border radius | `rounded-full` (`w-18 h-18 sm:w-22 sm:h-22`) |
 | Text — primary | `font-sans font-semibold text-[13px] text-neutral-dark` (`#191C1E`) |
 | Text — secondary | `group-hover:text-primary` (`#0A98C3`) |
-| Spacing | `py-2` section padding, `p-3.5` inner circle padding, `gap-4 sm:gap-8` grid gap |
+| Spacing | `py-2` section padding, `p-3.5` inner circle padding, `gap-4 sm:gap-8` flex wrap gap, `w-24 sm:w-28` circle column width |
 | Hover state | `group-hover:scale-108 group-hover:shadow-md group-hover:border-primary/40` |
 | Shadow | `shadow-xs` initial, `group-hover:shadow-md` |
-| Accent usage | `group-hover:border-primary/40` |
+| Accent usage | `group-hover:border-primary/40` circle hover ring, `text-primary/70 group-hover:text-primary` for Folder icon fallback |
 
 **Pattern notes:**
-- Exclusively displays the 5 main store departments: *Baby & Kids, Gift Combos, Digital Gadgets, Home Decor, Deals Zone*.
-- Grid is centered (`max-w-4xl mx-auto`) with responsive `grid-cols-3 sm:grid-cols-5`.
+- Exclusively displays live active top-level categories from database (`categories?: CategoryWithProductCount[]`). Zero hardcoded mock fallbacks.
+- Renders `null` cleanly if no categories exist.
+- Displays up to 6 top categories (`displayCategories = categories.slice(0, 6)`) in a centered flex wrap (`flex flex-wrap justify-center gap-4 sm:gap-8 max-w-4xl mx-auto`).
+- Seamless Lucide `<Folder />` icon fallback in primary accent when category lacks an uploaded image.
 
 ---
 
@@ -274,7 +277,7 @@ type Props = {
 
 #### 10. `CategoryHeader`
 File: `components/storefront/CategoryHeader.tsx`  
-Last updated: August 24, 2026
+Last updated: September 18, 2026
 
 | Property | Class |
 | --- | --- |
@@ -291,6 +294,7 @@ Last updated: August 24, 2026
 **Pattern notes:**
 - Category header banner uses `rounded-2xl` with decorative ambient glow blurs in background.
 - Subcategory navigation uses horizontal scrolling `rounded-full` pill chips.
+- Supports dynamic `parentDept?: { name: string; href: string }` prop to render parent department breadcrumb link dynamically when viewing a subcategory.
 
 ---
 
@@ -1217,7 +1221,56 @@ Last updated: September 17, 2026
 - Full management console for storefront visual highlights.
 - 3-Slide background carousel controller: individual slide configuration, live aspect-ratio preview, 3-second auto-play preview, centered CTA button controls with active/disabled switchbars, drag-and-drop 5MB image uploader, and preset photography gallery.
 - Announcement Bar manager: live preview, active/disabled visibility switch, announcement message input, and promo highlight code badge input.
-- Automatically revalidates storefront routes (`revalidatePath("/")`, `revalidatePath("/admin/content")`).
+#### 49. `AdminCategoriesClient` (Hierarchical Category & Subcategory CMS Data Grid)
+File: `components/admin/AdminCategoriesClient.tsx`  
+Last updated: September 18, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (toolbar, inputs, child table background, empty icon box), `bg-neutral-dark/60` (delete backdrop) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-b border-neutral-border/60` (table rows), `border border-primary/20` (Live DB badge) |
+| Border radius | `rounded-2xl` (`16px`) table container & KPI cards, `rounded-xl` (`12px`) thumbnail frames & toolbar, `rounded-md` (`8px`) inputs & action buttons, `rounded-full` status badges & product counter pills |
+| Text — primary | `font-heading font-bold text-2xl sm:text-3xl text-neutral-dark`, `font-heading font-bold text-sm sm:text-base text-neutral-dark` (parent titles), `font-bold text-xl` (KPI totals) |
+| Text — secondary | `font-sans text-xs text-neutral-muted`, `font-mono text-xs text-neutral-dark/80` (slugs), `text-[10px]` uppercase metadata |
+| Spacing | `space-y-6` page layout, `p-6` body padding, `gap-4 sm:gap-6` KPI grid, `p-4 sm:p-5` toolbar padding, `px-4 py-3 sm:py-3.5` table rows |
+| Hover state | `hover:bg-neutral-bg` (tabs, table rows, icon buttons), `hover:text-primary` (edit & link), `hover:text-error hover:bg-error-surface` (delete icon), `hover:opacity-95` (primary CTA) |
+| Shadow | `shadow-xs` KPI cards, toolbar & table container, `shadow-2xs` action buttons |
+| Accent usage | `bg-primary text-white` (New Category button, Active Parent badge, view tabs), `bg-secondary-surface text-secondary-foreground` (Parent KPI), `bg-tertiary-surface text-tertiary` (Subcategories KPI), `bg-success-light text-success border-success/30` (Active toggle), `bg-error text-white` (Confirm delete), `bg-warning-surface text-warning-foreground` (Guard alerts) |
+
+**Pattern notes:**
+- Comprehensive 2-level hierarchical category taxonomy manager: Top-Level Parent Categories with expandable/collapsible child subcategories table.
+- 4 KPI summary cards (Total Categories, Parent Departments, Subcategories, Active on Storefront) with live state updates.
+- Real-time debounced keyword search across category names and slugs, plus tabbed view filter (All, Parents, Subcategories, Active, Draft).
+- 1-Click optimistic active/draft status toggle switch.
+- Deletion Guard: Hard-blocks deletion if child subcategories exist (demands reassigning/deleting children first) or if active products are assigned (demands reassigning products first).
+- Clean empty state with Baloo 2 prompt when 0 categories exist.
+- 100% database-driven with zero hardcoded fallbacks.
+
+---
+
+#### 50. `CategoryModal` (Category & Subcategory Creation/Editing Modal Dialog)
+File: `components/admin/CategoryModal.tsx`  
+Last updated: September 18, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (inputs, select dropdown, image preview placeholder), `bg-neutral-dark/60 backdrop-blur-xs` (backdrop overlay) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `focus:ring-2 focus:ring-primary/20 focus:border-primary`, `border-dashed border-neutral-border` (upload dropzone) |
+| Border radius | `rounded-2xl` (`16px`) modal container, `rounded-xl` (`12px`) image preview & header icon box, `rounded-md` (`8px`) inputs, select & CTAs, `rounded-full` active toggle |
+| Text — primary | `font-heading font-bold text-lg text-neutral-dark`, `font-sans text-xs font-bold text-neutral-dark` (labels) |
+| Text — secondary | `font-sans text-xs text-neutral-muted`, `font-mono text-sm text-neutral-dark` (slug input) |
+| Spacing | `p-6` modal body padding, `space-y-4` form rows stack, `px-3.5 py-2.5` input padding, `gap-3` footer actions |
+| Hover state | `hover:opacity-95` (Submit CTA), `hover:bg-neutral-border/40` (Cancel button), `hover:bg-neutral-bg` (close X button), `hover:border-primary/50` (dropzone hover) |
+| Shadow | `shadow-2xl` modal elevation, `shadow-xs` submit button |
+| Accent usage | `bg-primary text-white` (Submit CTA & active toggle), `bg-primary-surface text-primary` (header icon badge), `text-error` (validation errors) |
+
+**Pattern notes:**
+- Dual-mode creator and editor for top-level departments and nested subcategories.
+- Auto-slug generation from category name in real time with manual edit override.
+- Strict 2-level hierarchy enforcement: Dropdown lists only top-level categories as parent choices; categories with existing children are locked from becoming subcategories.
+- Integrated image uploader (5MB limit) uploading to InsForge Storage `products/` bucket alongside direct URL input.
+- Numeric display order sorting input and active/draft switch.
+- Validated server-side via Zod schema (`categories.schema.ts`).
 
 ---
 

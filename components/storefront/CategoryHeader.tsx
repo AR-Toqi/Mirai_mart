@@ -3,25 +3,21 @@
 import Link from "next/link";
 import { ChevronRightIcon } from "@/components/ui/Icons";
 import { cn } from "@/lib/utils";
-import { CATEGORIES_META, NAV_DEPARTMENTS, type CategoryMeta } from "@/lib/mock-data";
+import type { CategoryMeta } from "@/lib/mock-data";
 
 type Props = {
   category: CategoryMeta;
+  parentDept?: { name: string; href: string };
   activeSubCategorySlug?: string;
   onSelectSubCategory: (slug: string) => void;
 };
 
 export function CategoryHeader({
   category,
+  parentDept,
   activeSubCategorySlug,
   onSelectSubCategory,
 }: Props) {
-  // Find parent department if category itself is a subcategory
-  const parentDept = NAV_DEPARTMENTS.find(
-    (dept) =>
-      dept.slug !== category.slug &&
-      dept.subcategories.some((s) => s.slug === category.slug)
-  );
 
   const activeSubCategory = category.subcategories?.find(
     (s) => s.slug === activeSubCategorySlug

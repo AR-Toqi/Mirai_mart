@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PLPClient } from "@/components/storefront/PLPClient";
 import { getFilteredProducts } from "@/actions/products";
-import { CATEGORIES_META } from "@/lib/mock-data";
+import { getCategoryBySlugAction } from "@/actions/categories";
+import { createInsforgeServer } from "@/lib/insforge-server";
+import type { CategoryMeta } from "@/lib/mock-data";
 
 /**
  * ISR: Category catalog pages are cached at edge/server with 1-hour background revalidation,
@@ -11,17 +13,21 @@ import { CATEGORIES_META } from "@/lib/mock-data";
 export const revalidate = 3600;
 
 /**
- * Pre-generate static routes for all primary and secondary category pages at build time
+ * Pre-generate static routes for all primary and secondary category pages from the database
  */
 export async function generateStaticParams() {
-  const slugs = Object.keys(CATEGORIES_META);
-  // Also include subcategory slugs
-  const subSlugs = Object.values(CATEGORIES_META).flatMap((c) =>
-    (c.subcategories || []).map((s) => s.slug)
-  );
+  try {
+    const insforge = await createInsforgeServer();
+    const { data } = await insforge.database
+      .from("categories")
+      .select("slug")
+      .eq("is_active", true);
 
-  const allSlugs = Array.from(new Set([...slugs, ...subSlugs]));
-  return allSlugs.map((slug) => ({ slug }));
+    const slugs = (data || []).map((c: any) => c.slug);
+    return ["all", "deals", ...slugs].map((slug) => ({ slug }));
+  } catch {
+    return [{ slug: "all" }, { slug: "deals" }];
+  }
 }
 
 type Props = {
@@ -45,7 +51,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const query = resolvedSearchParams.q;
 
-  const category = CATEGORIES_META[slug] || CATEGORIES_META["all"];
+  const { category } = await getCategoryBySlugAction(slug);
 
   if (query) {
     return {
@@ -75,18 +81,31 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const initialSub = resolvedSearchParams.sub || "";
   const initialQuery = resolvedSearchParams.q || "";
 
-  // 1. Resolve Category Metadata
-  const category =
-    CATEGORIES_META[slug] ||
-    Object.values(CATEGORIES_META).find(
-      (c) =>
-        c.slug === slug || c.subcategories.some((sub) => sub.slug === slug)
-    ) ||
-    CATEGORIES_META["all"];
+  // 1. Resolve Category from Database
+  const { category: dbCategory } = await getCategoryBySlugAction(slug);
 
-  if (!category && slug !== "all") {
+  if (!dbCategory && slug !== "all") {
     notFound();
   }
+
+  // Construct typed CategoryMeta shape for PLPClient
+  const categoryMeta: CategoryMeta = {
+    id: dbCategory?.id || slug,
+    name: dbCategory?.name || "All Products",
+    slug: dbCategory?.slug || slug,
+    headline: dbCategory?.name || "All Products",
+    description:
+      dbCategory?.description ||
+      "Discover handcrafted Montessori toys, STEM electronic gadgets, ambient home decor, and ready-to-gift celebration hampers at Mirai Mart.",
+    bannerImage: dbCategory?.image_url || undefined,
+    showAgeFilter: true,
+    subcategories: (dbCategory?.subcategories || []).map((sub) => ({
+      id: sub.id || sub.slug,
+      name: sub.name,
+      slug: sub.slug,
+      description: sub.description || undefined,
+    })),
+  };
 
   // 2. Fetch products via Server Action
   const filterResult = await getFilteredProducts({
@@ -112,7 +131,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <PLPClient
-        category={category}
+        category={categoryMeta}
         initialProducts={filterResult.products}
         initialSubCategorySlug={initialSub}
         initialQuery={initialQuery}

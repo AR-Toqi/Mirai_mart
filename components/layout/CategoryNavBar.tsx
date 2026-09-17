@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -10,10 +10,14 @@ import {
   ArrowRightIcon,
   ChevronRightIcon,
 } from "@/components/ui/Icons";
-import { NAV_DEPARTMENTS, type NavDepartment } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import type { CategoryWithProductCount } from "@/actions/categories";
 
-export function CategoryNavBar() {
+type Props = {
+  categories?: CategoryWithProductCount[];
+};
+
+export function CategoryNavBar({ categories = [] }: Props) {
   const pathname = usePathname();
   const [activeHoverSlug, setActiveHoverSlug] = useState<string | null>(null);
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
@@ -63,9 +67,21 @@ export function CategoryNavBar() {
     setMobileExpandedSlug((prev) => (prev === slug ? null : slug));
   }
 
-  const activeDepartment = NAV_DEPARTMENTS.find(
-    (d) => d.slug === activeHoverSlug
-  );
+  // Map dynamic database categories to navbar departments
+  const departments = useMemo(() => {
+    return categories.map((cat) => ({
+      name: cat.name,
+      slug: cat.slug,
+      href: `/category/${cat.slug}`,
+      description: cat.description || `Explore curated ${cat.name} selection`,
+      subcategories: (cat.subcategories || []).map((sub) => ({
+        name: sub.name,
+        slug: sub.slug,
+        href: `/category/${sub.slug}`,
+        description: sub.description || `${sub.name} collection`,
+      })),
+    }));
+  }, [categories]);
 
   return (
     <nav
@@ -110,7 +126,9 @@ export function CategoryNavBar() {
                       All Departments & Categories
                     </h3>
                     <p className="font-sans text-xs text-neutral-muted">
-                      Select a department or explore specific curated subcategories
+                      {departments.length > 0
+                        ? "Select a department or explore specific curated subcategories"
+                        : "No categories currently available"}
                     </p>
                   </div>
                   <Link
@@ -123,47 +141,59 @@ export function CategoryNavBar() {
                   </Link>
                 </div>
 
-                {/* 4-Column Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {NAV_DEPARTMENTS.map((dept) => (
-                    <div key={dept.slug} className="space-y-2.5">
-                      {/* Department Title */}
-                      <Link
-                        href={dept.href}
-                        onClick={() => setIsMegaMenuOpen(false)}
-                        className="group flex items-center justify-between pb-1.5 border-b border-neutral-border/60 hover:text-primary transition-colors"
-                      >
-                        <span className="font-heading font-bold text-sm text-neutral-dark group-hover:text-primary transition-colors">
-                          {dept.name}
-                        </span>
-                        <ChevronRightIcon
-                          size={12}
-                          className="w-3 h-3 text-neutral-muted group-hover:text-primary transition-transform group-hover:translate-x-0.5"
-                        />
-                      </Link>
+                {/* Categories Grid */}
+                {departments.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {departments.map((dept) => (
+                      <div key={dept.slug} className="space-y-2.5">
+                        {/* Department Title */}
+                        <Link
+                          href={dept.href}
+                          onClick={() => setIsMegaMenuOpen(false)}
+                          className="group flex items-center justify-between pb-1.5 border-b border-neutral-border/60 hover:text-primary transition-colors"
+                        >
+                          <span className="font-heading font-bold text-sm text-neutral-dark group-hover:text-primary transition-colors">
+                            {dept.name}
+                          </span>
+                          <ChevronRightIcon
+                            size={12}
+                            className="w-3 h-3 text-neutral-muted group-hover:text-primary transition-transform group-hover:translate-x-0.5"
+                          />
+                        </Link>
 
-                      {/* Subcategory List */}
-                      <ul className="space-y-1.5">
-                        {dept.subcategories.map((sub) => (
-                          <li key={sub.slug}>
-                            <Link
-                              href={sub.href}
-                              onClick={() => setIsMegaMenuOpen(false)}
-                              className="block text-xs text-neutral-muted hover:text-primary hover:translate-x-0.5 transition-all py-0.5"
-                            >
-                              {sub.name}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
+                        {/* Subcategory List */}
+                        {dept.subcategories.length > 0 ? (
+                          <ul className="space-y-1.5">
+                            {dept.subcategories.map((sub) => (
+                              <li key={sub.slug}>
+                                <Link
+                                  href={sub.href}
+                                  onClick={() => setIsMegaMenuOpen(false)}
+                                  className="block text-xs text-neutral-muted hover:text-primary hover:translate-x-0.5 transition-all py-0.5"
+                                >
+                                  {sub.name}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-[11px] text-neutral-muted/70 italic">
+                            All {dept.name} items
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-8 text-center text-xs font-sans text-neutral-muted">
+                    No active departments found.
+                  </div>
+                )}
 
                 {/* Bottom Promo Strip in Mega-Menu */}
                 <div className="mt-6 pt-4 border-t border-neutral-border flex flex-wrap items-center justify-between gap-3 bg-neutral-bg/60 -mx-6 -mb-6 p-4 rounded-b-2xl">
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-secondary-dark animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
                     <span className="text-xs text-neutral-dark font-medium">
                       Special curated offers available in Deals Zone
                     </span>
@@ -183,9 +213,10 @@ export function CategoryNavBar() {
 
           {/* Desktop Category Nav Links with Hover Subcategory Dropdowns */}
           <div className="hidden lg:flex items-center gap-1 font-sans">
-            {NAV_DEPARTMENTS.map((dept) => {
+            {departments.map((dept) => {
               const isHovered = activeHoverSlug === dept.slug;
               const isActive = pathname.startsWith(dept.href);
+              const hasSubs = dept.subcategories.length > 0;
 
               return (
                 <div
@@ -206,17 +237,19 @@ export function CategoryNavBar() {
                     )}
                   >
                     <span>{dept.name}</span>
-                    <ChevronDownIcon
-                      size={11}
-                      className={cn(
-                        "w-3 h-3 text-neutral-muted transition-transform duration-200",
-                        isHovered ? "rotate-180 text-primary" : ""
-                      )}
-                    />
+                    {hasSubs && (
+                      <ChevronDownIcon
+                        size={11}
+                        className={cn(
+                          "w-3 h-3 text-neutral-muted transition-transform duration-200",
+                          isHovered ? "rotate-180 text-primary" : ""
+                        )}
+                      />
+                    )}
                   </Link>
 
                   {/* Subcategory Floating Dropdown Card */}
-                  {isHovered && (
+                  {hasSubs && isHovered && (
                     <div
                       onMouseEnter={() => handleMouseEnter(dept.slug)}
                       onMouseLeave={handleMouseLeave}
@@ -337,66 +370,75 @@ export function CategoryNavBar() {
 
               {/* Accordion Categories */}
               <div className="space-y-2">
-                {NAV_DEPARTMENTS.map((dept) => {
-                  const isExpanded = mobileExpandedSlug === dept.slug;
+                {departments.length > 0 ? (
+                  departments.map((dept) => {
+                    const isExpanded = mobileExpandedSlug === dept.slug;
+                    const hasSubs = dept.subcategories.length > 0;
 
-                  return (
-                    <div
-                      key={dept.slug}
-                      className="border border-neutral-border rounded-xl overflow-hidden bg-neutral-bg/40"
-                    >
-                      {/* Department Accordion Trigger */}
-                      <div className="flex items-center justify-between p-3 bg-white">
-                        <Link
-                          href={dept.href}
-                          onClick={() => setIsMobileDrawerOpen(false)}
-                          className="font-heading font-bold text-xs text-neutral-dark hover:text-primary transition-colors flex-1"
-                        >
-                          {dept.name}
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => toggleMobileCategory(dept.slug)}
-                          className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-neutral-bg text-neutral-muted cursor-pointer"
-                        >
-                          <ChevronDownIcon
-                            size={14}
-                            className={cn(
-                              "transition-transform duration-200",
-                              isExpanded ? "rotate-180 text-primary" : ""
-                            )}
-                          />
-                        </button>
-                      </div>
-
-                      {/* Subcategories Expanded */}
-                      {isExpanded && (
-                        <div className="px-3.5 py-2.5 space-y-2 border-t border-neutral-border/60 bg-neutral-bg/60">
-                          {dept.subcategories.map((sub) => (
-                            <Link
-                              key={sub.slug}
-                              href={sub.href}
-                              onClick={() => setIsMobileDrawerOpen(false)}
-                              className="block py-1 text-xs text-neutral-dark hover:text-primary transition-colors"
-                            >
-                              <p className="font-semibold">{sub.name}</p>
-                              <p className="text-[10px] text-neutral-muted line-clamp-1">
-                                {sub.description}
-                              </p>
-                            </Link>
-                          ))}
+                    return (
+                      <div
+                        key={dept.slug}
+                        className="border border-neutral-border rounded-xl overflow-hidden bg-neutral-bg/40"
+                      >
+                        {/* Department Accordion Trigger */}
+                        <div className="flex items-center justify-between p-3 bg-white">
                           <Link
                             href={dept.href}
                             onClick={() => setIsMobileDrawerOpen(false)}
-                            className="block pt-1.5 text-xs font-bold text-primary hover:underline"
+                            className="font-heading font-bold text-xs text-neutral-dark hover:text-primary transition-colors flex-1"
                           >
-                            Explore All {dept.name} →
+                            {dept.name}
                           </Link>
+                          {hasSubs && (
+                            <button
+                              type="button"
+                              onClick={() => toggleMobileCategory(dept.slug)}
+                              className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-neutral-bg text-neutral-muted cursor-pointer"
+                            >
+                              <ChevronDownIcon
+                                size={14}
+                                className={cn(
+                                  "transition-transform duration-200",
+                                  isExpanded ? "rotate-180 text-primary" : ""
+                                )}
+                              />
+                            </button>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
+
+                        {/* Subcategories Expanded */}
+                        {hasSubs && isExpanded && (
+                          <div className="px-3.5 py-2.5 space-y-2 border-t border-neutral-border/60 bg-neutral-bg/60">
+                            {dept.subcategories.map((sub) => (
+                              <Link
+                                key={sub.slug}
+                                href={sub.href}
+                                onClick={() => setIsMobileDrawerOpen(false)}
+                                className="block py-1 text-xs text-neutral-dark hover:text-primary transition-colors"
+                              >
+                                <p className="font-semibold">{sub.name}</p>
+                                <p className="text-[10px] text-neutral-muted line-clamp-1">
+                                  {sub.description}
+                                </p>
+                              </Link>
+                            ))}
+                            <Link
+                              href={dept.href}
+                              onClick={() => setIsMobileDrawerOpen(false)}
+                              className="block pt-1.5 text-xs font-bold text-primary hover:underline"
+                            >
+                              Explore All {dept.name} →
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-xs text-neutral-muted py-4 text-center">
+                    No departments available.
+                  </p>
+                )}
 
                 {/* Deals Zone Card in Mobile Drawer */}
                 <Link

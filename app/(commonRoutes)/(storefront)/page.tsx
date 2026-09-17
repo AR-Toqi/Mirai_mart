@@ -7,6 +7,7 @@ import { TopPicks } from "@/components/storefront/TopPicks";
 import { BrandStrip } from "@/components/storefront/BrandStrip";
 import { NewsletterBanner } from "@/components/storefront/NewsletterBanner";
 import { getAdminStorefrontContentAction } from "@/actions/admin";
+import { getStorefrontCategoriesAction } from "@/actions/categories";
 
 /**
  * ISR: Homepage is pre-rendered and revalidated every 30 minutes,
@@ -15,8 +16,12 @@ import { getAdminStorefrontContentAction } from "@/actions/admin";
 export const revalidate = 1800;
 
 export default async function HomePage() {
-  const contentRes = await getAdminStorefrontContentAction();
+  const [contentRes, catRes] = await Promise.all([
+    getAdminStorefrontContentAction(),
+    getStorefrontCategoriesAction(),
+  ]);
   const heroContent = contentRes?.content?.hero;
+  const categories = catRes?.categories || [];
 
   return (
     <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-10 sm:space-y-14 lg:space-y-16">
@@ -26,8 +31,8 @@ export default async function HomePage() {
       {/* 4-Card Trust Value Strip */}
       <TrustStrip />
 
-      {/* 8-Circle Category Grid */}
-      <CategoryCircles />
+      {/* Dynamic Category Circles (Live Database Driven) */}
+      <CategoryCircles categories={categories} />
 
       {/* Featured Products Rail (5 Products) */}
       <FeaturedProducts />

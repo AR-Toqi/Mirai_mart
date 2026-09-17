@@ -1351,19 +1351,9 @@ export interface AdminCategoryItem {
   slug: string;
 }
 
-const DEFAULT_ADMIN_CATEGORIES: AdminCategoryItem[] = [
-  { id: "cat-toys", name: "Toys, Educational", slug: "educational-toys" },
-  { id: "cat-combos", name: "Gift Combos", slug: "gift-combos" },
-  { id: "cat-gadgets", name: "Digital Gadgets", slug: "digital-gadgets" },
-  { id: "cat-decor", name: "Home Decor", slug: "home-decor" },
-  { id: "cat-vehicles", name: "Cars & Vehicles", slug: "cars-vehicles" },
-  { id: "cat-unique", name: "Unique Toys", slug: "unique-toys" },
-  { id: "cat-apparel", name: "Apparel, Shoes", slug: "apparel-shoes" },
-  { id: "cat-wearables", name: "Electronics, Wearables", slug: "wearables" },
-];
-
 /**
- * Fetches categories for admin dropdowns
+ * Fetches categories for admin dropdowns directly from the database.
+ * Zero hardcoded fallbacks.
  */
 export async function getAdminCategoriesAction(): Promise<{
   success: boolean;
@@ -1376,21 +1366,15 @@ export async function getAdminCategoriesAction(): Promise<{
       .select("id, name, slug")
       .order("name", { ascending: true });
 
-    if (error || !dbCategories || dbCategories.length === 0) {
-      return { success: true, categories: DEFAULT_ADMIN_CATEGORIES };
+    if (error) {
+      console.error("[getAdminCategoriesAction] DB error:", error);
+      return { success: false, categories: [] };
     }
 
-    // Merge DB categories with default ones, ensuring no duplicates by slug
-    const existing = new Set(dbCategories.map((c: any) => c.slug));
-    const merged = [
-      ...dbCategories,
-      ...DEFAULT_ADMIN_CATEGORIES.filter((c) => !existing.has(c.slug)),
-    ];
-
-    return { success: true, categories: merged };
+    return { success: true, categories: dbCategories || [] };
   } catch (error) {
     console.error("[getAdminCategoriesAction] Error:", error);
-    return { success: true, categories: DEFAULT_ADMIN_CATEGORIES };
+    return { success: false, categories: [] };
   }
 }
 

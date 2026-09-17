@@ -3,14 +3,19 @@ import { Header } from "@/components/layout/Header";
 import { CategoryNavBar } from "@/components/layout/CategoryNavBar";
 import { Footer } from "@/components/layout/Footer";
 import { getAdminStorefrontContentAction } from "@/actions/admin";
+import { getStorefrontCategoriesAction } from "@/actions/categories";
 
 export default async function StorefrontLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const contentRes = await getAdminStorefrontContentAction();
+  const [contentRes, catRes] = await Promise.all([
+    getAdminStorefrontContentAction(),
+    getStorefrontCategoriesAction(),
+  ]);
   const announcement = contentRes?.content?.announcement;
+  const categories = catRes?.categories || [];
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-bg">
@@ -21,7 +26,7 @@ export default async function StorefrontLayout({
       <Header />
 
       {/* 3. Category Navigation Bar */}
-      <CategoryNavBar />
+      <CategoryNavBar categories={categories} />
 
       {/* 4. Main Storefront Content */}
       <div className="flex-1">

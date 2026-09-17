@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 5 — Admin Management Panel (In Progress: Extended Operations)  
-**Last completed:** Phase 5 — Feature 15 (Admin Marketing & Storefront CMS)  
-**Next:** Phase 5 — Feature 16 (Admin Category Management CMS)  
+**Last completed:** Phase 5 — Feature 16 (Admin Category Management CMS)  
+**Next:** Phase 5 — Feature 17 (Admin Customer Directory & CRM)  
 
 ---
 
@@ -44,7 +44,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] 13 Admin Product & Inventory CMS
 - [x] 14 Admin Order Fulfillment & RMA Management
 - [x] 15 Admin Marketing & Storefront CMS
-- [ ] 16 Admin Category Management CMS
+- [x] 16 Admin Category Management CMS
 - [ ] 17 Admin Customer Directory & CRM
 - [ ] 18 Admin Advanced Sales Analytics & Reporting
 
@@ -191,10 +191,21 @@ Update this file after every completed feature. Any AI agent reading this should
       - `components/admin/PromotionModal.tsx`: Fixed date expiration cutoff to end-of-day (`23:59:59.999Z`) and starts_at to start-of-day (`00:00:00.000Z`) so coupons remain valid through the entire expiration day.
       - `components/admin/AdminPromosClient.tsx`: Added null-safe property access `(p.used_count ?? 0).toLocaleString()`.
       - `components/storefront/CartDrawer.tsx`, `CartPageClient.tsx`, `CheckoutClient.tsx`: Added informative amber warning banner when cart subtotal drops below minimum order spend threshold (`Add ৳ [amount] more to activate`), eliminating customer confusion.
-- Implemented Website Content Manager Refinements & Complete Phase 5:
-  1. Hero Banner 3-Slide Carousel CMS verified: 3-slide tab switcher, live aspect-ratio preview, 3-second auto-play with pause-on-hover, drag-and-drop custom banner image uploader (5MB limit), curated preset photo gallery, direct URL input, and centered CTA button toggle controls in `/admin/content`.
-  2. Top Announcement Bar CMS verified & refined: active/hidden toggle switch, custom promotional message input, and promo code highlight badge input with live preview in `WebsiteContentManager.tsx`.
-  3. Refined `AnnouncementBar.tsx` on the storefront to mirror the CMS preview with high-contrast dark promo badge styling (`bg-neutral-dark text-secondary px-2 py-0.5 rounded-md text-[11px] font-bold`) and added a 5-second auto-rotation timer with hover-pause functionality.
-  4. Registered Component #48 (`WebsiteContentManager`) and updated Component #1 (`AnnouncementBar`) in `context/ui-registry.md`.
-  5. Phase 5 (all 15 build-plan features across Phase 1 to Phase 5) is now 100% complete.
+- Implemented Admin Category Management CMS & Dynamic Storefront Sync (Phase 5 — Feature 16):
+  1. Strict 2-Level Taxonomy: Built `actions/categories.ts` supporting top-level parent departments (`parent_id = null`) and nested child subcategories (`parent_id = [parent_id]`).
+  2. Zero Fallbacks: Completely purged `DEFAULT_ADMIN_CATEGORIES` mock fallback from `actions/admin.ts`, `NAV_DEPARTMENTS` from `CategoryNavBar.tsx`, `CATEGORY_CIRCLES` from `CategoryCircles.tsx`, and `CATEGORIES_META` from `CategoryHeader.tsx` and `category/[slug]/page.tsx`. The InsForge PostgreSQL database is now the 100% single source of truth for categories across the entire store.
+  3. Dynamic Navigation Synchronization: `StorefrontLayout` fetches active categories via `getStorefrontCategoriesAction()` and passes them directly to `CategoryNavBar` and `CategoryCircles`. Added automatic multi-tier cache invalidation (`revalidatePath`) on every category creation, update, and status toggle.
+  4. CMS Data Grid & Tree View: Built `AdminCategoriesClient.tsx` featuring 4 KPI metric cards (Total Categories, Parent Departments, Subcategories, Active on Storefront), debounced keyword search, category filter tabs, expandable tree rows, product count badges, and active/draft status switches.
+  5. Category Creator & Editor Modal: Built `CategoryModal.tsx` with auto-slug generation, parent category dropdown with hierarchy validation, image upload/URL selector, and display order priority input. Validated server-side via Zod (`categories.schema.ts`).
+  6. Deletion Guard: Hard-blocks accidental category deletion if child subcategories exist (prompts admin to delete/reassign subcategories first) or if active products are assigned (prompts admin to reassign products first).
+  7. Verified via browser subagent: Created parent category "Creative Arts & Crafts", nested subcategory "Origami & Paper Craft", confirmed database persistence, verified live appearance in storefront sticky navigation bar, mega-menu, and category circles. Imprinted components #49 and #50 in `context/ui-registry.md`.
+  8. Review Quality Recovery (Failure Mode 1 Targeted Fixes):
+     - `components/admin/CategoryModal.tsx`: Fixed broken `/api/upload` endpoint by delegating directly to `uploadProductMediaAction` from `@/actions/admin`.
+     - `lib/validations/categories.schema.ts`: Relaxed `image_url` to accept relative public asset paths (`/uploads/...`, `/images/...`) and sanitized empty string `parent_id` values.
+     - `components/admin/AdminCategoriesClient.tsx`: Added `useEffect` prop synchronization for `initialCategories`, `initialParents`, and `initialMetrics`, and added optimistic deletion updates to ensure live table refreshes without manual hard reloads.
+     - `actions/categories.ts`: Enforced `cat.is_active` validation in `getCategoryBySlugAction` to prevent direct storefront access to draft/hidden categories, and added `revalidatePath("/category/[slug]", "page")` to `updateAdminCategoryAction`.
+     - `components/layout/CategoryNavBar.tsx`: Standardized unconfigured class `bg-secondary-dark` to tokenized `bg-secondary`.
+     - `app/(commonRoutes)/(storefront)/category/[slug]/page.tsx`: Fixed TypeScript interface alignment for `CategoryMeta` and `SubCategory`.
+     - Tested and verified end-to-end via browser subagent recording `recover_category_verification_1789672826293.webp`.
+
 

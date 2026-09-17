@@ -1,22 +1,36 @@
+import React, { Suspense } from "react";
 import type { Metadata } from "next";
-import { AdminSectionPlaceholder } from "@/components/admin/AdminSectionPlaceholder";
+import { getAdminCategoriesDetailedAction } from "@/actions/categories";
+import { AdminCategoriesClient } from "@/components/admin/AdminCategoriesClient";
 
 export const metadata: Metadata = {
-  title: "Categories — Mirai Mart Admin",
+  title: "Categories & Subcategories — Mirai Mart Admin",
+  description:
+    "Organize store departments, subcategories, display orders, and storefront navigation. Zero hardcoded fallbacks.",
 };
 
-export default function AdminCategoriesPage() {
+export default async function AdminCategoriesPage() {
+  const result = await getAdminCategoriesDetailedAction();
+
   return (
-    <AdminSectionPlaceholder
-      title="Category Hierarchy CMS"
-      description="Organize store departments, gift combo collections, and subcategories."
-      featurePhase="Admin Catalog Management"
-      upcomingFeatures={[
-        "Hierarchical category tree with parent-child relationships",
-        "Category banner and thumbnail image management",
-        "Curated collection tags (Montessori, Tech Gadgets, Gift Combos)",
-        "Display order and navigation menu positioning",
-      ]}
-    />
+    <Suspense
+      fallback={
+        <div className="space-y-6 pb-12 animate-pulse">
+          <div className="h-8 w-64 bg-neutral-border/50 rounded-lg" />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-24 bg-neutral-border/30 rounded-2xl" />
+            ))}
+          </div>
+          <div className="h-96 bg-neutral-border/30 rounded-2xl" />
+        </div>
+      }
+    >
+      <AdminCategoriesClient
+        initialCategories={result.categories}
+        initialParents={result.parentCategories}
+        initialMetrics={result.metrics}
+      />
+    </Suspense>
   );
 }
