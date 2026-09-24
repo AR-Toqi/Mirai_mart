@@ -1221,19 +1221,19 @@ Last updated: September 17, 2026
 - Full management console for storefront visual highlights.
 - 3-Slide background carousel controller: individual slide configuration, live aspect-ratio preview, 3-second auto-play preview, centered CTA button controls with active/disabled switchbars, drag-and-drop 5MB image uploader, and preset photography gallery.
 - Announcement Bar manager: live preview, active/disabled visibility switch, announcement message input, and promo highlight code badge input.
-#### 49. `AdminCategoriesClient` (Hierarchical Category & Subcategory CMS Data Grid)
+#### 49. `AdminCategoriesClient` (Hierarchical Category Management CMS)
 File: `components/admin/AdminCategoriesClient.tsx`  
-Last updated: September 18, 2026
+Last updated: September 25, 2026
 
 | Property | Class |
 | --- | --- |
-| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (toolbar, inputs, child table background, empty icon box), `bg-neutral-dark/60` (delete backdrop) |
-| Border | `border border-neutral-border` (`#E7E8EB`), `border-b border-neutral-border/60` (table rows), `border border-primary/20` (Live DB badge) |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (toolbar, inputs, child table background, empty icon box), `bg-neutral-dark/60` (delete backdrop), `bg-primary-surface/10` (dragged row ghost), `bg-primary-surface/20` (drop target highlight) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-b border-neutral-border/60` (table rows), `border border-primary/20` (Live DB badge), `border-t-2 border-primary` (drop indicator line) |
 | Border radius | `rounded-2xl` (`16px`) table container & KPI cards, `rounded-xl` (`12px`) thumbnail frames & toolbar, `rounded-md` (`8px`) inputs & action buttons, `rounded-full` status badges & product counter pills |
 | Text — primary | `font-heading font-bold text-2xl sm:text-3xl text-neutral-dark`, `font-heading font-bold text-sm sm:text-base text-neutral-dark` (parent titles), `font-bold text-xl` (KPI totals) |
 | Text — secondary | `font-sans text-xs text-neutral-muted`, `font-mono text-xs text-neutral-dark/80` (slugs), `text-[10px]` uppercase metadata |
 | Spacing | `space-y-6` page layout, `p-6` body padding, `gap-4 sm:gap-6` KPI grid, `p-4 sm:p-5` toolbar padding, `px-4 py-3 sm:py-3.5` table rows |
-| Hover state | `hover:bg-neutral-bg` (tabs, table rows, icon buttons), `hover:text-primary` (edit & link), `hover:text-error hover:bg-error-surface` (delete icon), `hover:opacity-95` (primary CTA) |
+| Hover state | `hover:bg-neutral-bg` (tabs, table rows, icon buttons), `hover:text-primary` (edit, link, drag handle), `hover:text-error hover:bg-error-surface` (delete icon), `hover:opacity-95` (primary CTA) |
 | Shadow | `shadow-xs` KPI cards, toolbar & table container, `shadow-2xs` action buttons |
 | Accent usage | `bg-primary text-white` (New Category button, Active Parent badge, view tabs), `bg-secondary-surface text-secondary-foreground` (Parent KPI), `bg-tertiary-surface text-tertiary` (Subcategories KPI), `bg-success-light text-success border-success/30` (Active toggle), `bg-error text-white` (Confirm delete), `bg-warning-surface text-warning-foreground` (Guard alerts) |
 
@@ -1241,6 +1241,9 @@ Last updated: September 18, 2026
 - Comprehensive 2-level hierarchical category taxonomy manager: Top-Level Parent Categories with expandable/collapsible child subcategories table.
 - 4 KPI summary cards (Total Categories, Parent Departments, Subcategories, Active on Storefront) with live state updates.
 - Real-time debounced keyword search across category names and slugs, plus tabbed view filter (All, Parents, Subcategories, Active, Draft).
+- Drag-and-drop category sorting with tactile `GripVertical` drag handles for both top-level departments and child subcategories within their parent.
+- Immediate auto-save on drop with optimistic UI updates and background persistence via `reorderAdminCategoriesAction`.
+- Reorder status banner displaying real-time saving indicator (`Loader2`) and safety lock when keyword search or filter tabs are active.
 - 1-Click optimistic active/draft status toggle switch.
 - Deletion Guard: Hard-blocks deletion if child subcategories exist (demands reassigning/deleting children first) or if active products are assigned (demands reassigning products first).
 - Clean empty state with Baloo 2 prompt when 0 categories exist.
@@ -1249,27 +1252,29 @@ Last updated: September 18, 2026
 ---
 
 #### 50. `CategoryModal` (Category & Subcategory Creation/Editing Modal Dialog)
+
 File: `components/admin/CategoryModal.tsx`  
-Last updated: September 18, 2026
+Last updated: September 25, 2026
 
 | Property | Class |
 | --- | --- |
-| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (inputs, select dropdown, image preview placeholder), `bg-neutral-dark/60 backdrop-blur-xs` (backdrop overlay) |
-| Border | `border border-neutral-border` (`#E7E8EB`), `focus:ring-2 focus:ring-primary/20 focus:border-primary`, `border-dashed border-neutral-border` (upload dropzone) |
-| Border radius | `rounded-2xl` (`16px`) modal container, `rounded-xl` (`12px`) image preview & header icon box, `rounded-md` (`8px`) inputs, select & CTAs, `rounded-full` active toggle |
-| Text — primary | `font-heading font-bold text-lg text-neutral-dark`, `font-sans text-xs font-bold text-neutral-dark` (labels) |
-| Text — secondary | `font-sans text-xs text-neutral-muted`, `font-mono text-sm text-neutral-dark` (slug input) |
-| Spacing | `p-6` modal body padding, `space-y-4` form rows stack, `px-3.5 py-2.5` input padding, `gap-3` footer actions |
-| Hover state | `hover:opacity-95` (Submit CTA), `hover:bg-neutral-border/40` (Cancel button), `hover:bg-neutral-bg` (close X button), `hover:border-primary/50` (dropzone hover) |
-| Shadow | `shadow-2xl` modal elevation, `shadow-xs` submit button |
-| Accent usage | `bg-primary text-white` (Submit CTA & active toggle), `bg-primary-surface text-primary` (header icon badge), `text-error` (validation errors) |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (inputs, select dropdown, image preview placeholder), `bg-neutral-bg/60` (header background), `bg-neutral-dark/60 backdrop-blur-xs` (backdrop overlay), `bg-success-surface` (active visibility button), `bg-error-surface` (error alert) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-b border-neutral-border`, `border-t border-neutral-border`, `focus:ring-2 focus:ring-primary/20 focus:border-primary`, `border-dashed border-neutral-border` (upload dropzone), `border-error/30` (error banner), `border-success/30` (active visibility) |
+| Border radius | `rounded-2xl` (`16px`, modal card container), `rounded-xl` (`12px`, header icon container, error banner, thumbnail box, visibility button), `rounded-md` (`8px`, inputs, textarea, select, file upload button, CTA buttons, status tag badge), `rounded-full` (modal close button, active dot indicator) |
+| Text — primary | `font-heading font-bold text-lg text-neutral-dark`, `font-sans text-xs font-bold text-neutral-dark` (labels), `font-sans text-xs font-bold text-white` (submit CTA) |
+| Text — secondary | `font-sans text-xs text-neutral-muted`, `font-sans text-[11px] text-neutral-muted` (helper tips & subtitle), `font-mono text-sm text-neutral-dark` (slug input) |
+| Spacing | `p-6` modal body padding, `px-6 py-4` header padding, `space-y-4` form rows stack, `px-3.5 py-2.5` input padding, `gap-3` footer actions, `gap-2.5` header & toggle items |
+| Hover state | `hover:opacity-95` (submit CTA), `hover:bg-neutral-border/50` (modal close button), `hover:bg-neutral-bg` (cancel CTA, file upload button), `hover:text-neutral-dark` (close button, cancel CTA) |
+| Shadow | `shadow-2xl` (modal elevation), `shadow-xs` (submit CTA button), `shadow-2xs` (active status button) |
+| Accent usage | `bg-primary text-white` (submit CTA button), `bg-primary-surface text-primary` (header icon badge), `text-primary` (upload & loader icons), `text-error` (required asterisks, error banner text), `bg-success` (active status indicator dot) |
 
 **Pattern notes:**
 - Dual-mode creator and editor for top-level departments and nested subcategories.
 - Auto-slug generation from category name in real time with manual edit override.
 - Strict 2-level hierarchy enforcement: Dropdown lists only top-level categories as parent choices; categories with existing children are locked from becoming subcategories.
 - Integrated image uploader (5MB limit) uploading to InsForge Storage `products/` bucket alongside direct URL input.
-- Numeric display order sorting input and active/draft switch.
+- Automated sequence assignment: Manual display order number input removed in favor of table drag-and-drop reordering; new categories automatically append to the end of their list.
+- Clean full-width category visibility status switch with helpful drag-to-reorder tip.
 - Validated server-side via Zod schema (`categories.schema.ts`).
 
 ---

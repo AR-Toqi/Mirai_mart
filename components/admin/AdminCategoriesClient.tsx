@@ -20,11 +20,13 @@ import {
   SlidersHorizontal,
   Loader2,
   Image as ImageIcon,
+  GripVertical,
 } from "lucide-react";
 import { CategoryModal } from "@/components/admin/CategoryModal";
 import {
   toggleAdminCategoryStatusAction,
   deleteAdminCategoryAction,
+  reorderAdminCategoriesAction,
   type CategoryWithProductCount,
   type CategoryKPIMetrics,
 } from "@/actions/categories";
@@ -88,6 +90,183 @@ export function AdminCategoriesClient({
   function showNotification(type: "success" | "error", message: string) {
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 4000);
+  }
+
+  // Drag-and-drop sorting state & guards
+  const isDragEnabled = !searchQuery.trim() && activeTab === "all";
+  const [draggedParentId, setDraggedParentId] = useState<string | null>(null);
+  const [dragOverParentId, setDragOverParentId] = useState<string | null>(null);
+
+  const [draggedSubId, setDraggedSubId] = useState<string | null>(null);
+  const [dragOverSubId, setDragOverSubId] = useState<string | null>(null);
+  const [draggedSubParentId, setDraggedSubParentId] = useState<string | null>(null);
+
+  // Drag handlers for Parent Departments
+  function handleParentDragStart(e: React.DragEvent, id: string) {
+    if (!isDragEnabled) return;
+    e.dataTransfer.setData("application/x-category-parent", id);
+    e.dataTransfer.effectAllowed = "move";
+    setDraggedParentId(id);
+  }
+
+  function handleParentDragOver(e: React.DragEvent, id: string) {
+    if (!isDragEnabled || !draggedParentId || draggedParentId === id) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverParentId !== id) {
+      setDragOverParentId(id);
+    }
+  }
+
+  function handleParentDrop(e: React.DragEvent, targetId: string) {
+    if (!isDragEnabled) return;
+    e.preventDefault();
+    const sourceId = e.dataTransfer.getData("application/x-category-parent") || draggedParentId;
+    setDraggedParentId(null);
+    setDragOverParentId(null);
+
+    if (!sourceId || sourceId === targetId) return;
+
+    const sourceIdx = parentCategories.findIndex((p) => p.id === sourceId);
+    const targetIdx = parentCategories.findIndex((p) => p.id === targetId);
+    if (sourceIdx === -1 || targetIdx === -1) return;
+
+    const previousParents = [...parentCategories];
+    const reordered = [...parentCategories];
+    const [movedItem] = reordered.splice(sourceIdx, 1);
+    reordered.splice(targetIdx, 0, movedItem);
+
+    const optimisticallyUpdated = reordered.map((cat, idx) => ({
+      ...cat,
+      display_order: idx,
+    }));
+
+    setParentCategories(optimisticallyUpdated);
+
+    const payload = optimisticallyUpdated.map((cat) => ({
+      id: cat.id,
+      display_order: cat.display_order ?? 0,
+    }));
+
+    startTransition(async () => {
+      const res = await reorderAdminCategoriesAction(payload);
+      if (!res.success) {
+        setParentCategories(previousParents);
+        showNotification("error", res.error || "Failed to update category order.");
+      } else {
+        showNotification("success", "Category order updated.");
+        router.refresh();
+      }
+    });
+  }
+
+  // Drag handlers for Subcategories within a parent
+  function handleSubDragStart(e: React.DragEvent, parentId: string, subId: string) {
+    if (!isDragEnabled) return;
+    e.stopPropagation();
+    e.dataTransfer.setData(
+      "application/x-category-sub",
+      JSON.stringify({ parentId, subId })
+    );
+    e.dataTransfer.effectAllowed = "move";
+    setDraggedSubId(subId);
+    setDraggedSubParentId(parentId);
+  }
+
+  function handleSubDragOver(e: React.DragEvent, parentId: string, subId: string) {
+    if (
+      !isDragEnabled ||
+      !draggedSubId ||
+      draggedSubId === subId ||
+      draggedSubParentId !== parentId
+    ) {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverSubId !== subId) {
+      setDragOverSubId(subId);
+    }
+  }
+
+  function handleSubDrop(e: React.DragEvent, parentId: string, targetSubId: string) {
+    if (!isDragEnabled) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    let sourceSubId = draggedSubId;
+    let sourceParentId = draggedSubParentId;
+
+    const rawData = e.dataTransfer.getData("application/x-category-sub");
+    if (rawData) {
+      try {
+        const parsed = JSON.parse(rawData);
+        sourceSubId = parsed.subId;
+        sourceParentId = parsed.parentId;
+      } catch {
+        // fallback to state
+      }
+    }
+
+    setDraggedSubId(null);
+    setDragOverSubId(null);
+    setDraggedSubParentId(null);
+
+    if (
+      !sourceSubId ||
+      sourceSubId === targetSubId ||
+      sourceParentId !== parentId
+    ) {
+      return;
+    }
+
+    const parent = parentCategories.find((p) => p.id === parentId);
+    if (!parent || !parent.subcategories) return;
+
+    const sourceIdx = parent.subcategories.findIndex((s) => s.id === sourceSubId);
+    const targetIdx = parent.subcategories.findIndex((s) => s.id === targetSubId);
+    if (sourceIdx === -1 || targetIdx === -1) return;
+
+    const previousParents = [...parentCategories];
+    const reorderedSubs = [...parent.subcategories];
+    const [movedSub] = reorderedSubs.splice(sourceIdx, 1);
+    reorderedSubs.splice(targetIdx, 0, movedSub);
+
+    const updatedSubs = reorderedSubs.map((s, idx) => ({
+      ...s,
+      display_order: idx,
+    }));
+
+    const optimisticallyUpdated = parentCategories.map((p) =>
+      p.id === parentId ? { ...p, subcategories: updatedSubs } : p
+    );
+
+    setParentCategories(optimisticallyUpdated);
+
+    const payload = updatedSubs.map((sub) => ({
+      id: sub.id,
+      display_order: sub.display_order ?? 0,
+    }));
+
+    startTransition(async () => {
+      const res = await reorderAdminCategoriesAction(payload);
+      if (!res.success) {
+        setParentCategories(previousParents);
+        showNotification("error", res.error || "Failed to update subcategory order.");
+      } else {
+        showNotification("success", "Subcategory order updated.");
+        router.refresh();
+      }
+    });
+  }
+
+  function handleDragEnd() {
+    setDraggedParentId(null);
+    setDragOverParentId(null);
+    setDraggedSubId(null);
+    setDragOverSubId(null);
+    setDraggedSubParentId(null);
   }
 
   // Refresh page data after mutation
@@ -369,6 +548,30 @@ export function AdminCategoriesClient({
 
       {/* Hierarchical Categories Table / Tree */}
       <div className="rounded-2xl bg-surface border border-neutral-border shadow-xs overflow-hidden">
+        {/* Drag & Reorder Instruction Banner */}
+        {filteredParents.length > 0 && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-6 py-2.5 bg-neutral-bg/60 border-b border-neutral-border text-xs font-sans">
+            <div className="flex items-center gap-2 text-neutral-muted">
+              <GripVertical className="w-4 h-4 text-primary shrink-0" />
+              {isDragEnabled ? (
+                <span>
+                  <strong className="text-neutral-dark font-medium">Drag to reorder:</strong> Grab the grip handle next to any department or subcategory to rearrange. Order is saved automatically.
+                </span>
+              ) : (
+                <span className="text-warning-foreground font-medium">
+                  Reordering is paused while search or filter tabs are active. Clear search & select &quot;All&quot; to drag categories.
+                </span>
+              )}
+            </div>
+            {isPending && (
+              <div className="flex items-center gap-1.5 text-primary text-xs font-bold shrink-0 animate-in fade-in">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Saving order...</span>
+              </div>
+            )}
+          </div>
+        )}
+
         {filteredParents.length === 0 ? (
           /* Empty State */
           <div className="py-16 px-6 text-center">
@@ -405,7 +608,7 @@ export function AdminCategoriesClient({
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-neutral-border bg-neutral-bg/60 text-[11px] font-sans font-bold text-neutral-muted uppercase tracking-wider">
-                  <th className="py-3 px-4 pl-6">Category / Department</th>
+                  <th className="py-3 px-4 pl-3 sm:pl-4">Category / Department</th>
                   <th className="py-3 px-4">URL Slug</th>
                   <th className="py-3 px-4 text-center">Products</th>
                   <th className="py-3 px-4 text-center">Order</th>
@@ -417,13 +620,45 @@ export function AdminCategoriesClient({
                 {filteredParents.map((parent) => {
                   const hasSubs = parent.subcategories && parent.subcategories.length > 0;
                   const isExpanded = expandedParentIds.has(parent.id);
+                  const isParentDragged = draggedParentId === parent.id;
+                  const isParentDragOver = dragOverParentId === parent.id && draggedParentId !== parent.id;
 
                   return (
-                    <tr key={parent.id} className="group hover:bg-neutral-bg/30 transition-colors">
+                    <tr
+                      key={parent.id}
+                      onDragOver={(e) => handleParentDragOver(e, parent.id)}
+                      onDrop={(e) => handleParentDrop(e, parent.id)}
+                      className={`group transition-all ${
+                        isParentDragged
+                          ? "opacity-30 bg-primary-surface/10 border-dashed border-2 border-primary/50"
+                          : isParentDragOver
+                          ? "border-t-2 border-primary bg-primary-surface/20"
+                          : "hover:bg-neutral-bg/30"
+                      }`}
+                    >
                       {/* Hierarchical Tree Row for Parent */}
                       <td colSpan={6} className="p-0">
                         {/* Parent Header Row */}
-                        <div className="flex items-center py-3.5 px-4 pl-6">
+                        <div className="flex items-center py-3.5 px-4 pl-3 sm:pl-4">
+                          {/* Drag Handle */}
+                          <div
+                            draggable={isDragEnabled}
+                            onDragStart={(e) => handleParentDragStart(e, parent.id)}
+                            onDragEnd={handleDragEnd}
+                            title={
+                              isDragEnabled
+                                ? "Drag to reorder department"
+                                : "Clear search and filter tabs to reorder"
+                            }
+                            className={`w-7 h-7 rounded-md flex items-center justify-center mr-1 text-neutral-muted transition-all select-none ${
+                              isDragEnabled
+                                ? "hover:text-primary hover:bg-primary-surface/40 cursor-grab active:cursor-grabbing"
+                                : "opacity-30 cursor-not-allowed"
+                            }`}
+                          >
+                            <GripVertical className="w-4 h-4" />
+                          </div>
+
                           {/* Expand/Collapse Button */}
                           <button
                             onClick={() => toggleExpandParent(parent.id)}
@@ -503,8 +738,10 @@ export function AdminCategoriesClient({
                           </div>
 
                           {/* Display Order */}
-                          <div className="w-20 px-4 text-center font-mono text-xs text-neutral-muted">
-                            #{parent.display_order ?? 0}
+                          <div className="w-20 px-4 text-center">
+                            <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-neutral-bg text-neutral-dark border border-neutral-border">
+                              #{parent.display_order ?? 0}
+                            </span>
                           </div>
 
                           {/* Active Toggle Switch */}
@@ -555,105 +792,139 @@ export function AdminCategoriesClient({
 
                         {/* Nested Subcategories (if expanded) */}
                         {hasSubs && isExpanded && (
-                          <div className="bg-neutral-bg/40 border-t border-neutral-border/60 divide-y divide-neutral-border/40 pl-12">
-                            {parent.subcategories?.map((sub) => (
-                              <div
-                                key={sub.id}
-                                className="flex items-center py-2.5 px-4 hover:bg-surface/80 transition-colors"
-                              >
-                                {/* Tree branch icon */}
-                                <div className="w-5 h-5 flex items-center justify-center text-neutral-muted mr-2">
-                                  <span className="text-sm font-mono text-neutral-border">└─</span>
-                                </div>
+                          <div className="bg-neutral-bg/40 border-t border-neutral-border/60 divide-y divide-neutral-border/40 pl-8 sm:pl-10">
+                            {parent.subcategories?.map((sub) => {
+                              const isSubDragged = draggedSubId === sub.id;
+                              const isSubDragOver = dragOverSubId === sub.id && draggedSubId !== sub.id;
 
-                                {/* Subcategory Icon/Thumbnail */}
-                                <div className="w-8 h-8 rounded-lg bg-surface border border-neutral-border overflow-hidden flex items-center justify-center shrink-0 mr-3 relative">
-                                  {sub.image_url ? (
-                                    <Image
-                                      src={sub.image_url}
-                                      alt={sub.name}
-                                      fill
-                                      sizes="32px"
-                                      className="object-cover"
-                                    />
-                                  ) : (
-                                    <Folder className="w-4 h-4 text-neutral-muted" />
-                                  )}
-                                </div>
-
-                                {/* Name */}
-                                <div className="min-w-0 flex-1 pr-4">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-sans font-semibold text-xs sm:text-sm text-neutral-dark">
-                                      {sub.name}
-                                    </span>
-                                    <span className="px-2 py-0.2 rounded-full text-[9px] font-sans font-medium bg-neutral-bg text-neutral-muted border border-neutral-border">
-                                      Subcategory
-                                    </span>
-                                  </div>
-                                </div>
-
-                                {/* Slug */}
-                                <div className="w-44 px-4 font-mono text-xs text-neutral-muted truncate flex items-center gap-1">
-                                  <span>/{sub.slug}</span>
-                                  <a
-                                    href={`/category/${sub.slug}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-neutral-muted hover:text-primary transition-colors inline-block ml-1"
-                                    title="View on Storefront"
-                                  >
-                                    <ExternalLink className="w-3 h-3" />
-                                  </a>
-                                </div>
-
-                                {/* Product Count */}
-                                <div className="w-24 px-4 text-center">
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-sans font-medium bg-surface text-neutral-dark border border-neutral-border">
-                                    <Package className="w-3 h-3 text-neutral-muted" />
-                                    <span>{sub.productCount}</span>
-                                  </span>
-                                </div>
-
-                                {/* Order */}
-                                <div className="w-20 px-4 text-center font-mono text-xs text-neutral-muted">
-                                  #{sub.display_order ?? 0}
-                                </div>
-
-                                {/* Status */}
-                                <div className="w-28 px-4 text-center">
-                                  <button
-                                    onClick={() => handleToggleStatus(sub)}
-                                    disabled={isPending}
-                                    className={`px-2 py-0.5 rounded-full text-[10px] font-sans font-bold transition-all border ${
-                                      sub.is_active
-                                        ? "bg-success-light text-success border-success/30 hover:bg-success/20"
-                                        : "bg-surface text-neutral-muted border-neutral-border hover:bg-neutral-border/50"
+                              return (
+                                <div
+                                  key={sub.id}
+                                  onDragOver={(e) => handleSubDragOver(e, parent.id, sub.id)}
+                                  onDrop={(e) => handleSubDrop(e, parent.id, sub.id)}
+                                  className={`flex items-center py-2.5 px-4 transition-all ${
+                                    isSubDragged
+                                      ? "opacity-30 bg-primary-surface/10 border-dashed border border-primary/40 rounded-lg"
+                                      : isSubDragOver
+                                      ? "border-t-2 border-primary bg-primary-surface/20"
+                                      : "hover:bg-surface/80"
+                                  }`}
+                                >
+                                  {/* Subcategory Drag Handle */}
+                                  <div
+                                    draggable={isDragEnabled}
+                                    onDragStart={(e) => handleSubDragStart(e, parent.id, sub.id)}
+                                    onDragEnd={handleDragEnd}
+                                    title={
+                                      isDragEnabled
+                                        ? "Drag to reorder subcategory"
+                                        : "Clear search and filter tabs to reorder"
+                                    }
+                                    className={`w-6 h-6 rounded-md flex items-center justify-center mr-1 text-neutral-muted transition-all select-none ${
+                                      isDragEnabled
+                                        ? "hover:text-primary hover:bg-primary-surface/40 cursor-grab active:cursor-grabbing"
+                                        : "opacity-30 cursor-not-allowed"
                                     }`}
                                   >
-                                    {sub.is_active ? "Active" : "Draft"}
-                                  </button>
-                                </div>
+                                    <GripVertical className="w-3.5 h-3.5" />
+                                  </div>
 
-                                {/* Actions */}
-                                <div className="w-36 px-4 pr-6 text-right flex items-center justify-end gap-1.5">
-                                  <button
-                                    onClick={() => handleOpenEdit(sub)}
-                                    className="p-1 rounded-md text-neutral-muted hover:text-neutral-dark hover:bg-neutral-bg transition-colors"
-                                    title="Edit Subcategory"
-                                  >
-                                    <Edit2 className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button
-                                    onClick={() => setCategoryToDelete(sub)}
-                                    className="p-1 rounded-md text-neutral-muted hover:text-error hover:bg-error-surface transition-colors"
-                                    title="Delete Subcategory"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
+                                  {/* Tree branch icon */}
+                                  <div className="w-4 h-4 flex items-center justify-center text-neutral-muted mr-2">
+                                    <span className="text-xs font-mono text-neutral-border">└─</span>
+                                  </div>
+
+                                  {/* Subcategory Icon/Thumbnail */}
+                                  <div className="w-8 h-8 rounded-lg bg-surface border border-neutral-border overflow-hidden flex items-center justify-center shrink-0 mr-3 relative">
+                                    {sub.image_url ? (
+                                      <Image
+                                        src={sub.image_url}
+                                        alt={sub.name}
+                                        fill
+                                        sizes="32px"
+                                        className="object-cover"
+                                      />
+                                    ) : (
+                                      <Folder className="w-4 h-4 text-neutral-muted" />
+                                    )}
+                                  </div>
+
+                                  {/* Name */}
+                                  <div className="min-w-0 flex-1 pr-4">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-sans font-semibold text-xs sm:text-sm text-neutral-dark">
+                                        {sub.name}
+                                      </span>
+                                      <span className="px-2 py-0.2 rounded-full text-[9px] font-sans font-medium bg-neutral-bg text-neutral-muted border border-neutral-border">
+                                        Subcategory
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Slug */}
+                                  <div className="w-44 px-4 font-mono text-xs text-neutral-muted truncate flex items-center gap-1">
+                                    <span>/{sub.slug}</span>
+                                    <a
+                                      href={`/category/${sub.slug}`}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-neutral-muted hover:text-primary transition-colors inline-block ml-1"
+                                      title="View on Storefront"
+                                    >
+                                      <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                  </div>
+
+                                  {/* Product Count */}
+                                  <div className="w-24 px-4 text-center">
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-sans font-medium bg-surface text-neutral-dark border border-neutral-border">
+                                      <Package className="w-3 h-3 text-neutral-muted" />
+                                      <span>{sub.productCount}</span>
+                                    </span>
+                                  </div>
+
+                                  {/* Order */}
+                                  <div className="w-20 px-4 text-center">
+                                    <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-[10px] font-mono text-neutral-muted bg-surface border border-neutral-border">
+                                      #{sub.display_order ?? 0}
+                                    </span>
+                                  </div>
+
+                                  {/* Status */}
+                                  <div className="w-28 px-4 text-center">
+                                    <button
+                                      onClick={() => handleToggleStatus(sub)}
+                                      disabled={isPending}
+                                      className={`px-2 py-0.5 rounded-full text-[10px] font-sans font-bold transition-all border ${
+                                        sub.is_active
+                                          ? "bg-success-light text-success border-success/30 hover:bg-success/20"
+                                          : "bg-surface text-neutral-muted border-neutral-border hover:bg-neutral-border/50"
+                                      }`}
+                                    >
+                                      {sub.is_active ? "Active" : "Draft"}
+                                    </button>
+                                  </div>
+
+                                  {/* Actions */}
+                                  <div className="w-36 px-4 pr-6 text-right flex items-center justify-end gap-1.5">
+                                    <button
+                                      onClick={() => handleOpenEdit(sub)}
+                                      className="p-1 rounded-md text-neutral-muted hover:text-neutral-dark hover:bg-neutral-bg transition-colors"
+                                      title="Edit Subcategory"
+                                    >
+                                      <Edit2 className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      onClick={() => setCategoryToDelete(sub)}
+                                      className="p-1 rounded-md text-neutral-muted hover:text-error hover:bg-error-surface transition-colors"
+                                      title="Delete Subcategory"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         )}
                       </td>

@@ -43,7 +43,6 @@ export function CategoryModal({
   const [parentId, setParentId] = useState<string>("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [displayOrder, setDisplayOrder] = useState(0);
   const [isActive, setIsActive] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -72,7 +71,6 @@ export function CategoryModal({
       setParentId(categoryToEdit.parent_id || "");
       setDescription(categoryToEdit.description || "");
       setImageUrl(categoryToEdit.image_url || "");
-      setDisplayOrder(categoryToEdit.display_order ?? 0);
       setIsActive(categoryToEdit.is_active ?? true);
     } else {
       setName("");
@@ -81,7 +79,6 @@ export function CategoryModal({
       setParentId(defaultParentId || "");
       setDescription("");
       setImageUrl("");
-      setDisplayOrder(0);
       setIsActive(true);
     }
   }, [isOpen, categoryToEdit, defaultParentId]);
@@ -150,7 +147,7 @@ export function CategoryModal({
           description: description.trim() || undefined,
           image_url: imageUrl.trim() || undefined,
           parent_id: parentId || null,
-          display_order: displayOrder,
+          display_order: categoryToEdit.display_order ?? 0,
           is_active: isActive,
         });
 
@@ -164,10 +161,8 @@ export function CategoryModal({
         const res = await createAdminCategoryAction({
           name: name.trim(),
           slug: cleanSlug,
-          description: description.trim() || undefined,
           image_url: imageUrl.trim() || undefined,
           parent_id: parentId || null,
-          display_order: displayOrder,
           is_active: isActive,
         });
 
@@ -370,47 +365,37 @@ export function CategoryModal({
             </div>
           </div>
 
-          {/* Display Order & Active Status Row */}
-          <div className="grid grid-cols-2 gap-4 pt-2 border-t border-neutral-border">
-            {/* Display Order */}
-            <div>
-              <label className="block font-sans text-xs font-bold text-neutral-dark mb-1">
-                Display Order
-              </label>
-              <input
-                type="number"
-                min={0}
-                value={displayOrder}
-                onChange={(e) => setDisplayOrder(parseInt(e.target.value, 10) || 0)}
-                className="w-full h-10 px-3.5 rounded-md bg-neutral-bg border border-neutral-border text-sm font-sans text-neutral-dark focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-              />
-              <span className="font-sans text-[11px] text-neutral-muted">
-                Lower numbers appear first
-              </span>
-            </div>
-
-            {/* Active Toggle */}
-            <div>
-              <label className="block font-sans text-xs font-bold text-neutral-dark mb-1">
-                Status
-              </label>
-              <button
-                type="button"
-                onClick={() => setIsActive(!isActive)}
-                className={`w-full h-10 px-3.5 rounded-md border flex items-center justify-between text-xs font-sans font-semibold transition-colors ${
-                  isActive
-                    ? "bg-success-surface border-success/30 text-success"
-                    : "bg-neutral-bg border-neutral-border text-neutral-muted"
-                }`}
-              >
-                <span>{isActive ? "Active (Visible)" : "Draft (Hidden)"}</span>
+          {/* Active Status Row */}
+          <div className="pt-2 border-t border-neutral-border">
+            <label className="block font-sans text-xs font-bold text-neutral-dark mb-1.5">
+              Category Visibility
+            </label>
+            <button
+              type="button"
+              onClick={() => setIsActive(!isActive)}
+              className={`w-full h-11 px-4 rounded-xl border flex items-center justify-between text-xs font-sans font-semibold transition-all ${
+                isActive
+                  ? "bg-success-surface border-success/30 text-success shadow-2xs"
+                  : "bg-neutral-bg border-neutral-border text-neutral-muted hover:border-neutral-border/80"
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
                 <div
-                  className={`w-4 h-4 rounded-full transition-colors ${
+                  className={`w-2.5 h-2.5 rounded-full transition-colors ${
                     isActive ? "bg-success" : "bg-neutral-muted"
                   }`}
                 />
-              </button>
-            </div>
+                <span className="font-sans font-medium text-neutral-dark">
+                  {isActive ? "Active (Visible on Storefront)" : "Draft (Hidden from Storefront)"}
+                </span>
+              </div>
+              <span className="text-[11px] font-sans font-bold px-2 py-0.5 rounded-md bg-surface border border-neutral-border text-neutral-dark">
+                {isActive ? "Active" : "Draft"}
+              </span>
+            </button>
+            <p className="font-sans text-[11px] text-neutral-muted mt-1.5">
+              Tip: Reorder categories dynamically by dragging rows in the category management table.
+            </p>
           </div>
 
           {/* Actions Footer */}

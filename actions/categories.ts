@@ -236,6 +236,28 @@ export async function createAdminCategoryAction(
       }
     }
 
+    // Auto-compute sequential display_order if not explicitly provided
+    let computedOrder = input.display_order;
+    if (rawInput.display_order === undefined || rawInput.display_order === null) {
+      if (input.parent_id) {
+        const { data: siblings } = await insforge.database
+          .from("categories")
+          .select("display_order")
+          .eq("parent_id", input.parent_id)
+          .order("display_order", { ascending: false })
+          .limit(1);
+        computedOrder = (siblings?.[0]?.display_order ?? -1) + 1;
+      } else {
+        const { data: siblings } = await insforge.database
+          .from("categories")
+          .select("display_order")
+          .is("parent_id", null)
+          .order("display_order", { ascending: false })
+          .limit(1);
+        computedOrder = (siblings?.[0]?.display_order ?? -1) + 1;
+      }
+    }
+
     const payload = {
       name: input.name,
       slug: input.slug,
@@ -243,7 +265,7 @@ export async function createAdminCategoryAction(
       image_url: input.image_url || null,
       icon_name: input.icon_name || null,
       parent_id: input.parent_id || null,
-      display_order: input.display_order ?? 0,
+      display_order: computedOrder,
       is_active: input.is_active ?? true,
     };
 
@@ -592,6 +614,54 @@ export async function getCategoryBySlugAction(
   } catch (err) {
     console.error("[getCategoryBySlugAction] Error:", err);
     return { success: false, category: null };
+  }
+}
+
+/**
+ * Persists the reordered categories display_order in batch.
+ * Takes an array of { id: string; display_order: number }.
+ */
+export async function reorderAdminCategoriesAction(
+  items: { id: string; display_order: number }[]
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!items || items.length === 0) {
+      return { success: true };
+    }
+
+    const insforge = await createInsforgeServer();
+
+    // Update each category's display_order in parallel
+    const updates = items.map((item) =>
+      insforge.database
+        .from("categories")
+        .update({
+          display_order: item.display_order,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", item.id)
+    );
+
+    const results = await Promise.all(updates);
+    const failure = results.find((r) => r.error);
+    if (failure && failure.error) {
+      console.error("[reorderAdminCategoriesAction] Error updating order:", failure.error);
+      return { success: false, error: failure.error.message };
+    }
+
+    // Revalidate paths across storefront and admin
+    revalidatePath("/admin/categories");
+    revalidatePath("/admin/products");
+    revalidatePath("/");
+    revalidatePath("/category/[slug]", "page");
+
+    return { success: true };
+  } catch (err: unknown) {
+    console.error("[reorderAdminCategoriesAction] Error:", err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to reorder categories",
+    };
   }
 }
 

@@ -52,5 +52,7 @@ export const updateCategorySchema = categorySchema.extend({
   id: z.uuid("Invalid category ID"),
 });
 
-export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
-export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
+export type CreateCategoryInput = z.input<typeof createCategorySchema>;
+export type UpdateCategoryInput = z.input<typeof updateCategorySchema>;
+export type CategoryRecordOutput = z.output<typeof categorySchema>;
+
