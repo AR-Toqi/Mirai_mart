@@ -117,6 +117,7 @@ export interface ReviewEligibility {
 }
 
 export * from "./auth";
+export * from "./customers";
 export * from "@/lib/db/types";
 
 

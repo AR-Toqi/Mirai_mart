@@ -1277,6 +1277,60 @@ Last updated: September 25, 2026
 - Clean full-width category visibility status switch with helpful drag-to-reorder tip.
 - Validated server-side via Zod schema (`categories.schema.ts`).
 
+#### 51. `AdminCustomersClient` (Customer Directory & CRM Management Portal)
+File: `components/admin/AdminCustomersClient.tsx`  
+Last updated: October 2, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg` (toolbar, inputs, child table background), `bg-primary-surface`, `bg-success-surface`, `bg-secondary-surface`, `bg-tertiary-surface` (KPI icon boxes) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-b border-neutral-border/60` (table rows) |
+| Border radius | `rounded-2xl` (`16px`) table container & KPI cards, `rounded-xl` (`12px`) inputs & filter tabs, `rounded-lg` (`8px`) pagination buttons, `rounded-full` status badges & order count pills |
+| Text — primary | `font-heading font-bold text-2xl sm:text-3xl text-neutral-dark`, `font-bold text-neutral-dark` (customer names), `font-sans font-bold text-sm` (LTV spend) |
+| Text — secondary | `font-sans text-xs text-neutral-muted`, `text-[11px]` email & phone metadata, `text-[10px]` uppercase tags |
+| Spacing | `space-y-6` page layout, `p-5` KPI padding, `p-4 sm:p-5` toolbar padding, `py-3.5 px-4 sm:px-6` table rows |
+| Hover state | `hover:bg-neutral-bg/50` (table rows), `hover:text-primary` (customer name), `hover:bg-neutral-border/40` (filter tabs), `hover:border-[#25D366]/40` (WhatsApp icon) |
+| Shadow | `shadow-xs` KPI cards & toolbar, `shadow-2xs` action buttons |
+| Accent usage | `bg-primary text-white` (active filter tabs & active page pill), `bg-primary-surface text-primary border-primary/20` (Registered badge), `bg-neutral-bg text-neutral-muted` (Guest badge), `bg-[#25D366]` (WhatsApp link) |
+
+**Pattern notes:**
+- Unified Customer Directory aggregating registered accounts (`profiles`) with guest order customers (`orders`).
+- 4 KPI summary cards (Total Customers, Active Buyers, Repeat Shoppers, Average Customer Spend).
+- Multi-field debounced real-time search across customer name, email address, and phone number.
+- 5 Status filter tabs (`All`, `Registered`, `Guest Buyers`, `Repeat Buyers`, `Active Buyers`) with live dynamic counts.
+- Bidirectional URL query parameter synchronization (`?tab=registered|guest|repeat|active`, `?sort=`, `?search=`) preserving state on refresh and supporting browser history navigation.
+- 1-Click CSV export generating download of filtered customer list for marketing campaigns or carrier verification.
+- Integrated customer avatar initials generator with photo support.
+- Fully tokenized with Bangladeshi Taka (`৳`) currency formatting and responsive pagination.
+- Standardized WhatsApp URL and phone dialer links using shared `cleanPhoneNumberForWhatsApp()`.
+
+---
+
+#### 52. `CustomerDetailModal` (Customer Profile & CRM Inspection Drawer)
+File: `components/admin/CustomerDetailModal.tsx`  
+Last updated: October 2, 2026
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` (`#FFFFFF`), `bg-neutral-bg/60` (header, footer, metric tiles), `bg-neutral-dark/60 backdrop-blur-xs` (backdrop overlay), `bg-neutral-bg/40` (address cards) |
+| Border | `border border-neutral-border` (`#E7E8EB`), `border-b border-neutral-border`, `border-t border-neutral-border`, `border border-neutral-border/80` (address cards) |
+| Border radius | `rounded-2xl` (`16px`, modal container, address & ledger cards), `rounded-xl` (`12px`, action buttons, metric tiles), `rounded-full` (avatar, modal close button, status badges) |
+| Text — primary | `font-heading font-bold text-xl sm:text-2xl text-neutral-dark`, `font-sans font-bold text-xs` (labels), `font-heading font-bold text-xl sm:text-2xl text-primary` (LTV metric) |
+| Text — secondary | `font-sans text-xs text-neutral-muted`, `font-mono font-bold text-primary` (order numbers) |
+| Spacing | `p-6` modal body padding, `px-6 py-5` header padding, `space-y-6` content stack, `p-4` metric card padding, `p-3.5` address card padding |
+| Hover state | `hover:bg-neutral-border/50` (modal close button), `hover:text-primary` (email/phone copy), `hover:bg-[#20bd5a]` (WhatsApp CTA), `hover:bg-primary/10` (Email CTA), `hover:bg-secondary-light` (Call CTA) |
+| Shadow | `shadow-2xl` (modal elevation), `shadow-xs` (action buttons & cards) |
+| Accent usage | `bg-[#25D366] text-white` (WhatsApp action), `bg-primary-surface text-primary` (Email CTA, Registered badge), `bg-secondary text-neutral-dark` (Call CTA), `text-success` (copy checkmark) |
+
+**Pattern notes:**
+- Full customer inspection modal with ESC key dismiss and backdrop click dismissal.
+- 1-Click CRM communication shortcuts: WhatsApp chat with pre-filled message, direct email client launcher, and phone dialer using `cleanPhoneNumberForWhatsApp()`.
+- 1-Click clipboard copy with temporary green checkmark confirmation for customer email and phone number.
+- Saved & past delivery addresses grid with delivery zone indicators (`Inside Dhaka` / `Outside Dhaka`).
+- Chronological Order History Ledger table displaying order numbers, dates, item counts, total spend, status badges, and payment methods.
+- Deep links from order number and "View in Orders Queue" directly to `/admin/orders?search=${query}`, filtered dynamically in `AdminOrdersClient`.
+- Single-pass data fetching via optimized `getAdminCustomerDetailAction` upon modal open.
+
 ---
 
 ## Component Usage Rules

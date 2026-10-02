@@ -62,3 +62,13 @@ export function getColorHex(colorName: string): string {
   if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(lower)) return lower;
   return "#0A98C3";
 }
+
+/**
+ * Standardizes phone numbers for WhatsApp API and dialers (e.g. "+880 1711-223344" or "01711223344" -> "8801711223344")
+ */
+export function cleanPhoneNumberForWhatsApp(phone?: string | null): string {
+  if (!phone || phone === "N/A") return "";
+  const cleaned = phone.replace(/[^0-9]/g, "");
+  if (!cleaned) return "";
+  return cleaned.startsWith("0") ? `88${cleaned}` : cleaned;
+}

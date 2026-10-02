@@ -108,17 +108,18 @@ export function AdminOrdersClient({ initialData }: AdminOrdersClientProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Read initial status from searchParams (?status=pending)
+  // Read initial status and search from searchParams (?status=pending, ?search=MM-1024)
   const statusParam = searchParams.get("status") as AdminOrderStatus | null;
   const initialStatus =
     statusParam && VALID_ORDER_STATUSES.includes(statusParam)
       ? statusParam
       : "all";
+  const initialSearch = searchParams.get("search") || "";
 
   const [orders, setOrders] = useState<AdminOrderListItem[]>(initialData.orders);
   const [metrics] = useState(initialData.metrics);
   const [activeStatus, setActiveStatus] = useState<"all" | AdminOrderStatus>(initialStatus);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -151,7 +152,7 @@ export function AdminOrdersClient({ initialData }: AdminOrdersClientProps) {
     };
   }, [orders]);
 
-  // Synchronize activeStatus and reset pagination when URL changes (e.g. browser back/forward or external navigation)
+  // Synchronize activeStatus and searchQuery and reset pagination when URL changes
   useEffect(() => {
     const currentStatusParam = searchParams.get("status") as AdminOrderStatus | null;
     if (currentStatusParam && VALID_ORDER_STATUSES.includes(currentStatusParam)) {
@@ -159,6 +160,12 @@ export function AdminOrdersClient({ initialData }: AdminOrdersClientProps) {
     } else {
       setActiveStatus("all");
     }
+
+    const currentSearchParam = searchParams.get("search");
+    if (currentSearchParam !== null) {
+      setSearchQuery(currentSearchParam);
+    }
+
     setCurrentPage(1);
   }, [searchParams]);
 

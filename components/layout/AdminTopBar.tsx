@@ -35,6 +35,57 @@ export function AdminTopBar({
   const adminName = profile?.fullName || "AR Toqi";
   const adminRole = role ? role.toUpperCase() : "ADMIN";
 
+  const getContextualHeader = () => {
+    if (title && title !== "Dashboard 👋") {
+      return { title, subtitle };
+    }
+    if (pathname.startsWith("/admin/customers")) {
+      return {
+        title: "Customer Directory & CRM 👥",
+        subtitle: "View customer profiles, lifetime purchase value, contact channels, and order ledgers.",
+      };
+    }
+    if (pathname.startsWith("/admin/categories")) {
+      return {
+        title: "Categories & Hierarchy 📂",
+        subtitle: "Organize store departments, subcategories, and storefront navigation.",
+      };
+    }
+    if (pathname.startsWith("/admin/products")) {
+      return {
+        title: "Product Catalog 📦",
+        subtitle: "Manage inventory, dynamic specifications, and product variants.",
+      };
+    }
+    if (pathname.startsWith("/admin/promos")) {
+      return {
+        title: "Promo Codes & Discounts 🏷️",
+        subtitle: "Manage promotional vouchers, discounts, and campaigns.",
+      };
+    }
+    if (pathname.startsWith("/admin/content")) {
+      return {
+        title: "Website Content 🎨",
+        subtitle: "Customize storefront hero banners, announcements, and highlights.",
+      };
+    }
+    if (pathname.startsWith("/admin/analytics")) {
+      return {
+        title: "Sales Analytics & Reports 📊",
+        subtitle: "Track sales performance, channel conversion, and trends.",
+      };
+    }
+    if (pathname.startsWith("/admin/settings")) {
+      return {
+        title: "Store Settings ⚙️",
+        subtitle: "Configure store identity, delivery parameters, and staff permissions.",
+      };
+    }
+    return { title, subtitle };
+  };
+
+  const headerInfo = getContextualHeader();
+
   const notifications = [
     {
       id: "n1",
@@ -77,11 +128,11 @@ export function AdminTopBar({
       ) : (
         <div>
           <h1 className="font-heading font-bold text-2xl text-neutral-dark tracking-tight flex items-center gap-2">
-            {title}
+            {headerInfo.title}
           </h1>
-          {subtitle && (
+          {headerInfo.subtitle && (
             <p className="text-xs text-neutral-muted font-normal mt-0.5">
-              {subtitle}
+              {headerInfo.subtitle}
             </p>
           )}
         </div>
